@@ -1,3 +1,4 @@
+import CommunityReviews from './CommunityReviews.jsx';
 import Select from './Select.jsx';
 import React, { useState, useEffect, useRef } from "react";
 import { createRoot } from "react-dom/client";
@@ -159,7 +160,8 @@ function App() {
                 className="icon-button"
                 aria-label="退出登录"
                 onClick={async () => {
-                  await api("/logout", { method: "POST" });
+                  if(config.auth==='chatgpt'){location.assign('/signout-with-chatgpt?return_to=/');return;}
+                    await api("/logout", { method: "POST" });
                   setUser(null);
                   navigate("discover");
                 }}
@@ -543,6 +545,7 @@ function App() {
           ) : modal.type === "detail" ? (
             <Detail
               place={modal.place}
+              config={config}
               user={user}
               image={image(modal.place)}
               notify={notify}
@@ -551,7 +554,7 @@ function App() {
           ) : modal.type === "receipt" ? (
             <ReceiptPanel api={api} initialToken={modal.token||""}/>
           ) : (
-            <Policy type={modal.type} />
+            <Policy type={modal.type} config={config} />
           )}
         </Modal>
       )}
@@ -610,6 +613,7 @@ function Login({ config, onLogin }) {
     [verification, setVerification] = useState("");
   const [error, setError] = useState(""),
     [busy, setBusy] = useState(false);
+  if(config.auth==='chatgpt')return <section className="notice"><h3>使用 ChatGPT 登录</h3><p>浏览和投稿不需要账户；评论、回复与评分会关联到你的登录身份。</p><p>首次登录会建立本站资料，公开显示旅人昵称，不公开邮箱。</p><a className="primary" href={'/signin-with-chatgpt?return_to='+encodeURIComponent(location.pathname+location.search)} target="_top">使用 ChatGPT 登录</a></section>;
   return (
     <form
       onSubmit={async (e) => {
@@ -688,7 +692,7 @@ function Login({ config, onLogin }) {
     </form>
   );
 }
-function Detail({ place: p, user, image, notify, login }) {
+function Detail({ place: p, user, image, notify, login, config }) {
   const [selectedImage, setSelectedImage] = useState(image);
   const [reviews, setReviews] = useState([]),
     [error, setError] = useState(""),
@@ -758,6 +762,7 @@ function Detail({ place: p, user, image, notify, login }) {
           <p className="muted">
             {p.scores.overall.count} 位有效评价 · 少于 5 位暂不上榜
           </p>
+          {config?.community?<CommunityReviews place={p} user={user} api={api} login={login} notify={notify}/>:<>
           <h3>到访者的真实体验</h3>
           {reviews.length ? (
             reviews.map((r) => (
@@ -840,6 +845,7 @@ function Detail({ place: p, user, image, notify, login }) {
               登录后评分与留言 <ArrowRight />
             </button>
           )}
+          </>}
           <button className="report-button" onClick={() => setReport(!report)}>
             <Flag />
             举报 / 信息纠错
@@ -890,6 +896,7 @@ function Verification({ config, onVerified, skip = false, purpose = "submission"
     [done, setDone] = useState(false),
     [error, setError] = useState(""),
     [busy, setBusy] = useState(false);
+  if(config.guestSubmission&&!skip)return <div className="notice">无需账户或手机号，提交后会获得查询回执；审核通过才公开。</div>;
   if (skip) return <div className="notice">已登录，使用当前账户提交。</div>;
   return (
     <section className="verification">
@@ -987,19 +994,19 @@ function Verification({ config, onVerified, skip = false, purpose = "submission"
     </section>
   );
 }
-function Policy({ type }) {
+function Policy({ type,config }) {
   return (
     <div className="policy">
       {type === "privacy" ? (
         <>
           <h3>尽量少收集，明确使用目的</h3>
           <p>
-            本地体验版保存投稿图片、公共地点坐标、到访资料、评价及审核记录。测试账号仅用于本地验证，不发送短信、不采集实时定位或轨迹。
+            {config.community?'本站保存公共地点资料、投稿图片、到访评价和审核记录。游客投稿不收集手机号；登录使用 ChatGPT 身份，本站保存身份标识与旅人昵称，邮箱不公开。':'本地体验版保存测试投稿和评价，不发送短信。'}
           </p>
           <h3>图片与访问控制</h3>
           <p>
             上传图片会重新编码并移除
-            EXIF。待审图片仅管理员可见，公开后可以被其他访问者查看。不要在照片或描述里留下私人联系方式和个人行踪。
+            EXIF。待审图片仅管理员与有权查看的登录投稿者可见，公开后可以被其他访问者查看。不要在照片或描述里留下私人联系方式和个人行踪。
           </p>
           <h3>本机草稿与回执</h3><p>投稿文字与照片保存在当前浏览器，可继续填写；成功投稿会清除该草稿。最近回执最多30条、30天，可在查询投稿中清除。本机清除不等于删除服务器投稿，共用设备使用后请清理草稿及回执。</p>
           <h3>删除与纠错</h3>
@@ -1008,8 +1015,7 @@ function Policy({ type }) {
           </p>
           <h3>示意图片</h3>
           <p>
-            灵感图片由 Unsplash
-            远程提供，加载时浏览器会向其图片服务发送网络请求；它们不代表厕所实拍，也不计入评分。正式环境应替换为已授权并核实的内容。
+            首页主视觉为 AI 生成概念图，不代表真实厕所；地点资料图标明摄影作者和许可。地图瓦片由 OpenStreetMap 提供，查看地图会向地图服务发出请求。
           </p>
         </>
       ) : (
@@ -1025,7 +1031,7 @@ function Policy({ type }) {
           <h3>评分与排序</h3>
           <p>
             每项 1–5 分。综合分按风景 40%、卫生 30%、到达 20%、设施 10%
-            加权。每个账户对每个地点只保留一份有效评价，更新后重新审核。
+            加权。每个账户对每个地点只计入最近一次已审核到访评分，历史记录保留；现场信息和回复不参与评分。
           </p>
           <p>
             至少 5 份有效评价才进入正式排名。排序分 =（评价数 × 平均分 + 5 ×

@@ -26,6 +26,8 @@ export function createApi({fetchImpl=globalThis.fetch,timeoutMs=25000,uploadTime
  };
 }
 const localApi=createApi();
-export const api=import.meta.env?.MODE==='public'
- ? async (url,options={})=>(await import('./public-api.js')).publicApi(url,options)
- : localApi;
+export const api=async (url,options={})=>{
+ if(import.meta.env?.MODE==='public'||(import.meta.env?.MODE==='hosted'&&url.startsWith('/regions')))
+  return (await import('./public-api.js')).publicApi(url,options);
+ return localApi(url,options);
+};

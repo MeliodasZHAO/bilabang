@@ -1,5 +1,7 @@
 # 公网预览与持续更新
 
+> 本文描述最初的静态预览版本。用户已批准升级 D1 / R2 社区版；当前构建与接入方式见 `hosted-community.md`，发布社区版使用 `npm run build:hosted`。
+
 站点：https://bilabang-scenic-toilets.wangjiaze203.chatgpt.site
 
 当前发布为只读公开预览。复用主站页面、筛选、详情与地图选点草稿，公开 7 条有来源的地点资料与许可图片。评论、注册、登录、投稿提交暂未开放；没有伪造评分。界面标注预览状态，草稿留在访问者本机。
