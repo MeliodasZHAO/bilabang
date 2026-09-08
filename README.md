@@ -1,8 +1,26 @@
 # 必拉榜 · The Scenic Stop
 
-发现与分享风景厕所的响应式 Web 应用。当前交付为**可运行、可持久化的本地 MVP**，不是已完成备案的公众服务。
+发现与分享风景厕所的响应式 Web 应用。项目包含本地演示服务与 Sites 托管服务两条运行路径；目前尚未完成面向国内公众正式运营的全部验收。
 
-## 运行
+## 托管版本与当前源码
+
+- 公网地址：https://bilabang-scenic-toilets.wangjiaze203.chatgpt.site/
+- 托管后端：`worker/index.js`，D1 保存用户档案、地点、评论和审核记录，R2 保存用户上传图片；登录使用 ChatGPT 平台身份。
+- 当前源码包含统一的蓝黄视觉、独立厕所详情页、评论每 15 秒同步，以及全球地区筛选和投稿审核流程。
+- 截至 2026-09-08，最新样式与独立详情页已通过本地检查，但发布平台文件上传超时，尚未更新到上述公网地址。GitHub 源码与公网部署状态需要分别核对。
+- 点赞、收藏及个人中心仍为规划功能，尚未新增对应数据库表。
+
+```powershell
+npm ci
+npm run build:hosted
+node --test tests/hosted-runtime.test.js tests/hosted-scale.test.js
+```
+
+托管构建产物位于 `dist/client` 和 `dist/server`。`scripts/preview-hosted.mjs` 使用 5187 端口和隔离临时数据库进行浏览器测试；运行前检查端口空闲，它不是生产服务。运行方式、测试边界和迁移计划见 [社区运行说明](docs/community-operations.md)。
+
+仓库保存源码、数据库结构、迁移文件及带来源说明的素材，不包含生产数据库、用户上传文件或部署密钥。推送 GitHub 不会自动部署，也不会同步生产数据。
+
+## 本地演示服务
 
 需要 Node.js 22.21 或更高版本。使用 Node 内置 SQLite（Node 22 会输出实验性功能提示）。
 
