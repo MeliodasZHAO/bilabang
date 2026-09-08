@@ -45,14 +45,31 @@ function currentRatings(reviews){
  for(const r of reviews){const p=JSON.parse(r.payload);if(p.kind!=='visit'||!dimensions.every(k=>Number.isInteger(p[k])))continue;const old=chosen.get(r.user_id);if(!old||p.date>old.date||(p.date===old.date&&r.created>old.created))chosen.set(r.user_id,{...p,created:r.created});}
  return [...chosen.values()];
 }
-async function placeView(row,env,all=false){
+async function relatedRows(env,ids,table,key,columns,extra=''){
+ const result=[];const unique=[...new Set(ids)];
+ for(let i=0;i<unique.length;i+=80){const chunk=unique.slice(i,i+80);result.push(...await rows(env,`SELECT ${columns} FROM ${table} WHERE ${key} IN (${chunk.map(()=>'?').join(',')}) ${extra}`,...chunk));}
+ return result;
+}
+function groupBy(list,key){const map=new Map();for(const item of list){if(!map.has(item[key]))map.set(item[key],[]);map.get(item[key]).push(item);}return map;}
+async function placeViews(list,env,all=false){
+ const ids=list.map(p=>p.id);
+ const reviews=groupBy(await relatedRows(env,ids,'reviews','place_id','place_id,user_id,payload,created',"AND status='approved' AND parent_id IS NULL"),'place_id');
+ const photos=groupBy(await relatedRows(env,ids,'photos','place_id','id,place_id,metadata','AND review_id IS NULL'),'place_id');
+ return Promise.all(list.map(p=>placeView(p,env,all,{reviews:reviews.get(p.id)||[],photos:photos.get(p.id)||[]})));
+}
+async function reviewViews(list,env){
+ const users=new Map((await relatedRows(env,list.map(r=>r.user_id),'users','id','id,name')).map(u=>[u.id,u]));
+ const photos=groupBy(await relatedRows(env,list.map(r=>r.id),'photos','review_id','id,review_id,metadata'),'review_id');
+ return Promise.all(list.map(r=>reviewView(r,env,{user:users.get(r.user_id),photos:photos.get(r.id)||[]})));
+}
+async function placeView(row,env,all=false,related){
  const payload=JSON.parse(row.payload);
- const reviewRows=await rows(env,"SELECT * FROM reviews WHERE place_id=? AND status='approved' AND parent_id IS NULL",row.id);
- const ratings=currentRatings(reviewRows),photos=await rows(env,'SELECT id,metadata FROM photos WHERE place_id=? AND review_id IS NULL',row.id);
+ const reviewRows=related?.reviews??await rows(env,"SELECT * FROM reviews WHERE place_id=? AND status='approved' AND parent_id IS NULL",row.id);
+ const ratings=currentRatings(reviewRows),photos=related?.photos??await rows(env,'SELECT id,metadata FROM photos WHERE place_id=? AND review_id IS NULL',row.id);
  return {id:row.id,...payload,...sourceImages[row.id],regionPath:payload.regionPath||regionPath(payload.regionId),photos:photos.map(p=>({id:p.id,...JSON.parse(p.metadata)})),scores:Object.fromEntries(['overall',...dimensions].map(k=>[k,score(ratings,k)])),...(all?{status:row.status,version:row.version,created:row.created}:{})};
 }
-async function reviewView(row,env){
- const user=await first(env,'SELECT name FROM users WHERE id=?',row.user_id),photos=await rows(env,'SELECT id,metadata FROM photos WHERE review_id=?',row.id);
+async function reviewView(row,env,related){
+ const user=related?related.user:await first(env,'SELECT name FROM users WHERE id=?',row.user_id),photos=related?.photos??await rows(env,'SELECT id,metadata FROM photos WHERE review_id=?',row.id);
  return {id:row.id,place_id:row.place_id,userId:row.user_id,parentId:row.parent_id,...JSON.parse(row.payload),name:user?.name||'已注销用户',created:row.created,status:row.status,version:row.version,photos:photos.map(p=>({id:p.id,...JSON.parse(p.metadata)}))};
 }
 async function body(req){try{return await req.json();}catch{fail(400,'无法读取提交内容');}}
@@ -86,7 +103,7 @@ export async function handle(req,env){
  const member=()=>{if(!user)fail(401,'请先使用 ChatGPT 登录后留言');};
  const admin=()=>{if(user?.role!=='admin')fail(403,'需要管理员权限');};
  if(path==='/api/me')return json(user);
- if(path==='/api/places'&&method==='GET')return json(await Promise.all((await rows(env,"SELECT * FROM places WHERE status='approved' ORDER BY created,id")).map(p=>placeView(p,env))));
+ if(path==='/api/places'&&method==='GET')return json(await placeViews(await rows(env,"SELECT * FROM places WHERE status='approved' ORDER BY created,id"),env));
  if(path==='/api/submissions'&&method==='POST'){
   await rate(req,env,'submission',user,user?.role==='admin'?100:8);
   const form=await multipart(req),b=parse(form.get('payload'),{}),metadata=parse(form.get('photoMetadata'),[]),files=form.getAll('photos');
@@ -111,7 +128,7 @@ export async function handle(req,env){
   const placeId=decodeURIComponent(match[1]),p=await first(env,"SELECT id FROM places WHERE id=? AND status='approved'",placeId);if(!p)fail(404,'地点尚未公开');
   if(method==='GET'){
    const list=await rows(env,"SELECT * FROM reviews r WHERE place_id=? AND ((status='approved' AND (parent_id IS NULL OR EXISTS(SELECT 1 FROM reviews parent WHERE parent.id=r.parent_id AND parent.status='approved'))) OR user_id=?) ORDER BY created DESC LIMIT 500",placeId,user?.id||'');
-   return json(await Promise.all(list.map(r=>reviewView(r,env))));
+   return json(await reviewViews(list,env));
   }
   if(method==='POST'){
    member();await rate(req,env,'review',user,30);
@@ -145,7 +162,7 @@ export async function handle(req,env){
  }
  if(path.startsWith('/api/admin')){
   admin();
-  if(path==='/api/admin'&&method==='GET')return json({places:await Promise.all((await rows(env,'SELECT * FROM places ORDER BY created DESC LIMIT 500')).map(p=>placeView(p,env,true))),reviews:await Promise.all((await rows(env,'SELECT * FROM reviews ORDER BY created DESC LIMIT 500')).map(r=>reviewView(r,env))),reports:await rows(env,'SELECT * FROM reports ORDER BY created DESC LIMIT 500')});
+  if(path==='/api/admin'&&method==='GET')return json({places:await placeViews(await rows(env,'SELECT * FROM places ORDER BY created DESC LIMIT 500'),env,true),reviews:await reviewViews(await rows(env,'SELECT * FROM reviews ORDER BY created DESC LIMIT 500'),env),reports:await rows(env,'SELECT * FROM reports ORDER BY created DESC LIMIT 500')});
   if(path==='/api/admin/import-sources'&&method==='POST'){
    const statements=sourcePlaces.map(f=>{const p=normalizePlace(f);p.regionPath=regionPath(p.regionId);return statement(env,"INSERT OR IGNORE INTO places(id,payload,status,version,created) VALUES(?,?,'approved',1,?)",'source:'+f.importKey,JSON.stringify(p),now());});
    await env.DB.batch(statements);return json({ok:true});

@@ -1,4 +1,4 @@
-import React,{useState,useEffect,useRef} from 'react';
+import React,{useState,useEffect,useRef,useCallback} from 'react';
 import Select from './Select.jsx';
 import {preparePhoto} from './upload-images.js';
 import {photoKinds,today} from './place-schema.js';
@@ -7,8 +7,22 @@ const conditions={unknown:'状态不确定',open:'正常开放',closed:'暂时�
 export default function CommunityReviews({place,user,api,login,notify}){
  const [list,setList]=useState([]),[error,setError]=useState(''),[loading,setLoading]=useState(true),[busy,setBusy]=useState(false),[kind,setKind]=useState('visit'),[reply,setReply]=useState(null),[photos,setPhotos]=useState([]),[filter,setFilter]=useState('all');
  const requestId=useRef(crypto.randomUUID()),formRef=useRef(null),photosRef=useRef([]);
- async function load(){setLoading(true);try{setList(await api(`/places/${place.id}/reviews`));setError('');}catch(e){setError(e.message);}finally{setLoading(false);}}
- useEffect(()=>{load();},[place.id,user?.id]);
+ const [updated,setUpdated]=useState(null),[syncError,setSyncError]=useState('');
+ const activeRequest=useRef(null);
+ const load=useCallback(async(background=false)=>{
+  if(activeRequest.current)return;
+  const controller=new AbortController();activeRequest.current=controller;
+  if(!background)setLoading(true);
+  try{const next=await api(`/places/${place.id}/reviews`,{signal:controller.signal});if(!controller.signal.aborted){setList(next);setUpdated(new Date());setSyncError('');setError('');}}
+  catch(e){if(!controller.signal.aborted){if(background)setSyncError('动态同步暂时中断，会自动重试');else setError(e.message);}}
+  finally{if(activeRequest.current===controller)activeRequest.current=null;if(!controller.signal.aborted)setLoading(false);}
+ },[place.id,user?.id,api]);
+ useEffect(()=>{
+  setList([]);load();
+  const check=()=>{if(document.visibilityState==='visible')load(true);};
+  const timer=setInterval(check,15000);document.addEventListener('visibilitychange',check);
+  return()=>{clearInterval(timer);document.removeEventListener('visibilitychange',check);activeRequest.current?.abort();activeRequest.current=null;};
+ },[load]);
  useEffect(()=>{photosRef.current=photos;},[photos]);
  useEffect(()=>()=>photosRef.current.forEach(p=>URL.revokeObjectURL(p.url)),[]);
  const root=list.filter(r=>!r.parentId),visible=root.filter(r=>filter==='all'||(filter==='photos'?r.photos?.length:r.kind===filter));
@@ -36,8 +50,8 @@ export default function CommunityReviews({place,user,api,login,notify}){
   {!nested&&r.status==='approved'&&<button className="outline" onClick={()=>{if(!user){login();return;}setReply(r);setTimeout(()=>formRef.current?.scrollIntoView({behavior:'smooth',block:'center'}),0);}}>回复</button>}
   {!nested&&list.filter(child=>child.parentId===r.id).map(child=>renderRecord(child,true))}
  </article>;}
- return <section className="community-section"><div className="community-heading"><div><h3>到访者的真实体验</h3><p className="muted">实拍、现场变化和不同角度的评价，一起补全这个地点。</p></div><button className="outline" disabled={loading} onClick={load}>{loading?'加载中…':'刷新动态'}</button></div>
-  <div className="tabs" role="group" aria-label="筛选到访内容">{Object.entries({all:'全部',visit:'到访评价',update:'现场信息',photos:'有图片'}).map(([k,t])=><button key={k} aria-pressed={filter===k} className={filter===k?'selected':''} onClick={()=>setFilter(k)}>{t}</button>)}</div>
+ return <section className="community-section"><div className="community-heading"><div><h3>到访者的真实体验</h3><p className="muted">实拍、现场变化和不同角度的评价，一起补全这个地点。</p></div><button className="outline" disabled={loading} onClick={()=>load()}>{loading?'加载中…':'刷新动态'}</button></div>
+  <p className="community-sync" role="status">{syncError||`每 15 秒同步已审核动态${updated?' · 最近更新 '+updated.toLocaleTimeString('zh-CN'): ''}`}<span>新评论先审核，不是发出即公开</span></p><div className="tabs" role="group" aria-label="筛选到访内容">{Object.entries({all:'全部',visit:'到访评价',update:'现场信息',photos:'有图片'}).map(([k,t])=><button key={k} aria-pressed={filter===k} className={filter===k?'selected':''} onClick={()=>setFilter(k)}>{t}</button>)}</div>
   {error&&<p className="error" role="alert">{error}</p>}
   {loading?<p role="status">正在加载到访记录…</p>:visible.length?visible.map(r=>renderRecord(r)):<p className="muted">{filter==='all'?'还没有到访记录，留下第一份真实体验吧。':'当前分类还没有记录，可切换查看全部。'}</p>}
   {user?<form ref={formRef} className="review-form community-form" onSubmit={submit}><fieldset disabled={busy} style={{border:0,padding:0,margin:0,minWidth:0}}>

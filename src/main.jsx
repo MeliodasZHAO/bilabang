@@ -28,6 +28,7 @@ import {
 import { demoPlaces } from "./demo";
 import "./style.css";
 import './controls.css';
+import './playful.css';
 import RegionPicker from './RegionPicker.jsx';
 import AdminDesk from './AdminDesk.jsx';
 import ReceiptPanel from './ReceiptPanel.jsx';
@@ -206,17 +207,17 @@ function App() {
           <div className="hero-shade" />
           <div className="hero-copy">
             <div className="eyebrow light">
-              <span /> A SMALL STOP. A BIG VIEW.
+              <span /> 人生大事，也要选个好风景
             </div>
             <h1>
-              换个地方，
+              世界那么大，
               <br />
-              看世界<span className="orange">。</span>
+              蹲哪儿<span className="orange">？</span>
             </h1>
             <p>
-              有些风景，值得专程去一趟。
+              有人追日落，有人追厕所。
               <br />
-              发现世界各地，令人难忘的风景厕所。
+              我们负责把这两件事，认真地凑到一起。
             </p>
             <button
               className="hero-cta"
@@ -226,10 +227,10 @@ function App() {
                   .scrollIntoView({ behavior: "smooth" })
               }
             >
-              寻找下一处惊喜 <ArrowUpRight size={22} />
+              带我找个好坑位 <ArrowUpRight size={22} />
             </button>
           </div>
-          <div className="hero-caption">
+          <div className="toilet-stamp" aria-hidden="true"><strong>WC</strong><span>值得专程<br/>上个厕所</span></div><div className="hero-caption">
             <span className="caption-line" />
             <div>
               <span>设计想象 / 山湖之间</span>
@@ -237,7 +238,7 @@ function App() {
             </div>
             <span className="photo-index">CONCEPT / 001</span>
           </div>
-          <div className="vertical-label">GOOD VIEWS. UNEXPECTED PLACES.</div>
+          <div className="vertical-label">蹲得讲究 · 评得认真</div>
         </section>
       )}
       {(view === "discover" || view === "ranking") && (
@@ -246,11 +247,11 @@ function App() {
             <div>
               <h2>
                 {view === "ranking"
-                  ? "风景各有千秋，好评有据可循。"
-                  : "下一站，想在哪里停留？"}
+                  ? "厕所也能争 C 位。"
+                  : "下一站，在哪儿蹲？"}
               </h2>
             </div>
-            <span className="small-note">
+            <button className="random-stop" disabled={!filtered.length} onClick={()=>openPlace(filtered[Math.floor(Math.random()*filtered.length)])}>随缘蹲一站 ↗</button><span className="small-note">
               {isDemo
                 ? "从第一份真实分享开始"
                 : `${filtered.length} / ${places.length} 处地点 · 资料与实地分享`}
@@ -496,7 +497,7 @@ function App() {
             <Mountains size={27} />
             必拉榜
           </a>
-          <p>世界很大，值得停一下。</p>
+          <p>世界很大，厕所也得挑一下。</p>
           <span>发现 · 分享 · 认真评价</span>
         </div>
         <div className="footer-bottom">
