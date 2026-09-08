@@ -31,6 +31,8 @@ import "./theme.css";
 import "./style.css";
 import './controls.css';
 import './playful.css';
+import './pages.css';
+import PlaceGallery from './PlaceGallery.jsx';
 import RegionPicker from './RegionPicker.jsx';
 import AdminDesk from './AdminDesk.jsx';
 import ReceiptPanel from './ReceiptPanel.jsx';
@@ -45,13 +47,14 @@ const labels = {
   facilities: "设施齐全",
 };
 const dateNow = new Date().toISOString().slice(0, 10);
+const readView = () => location.pathname === '/share' ? 'submit' : ['discover','ranking','about','admin','submit'].includes(new URLSearchParams(location.search).get('view')) ? new URLSearchParams(location.search).get('view') : 'discover';
 function App() {
   const [places, setPlaces] = useState([]),
     [loading, setLoading] = useState(true),
     [error, setError] = useState(""),
     [user, setUser] = useState(null),
     [config, setConfig] = useState({}),
-    [view, setView] = useState(["discover","ranking","about"].includes(new URLSearchParams(location.search).get("view"))?new URLSearchParams(location.search).get("view"):"discover"),
+    [view, setView] = useState(readView),
     [modal, setModal] = useState(null),
     [detail, setDetail] = useState(new URLSearchParams(location.search).has("place")?{loading:true}:null),
     [query, setQuery] = useState(new URLSearchParams(location.search).get("q")||""),
@@ -60,12 +63,12 @@ function App() {
     [toast, setToast] = useState(""),
     [menu, setMenu] = useState(false);
   const updateRegion=(value)=>{const params=new URLSearchParams(location.search);if(value)params.set('region',value);else params.delete('region');history.pushState(null,'',location.pathname+(params.size?'?'+params:''));setCountry(value);};
-  useEffect(()=>{const listener=()=>{const p=new URLSearchParams(location.search);setCountry(p.get('region')||'');setQuery(p.get('q')||'');setSort(Object.hasOwn(labels,p.get('sort'))?p.get('sort'):'overall');setView(['ranking','about'].includes(p.get('view'))?p.get('view'):'discover');};window.addEventListener('popstate',listener);return()=>window.removeEventListener('popstate',listener);},[]);
-  useEffect(()=>{const params=new URLSearchParams(location.search);if(query)params.set('q',query);else params.delete('q');if(sort!=='overall')params.set('sort',sort);else params.delete('sort');history.replaceState(null,'',location.pathname+(params.size?'?'+params:''));},[query,sort]);
+  useEffect(()=>{const listener=()=>{const p=new URLSearchParams(location.search);setCountry(p.get('region')||'');setQuery(p.get('q')||'');setSort(Object.hasOwn(labels,p.get('sort'))?p.get('sort'):'overall');setView(readView());};window.addEventListener('popstate',listener);return()=>window.removeEventListener('popstate',listener);},[]);
+  useEffect(()=>{const params=new URLSearchParams(location.search);if(query)params.set('q',query);else params.delete('q');if(sort!=='overall')params.set('sort',sort);else params.delete('sort');history.replaceState(history.state,'',location.pathname+(params.size?'?'+params:''));},[query,sort]);
   function openPlace(place){
     history.replaceState({...history.state,scrollY:window.scrollY},'',location.href);
     const params=new URLSearchParams(location.search);params.set('place',place.id);
-    history.pushState({fromList:true},'',location.pathname+'?'+params);
+    history.pushState({fromList:true},'','/?'+params);
     setDetail({place});setModal(null);setMenu(false);window.scrollTo(0,0);
   }
   function closeModal(){setModal(null);}
@@ -79,7 +82,7 @@ function App() {
     const pop=()=>{restore();setModal(null);requestAnimationFrame(()=>window.scrollTo(0,history.state?.scrollY||0));};
     restore();window.addEventListener('popstate',pop);return()=>window.removeEventListener('popstate',pop);
   },[places,loading,error]);
-  useEffect(()=>{document.title=detail?.place?detail.place.name+' · 必拉榜':'必拉榜 · 换个地方，看世界';},[detail]);
+  useEffect(()=>{document.title=detail?.place?detail.place.name+' · 必拉榜':view==='submit'?'分享一处风景 · 必拉榜':'必拉榜 · 换个地方，看世界';},[detail,view]);
   const notify = (t) => setToast(t);
   const refresh = () =>
     api("/places")
@@ -99,7 +102,7 @@ function App() {
     }
   }, [toast]);
   function navigate(v) {
-    const params=new URLSearchParams(location.search);if(v!=="discover"&&v!=="admin")params.set("view",v);else params.delete("view");params.delete("place");history.pushState(null,"",location.pathname+(params.size?"?"+params:""));
+    const params=new URLSearchParams(location.search);if(v!=="discover"&&v!=="submit")params.set("view",v);else params.delete("view");params.delete("place");history.pushState(null,"",(v==='submit'?'/share':'/')+(params.size?"?"+params:""));
     setView(v);
     setDetail(null);setModal(null);
     setMenu(false);
@@ -187,7 +190,7 @@ function App() {
           )}
           <button
             className="primary compact"
-            onClick={() => setModal({ type: "upload" })}
+            onClick={() => navigate("submit")}
           >
             <Plus size={17} />
             分享一处风景
@@ -309,7 +312,7 @@ function App() {
               <span>
                 灵感先行，真实分享由你开启。以下为旅行风景示意，未核实为厕所，不参与排名。
               </span>
-              <button onClick={() => setModal({ type: "upload" })}>
+              <button onClick={() => navigate("submit")}>
                 分享一处风景 <ArrowRight />
               </button>
             </div>
@@ -384,7 +387,7 @@ function App() {
                       </span>
                     )}
                   </div>
-                  <div className="card-meta">
+                  <div className="card-body"><div className="card-meta">
                     <span>
                       <MapPin size={14} />
                       {p.regionId?regionLabel(p.regionId):`${p.country} · ${p.city}`}
@@ -414,6 +417,7 @@ function App() {
                       去看看 <ArrowRight size={16} />
                     </span>
                   </div>
+                  </div>
                  </a>
                  {!p.preview&&<button type="button" className="card-share" aria-label={`复制${p.name}的链接`} onClick={async()=>{const url=new URL(location.href);url.search='';url.searchParams.set('place',p.id);try{await navigator.clipboard.writeText(url.href);notify('地点链接已复制');}catch{notify('复制不可用，请打开地点后复制地址栏链接');}}}><LinkSimple size={15}/>复制链接</button>}
                 </article>
@@ -436,7 +440,7 @@ function App() {
             </div>
             <button
               className="primary"
-              onClick={() => setModal({ type: "upload" })}
+              onClick={() => navigate("submit")}
             >
               <Camera size={21} />
               分享一处风景 <ArrowUpRight size={20} />
@@ -482,15 +486,21 @@ function App() {
           </div>
           <button
             className="primary"
-            onClick={() => setModal({ type: "upload" })}
+            onClick={() => navigate("submit")}
           >
             分享一处风景 <ArrowUpRight />
           </button>
         </main>
       )}
       {!detail && view === "admin" && (
-        <AdminDesk user={user} api={api} notify={notify} refresh={refresh} onAdd={()=>setModal({type:"upload"})} onOpen={openPlace}/>
+        <AdminDesk user={user} api={api} notify={notify} refresh={refresh} onAdd={()=>navigate("submit")} onOpen={openPlace}/>
       )}
+      {!detail && view === 'submit' && <main className="submission-page">
+        <button className="page-back" onClick={()=>navigate('discover')}>← 返回发现</button>
+        <div className="submission-heading"><p className="eyebrow">好风景，别一个人蹲</p><h1>分享一处风景</h1><p>把你发现的好地方，留给下一位路过的人。</p></div>
+        <div className="submission-layout"><section className="submission-main" aria-label="地点投稿"><SubmissionWizard key={user?.id||'guest'} places={places} config={config} user={user} notify={notify} api={api} Verification={Verification} onDone={refresh} onReceipt={token=>setModal({type:'receipt',token})}/></section>
+          <aside className="submission-guide"><Camera size={28}/><h2>把一处地点讲清楚</h2><p>一张看风景，一张认入口。再留几句找路说明，下一位就少绕一点路。</p><ul><li>最多 6 张照片，可选封面</li><li>地图上没有？文字路线也可以</li><li>无需注册，审核通过后公开</li></ul><p className="muted">拍建筑、拍风景，记得避开正在使用厕所的人。</p><button className="text-action" onClick={()=>setModal({type:'rules'})}>查看投稿规则 <ArrowUpRight size={16}/></button></aside></div>
+      </main>}
       {detail && <main className="place-page">
         <button className="outline place-back" onClick={returnToList}>← 返回地点列表</button>
         {detail.place?<>
@@ -701,7 +711,7 @@ function Login({ config, onLogin }) {
   );
 }
 function Detail({ place: p, user, image, notify, login, config }) {
-  const [selectedImage, setSelectedImage] = useState(image);
+
   const [reviews, setReviews] = useState([]),
     [error, setError] = useState(""),
     [busy, setBusy] = useState(false),
@@ -714,50 +724,21 @@ function Detail({ place: p, user, image, notify, login, config }) {
   }, [p.id,config?.community]);
   return (
     <>
-      <img id="place-photos" className={"detail-image"+(selectedImage==='/no-photo.svg'?' is-placeholder':'')} style={p.imageCredit?{objectFit:'contain',background:'var(--soft)'}:undefined} src={selectedImage} alt={p.name} />
-      {p.imageCredit&&<p className="image-credit">{p.imageCredit.caption} · 摄影：{p.imageCredit.author}<br/><a href={p.imageCredit.url} target="_blank" rel="noreferrer">原始来源</a> · <a href={p.imageCredit.licenseUrl} target="_blank" rel="noreferrer">{p.imageCredit.license}</a> · <a href={p.image} target="_blank" rel="noreferrer">查看完整图片</a><br/><small>{p.imageCredit.changes}</small></p>}
-      {p.photos?.length > 1 && (
-        <div className="gallery-thumbs">
-          {p.photos.map((photo, i) => (
-            <button
-              key={photo.id}
-              aria-label={`查看第 ${i + 1} 张照片`}
-              onClick={() => setSelectedImage(apiUrl(`/api/photos/${photo.id}`))}
-            >
-              <img src={apiUrl(`/api/photos/${photo.id}`)} alt={`照片 ${i + 1}`} />
-            </button>
-          ))}
-        </div>
-      )}
-      <div className="detail-location">
-        <MapPin />
-        {p.regionId?regionLabel(p.regionId):`${p.country} · ${p.city}`}
-      </div>
-      <p>{p.description}</p>
-      {!p.preview&&<button className="secondary" onClick={async()=>{const url=new URL(location.href);url.search='';url.searchParams.set('place',p.id);try{await navigator.clipboard.writeText(url.href);notify('地点链接已复制');}catch{notify('复制不可用，可复制浏览器地址栏链接');}}}>复制地点链接</button>}
-      {p.preview ? (
+      <PlaceGallery place={p}/>
+      <section className="place-introduction"><div className="section-title"><h2>这一站的看点</h2>{!p.preview&&<button className="text-action" onClick={async()=>{const url=new URL(location.origin);url.searchParams.set('place',p.id);try{await navigator.clipboard.writeText(url.href);notify('地点链接已复制');}catch{notify('复制不可用，可复制浏览器地址栏链接');}}}><LinkSimple size={16}/>复制链接</button>}</div><p>{p.description}</p></section>      {p.preview ? (
         <div className="notice">
           这是一张旅行风景示意图，未核实为真实厕所。位置、导航和评分不开放；欢迎提交你亲自到访的地点。
         </div>
       ) : (
         <>
-          <div className="detail-facts">
-            <span>
-              <MapPin />
-              {p.address}
-            </span>
-            <span>
-              <Clock />
-              {p.hours}
-            </span>
-            <span>{p.fee}</span>
-            <span>{p.date?`最近投稿到访：${p.date}`:`资料收录 · ${p.checkedAt||"核查日期待补充"}`}</span>
-            <span>
-              {p.lat==null?"暂无地图点位":`${p.locationMode==='reference'?'参考地标（非厕所入口）':'厕所位置'} · WGS84：${p.lat}, ${p.lng}`}
-            </span>
-          </div>
-          <section id="place-directions" className="wayfinding"><h3>怎么找到这里</h3><p>{[['wheelchair','无障碍'],['babycare','母婴'],['paper','卫生纸'],['water','水源']].map(([k,t])=>`${t}：${({yes:'有',no:'无'})[p[k]]||'待核实'}`).join(' · ')}</p>{p.landmark&&<p>参考地标：{p.landmark}</p>}<p style={{whiteSpace:'pre-line'}}>{p.directions||'入口路线待补充，请结合原文与现场指示确认。'}</p><button onClick={()=>navigator.clipboard.writeText([p.name,p.address,p.landmark,p.directions].filter(Boolean).join('\n')).then(()=>notify('找路说明已复制')).catch(()=>notify('复制不可用，请手动选择文字'))}>复制找路说明</button>{p.sourceUrl&&<p>来源：<a href={p.sourceUrl} target="_blank" rel="noreferrer">{p.publisher} · 查看原文 ↗</a><br/><small>{p.checkedAt} 核查；历史报道不代表当前卫生或开放状态。</small></p>}{p.photos?.map(ph=><p key={ph.id} className="muted">{ph.caption}{ph.author&&` · 摄影：${ph.author}`}{ph.sourceUrl&&<> · <a href={ph.sourceUrl} target="_blank" rel="noreferrer">图片来源</a> · {ph.license}</>}</p>)}</section>
-          <div id="place-scores" className="scores">
+          <section id="place-directions" className="wayfinding"><div className="section-title"><h2>先认路，再看风景</h2><MapPin size={24}/></div>
+            <dl className="visit-facts"><div><dt>具体位置</dt><dd>{p.address||'详细地址待补充'}</dd></div><div><dt>开放时间</dt><dd>{p.hours||'待核实'}</dd></div><div><dt>费用与门票</dt><dd>{p.fee||'待核实'}</dd></div><div><dt>{p.date?'最近投稿到访':'资料核查'}</dt><dd>{p.date||p.checkedAt||'日期待补充'}</dd></div></dl>
+            <div className="route-notes"><h3>入口怎么走</h3>{p.landmark&&<p className="landmark">参考地标：{p.landmark}</p>}<p>{p.directions||'入口路线待补充，请结合原文与现场指示确认。'}</p><button className="outline" onClick={()=>navigator.clipboard.writeText([p.name,p.address,p.landmark,p.directions].filter(Boolean).join('\n')).then(()=>notify('找路说明已复制')).catch(()=>notify('复制不可用，请手动选择文字'))}>复制找路说明</button></div>
+            <div className="facility-list">{[['wheelchair','无障碍'],['babycare','母婴空间'],['paper','卫生纸'],['water','洗手水源']].map(([k,t])=><span key={k}><span>{t}</span><strong>{({yes:'有',no:'无'})[p[k]]||'待核实'}</strong></span>)}</div>
+            <p className="coordinate-note">{p.lat==null?'暂无地图点位，以文字说明找路。':`${p.locationMode==='reference'?'参考地标坐标 · 非厕所入口':'厕所位置'} · WGS84 ${p.lat}, ${p.lng}`}</p>
+          </section>
+          {p.sourceUrl&&<div className="place-source"><span>资料来源</span><a href={p.sourceUrl} target="_blank" rel="noreferrer">{p.publisher||'查看原文'} <ArrowUpRight size={16}/></a><small>历史资料不代表当前卫生与开放状态，出发前请再次确认。</small></div>}
+          <div className="section-title score-heading"><h2>这站，你给几分？</h2><span className="muted">{p.scores?.overall?.count||0} 位有效评价</span></div>          <div id="place-scores" className="scores">
             {Object.entries(labels)
               .filter(([k]) => k !== "overall")
               .map(([k, v]) => (

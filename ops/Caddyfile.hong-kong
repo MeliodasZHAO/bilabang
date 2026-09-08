@@ -1,5 +1,5 @@
 # Temporary full-site hosting. EdgeOne can later replace only the app DNS record.
-api.bilabang.cloud {
+api.bilabang.com {
     request_body {
         max_size 50MB
     }
@@ -11,7 +11,7 @@ api.bilabang.cloud {
     reverse_proxy 127.0.0.1:5188
 }
 
-app.bilabang.cloud {
+bilabang.com {
     root * /var/www/bilabang/current
     encode zstd gzip
     header {
@@ -26,6 +26,10 @@ app.bilabang.cloud {
     file_server
 }
 
-bilabang.cloud, www.bilabang.cloud {
-    redir https://app.bilabang.cloud{uri} permanent
+bilabang.cn, www.bilabang.cn, www.bilabang.com, bilabang.cloud, www.bilabang.cloud, app.bilabang.cloud {
+    redir https://bilabang.com{uri} 308
+}
+
+api.bilabang.cloud {
+    redir https://api.bilabang.com{uri} 308
 }
