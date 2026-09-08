@@ -1,0 +1,29 @@
+# Template: do not enable until server/production.mjs and authentication are ready.
+[Unit]
+Description=Bilabang community API
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=bilabang
+Group=bilabang
+WorkingDirectory=/opt/bilabang/current
+EnvironmentFile=/etc/bilabang/production.env
+ExecStartPre=/usr/bin/node ops/preflight.mjs
+ExecStart=/usr/bin/node server/production.mjs
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=30
+KillSignal=SIGTERM
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/bilabang
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

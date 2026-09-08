@@ -1,0 +1,13 @@
+# Set API_DOMAIN=api.bilabang.com in the Caddy service environment.
+# DNS must point to this server, and TCP 80/443 must be reachable.
+{$API_DOMAIN} {
+    request_body {
+        max_size 50MB
+    }
+    header {
+        X-Content-Type-Options nosniff
+        Referrer-Policy strict-origin-when-cross-origin
+        -Server
+    }
+    reverse_proxy 127.0.0.1:5188
+}
