@@ -16,8 +16,29 @@ jobs:
     timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        if: vars.HK_HOST_FRONTEND == 'true'
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Build temporary frontend
+        if: vars.HK_HOST_FRONTEND == 'true'
+        env:
+          VITE_API_ORIGIN: ${{ vars.FRONTEND_API_ORIGIN }}
+        run: |
+          npm ci --no-audit --no-fund
+          npm run build:edgeone
       - name: Prepare source archive
-        run: git archive --format=tar.gz --output="$RUNNER_TEMP/release.tar.gz" "$GITHUB_SHA"
+        env:
+          HOST_FRONTEND: ${{ vars.HK_HOST_FRONTEND }}
+        run: |
+          mkdir "$RUNNER_TEMP/release"
+          git archive "$GITHUB_SHA" | tar -x -C "$RUNNER_TEMP/release"
+          if [[ "$HOST_FRONTEND" == 'true' ]]; then
+            mkdir -p "$RUNNER_TEMP/release/dist"
+            cp -R dist/edgeone "$RUNNER_TEMP/release/dist/edgeone"
+          fi
+          tar -czf "$RUNNER_TEMP/release.tar.gz" -C "$RUNNER_TEMP/release" .
       - name: Upload and deploy
         env:
           SSH_HOST: ${{ secrets.HK_SSH_HOST }}

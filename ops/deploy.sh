@@ -21,6 +21,14 @@ npm ci --omit=dev --no-audit --no-fund
 node --check server/production.mjs
 # Test the same runtime and storage code before touching the active service.
 node --test tests/independent-runtime.test.js tests/independent-transfer.test.js
+if [[ -d dist/edgeone ]]; then
+    [[ -f dist/edgeone/index.html && -d /var/www/bilabang/releases ]] || { echo 'Frontend hosting is not prepared'; exit 1; }
+    public_release="/var/www/bilabang/releases/$(basename "$release")"
+    mkdir "$public_release"
+    cp -R dist/edgeone/. "$public_release/"
+    find "$public_release" -type d -exec chmod 755 {} +
+    find "$public_release" -type f -exec chmod 644 {} +
+fi
 previous=$(readlink -f "$base/current" || true)
 if ! /usr/bin/systemctl is-active --quiet bilabang.service; then previous=''; fi
 stopped=0
@@ -51,13 +59,17 @@ mv -Tf "$base/current.next" "$base/current"
 sudo -n /usr/bin/systemctl restart bilabang.service
 healthy=0
 for attempt in {1..20}; do
-    if curl --fail --silent --max-time 3 "http://127.0.0.1:$PORT/api/health" | node -e 'let s="";for await(const c of process.stdin)s+=c;const r=JSON.parse(s);if(r.ok!==true||r.runtime!=="independent-node"||r.schema!==1)process.exit(1)' --input-type=module; then
+    if curl --fail --silent --max-time 3 "http://127.0.0.1:$PORT/api/health" | node -e 'let s="";for await(const c of process.stdin)s+=c;if(!s)process.exit(1);const r=JSON.parse(s);if(r.ok!==true||r.runtime!=="independent-node"||r.schema!==1)process.exit(1)' --input-type=module; then
         healthy=1
         break
     fi
     sleep 1
 done
 [[ "$healthy" == 1 ]] || { echo 'Health check failed'; false; }
+if [[ -n "${public_release:-}" ]]; then
+    ln -sfn "$public_release" /var/www/bilabang/current.next
+    mv -Tf /var/www/bilabang/current.next /var/www/bilabang/current
+fi
 trap - ERR
 echo "Backend deployed: $commit"
 # Backups and previous releases are deliberately retained, never auto-deleted.
