@@ -4,6 +4,8 @@
 
 ## 托管版本与当前源码
 
+EdgeOne 迁移准备、构建参数、环境变量、DNS 与尚未完成的验收项见 [EdgeOne 上线检查](docs/edgeone-launch.md)。该部署路径使用 `npm run build:edgeone`，必须先配置独立香港后端的 `VITE_API_ORIGIN`，目前尚未正式上线。
+
 - 公网地址：https://bilabang-scenic-toilets.wangjiaze203.chatgpt.site/
 - 托管后端：`worker/index.js`，D1 保存用户档案、地点、评论和审核记录，R2 保存用户上传图片；登录使用 ChatGPT 平台身份。
 - 当前源码包含统一的蓝黄视觉、独立厕所详情页、评论每 15 秒同步，以及全球地区筛选和投稿审核流程。

@@ -1,3 +1,4 @@
+import {apiUrl} from './deployment.js';
 import React,{useState,useEffect,useRef,useCallback} from 'react';
 import Select from './Select.jsx';
 import {preparePhoto} from './upload-images.js';
@@ -46,7 +47,7 @@ export default function CommunityReviews({place,user,api,login,notify}){
   {r.kind==='visit'&&<div className="community-ratings">{Object.entries(labels).map(([k,t])=><span key={k}>{t} <strong>{r[k]}</strong><small>/5</small></span>)}</div>}
   {r.condition&&r.condition!=='unknown'&&<p className="community-condition">现场记录：{conditions[r.condition]} <small>以到访日期为准，当前情况可能变化</small></p>}
   <p className="community-text">{r.text}</p>
-  {!!r.photos?.length&&<div className="community-photos">{r.photos.map(p=><figure key={p.id}><a href={`/api/photos/${p.id}`} target="_blank" rel="noreferrer"><img src={`/api/photos/${p.id}`} loading="lazy" alt={p.caption}/></a><figcaption>{photoKinds[p.kind]} · {p.caption}</figcaption></figure>)}</div>}
+  {!!r.photos?.length&&<div className="community-photos">{r.photos.map(p=><figure key={p.id}><a href={apiUrl(`/api/photos/${p.id}`)} target="_blank" rel="noreferrer"><img src={apiUrl(`/api/photos/${p.id}`)} loading="lazy" alt={p.caption}/></a><figcaption>{photoKinds[p.kind]} · {p.caption}</figcaption></figure>)}</div>}
   {!nested&&r.status==='approved'&&<button className="outline" onClick={()=>{if(!user){login();return;}setReply(r);setTimeout(()=>formRef.current?.scrollIntoView({behavior:'smooth',block:'center'}),0);}}>回复</button>}
   {!nested&&list.filter(child=>child.parentId===r.id).map(child=>renderRecord(child,true))}
  </article>;}

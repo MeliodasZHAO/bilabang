@@ -1,3 +1,4 @@
+import {apiUrl,sitesIdentityEnabled} from './deployment.js';
 import CommunityReviews from './CommunityReviews.jsx';
 import Select from './Select.jsx';
 import React, { useState, useEffect, useRef } from "react";
@@ -117,7 +118,7 @@ function App() {
     .sort(
       (a, b) => (b.scores?.[sort]?.rank ?? -1) - (a.scores?.[sort]?.rank ?? -1),
     );
-  const image = (p) => p.image || (p.photos?.length ? `/api/photos/${p.photos[0].id}` : "/no-photo.svg");
+  const image = (p) => p.image || (p.photos?.length ? apiUrl(`/api/photos/${p.photos[0].id}`) : "/no-photo.svg");
   return (
     <>
       <header>
@@ -167,7 +168,7 @@ function App() {
                 className="icon-button"
                 aria-label="退出登录"
                 onClick={async () => {
-                  if(config.auth==='chatgpt'){location.assign('/signout-with-chatgpt?return_to=/');return;}
+                  if(sitesIdentityEnabled&&config.auth==='chatgpt'){location.assign('/signout-with-chatgpt?return_to=/');return;}
                     await api("/logout", { method: "POST" });
                   setUser(null);
                   navigate("discover");
@@ -620,7 +621,7 @@ function Login({ config, onLogin }) {
     [verification, setVerification] = useState("");
   const [error, setError] = useState(""),
     [busy, setBusy] = useState(false);
-  if(config.auth==='chatgpt')return <section className="notice"><h3>使用 ChatGPT 登录</h3><p>浏览和投稿不需要账户；评论、回复与评分会关联到你的登录身份。</p><p>首次登录会建立本站资料，公开显示旅人昵称，不公开邮箱。</p><a className="primary" href={'/signin-with-chatgpt?return_to='+encodeURIComponent(location.pathname+location.search)} target="_top">使用 ChatGPT 登录</a></section>;
+  if(sitesIdentityEnabled&&config.auth==='chatgpt')return <section className="notice"><h3>使用 ChatGPT 登录</h3><p>浏览和投稿不需要账户；评论、回复与评分会关联到你的登录身份。</p><p>首次登录会建立本站资料，公开显示旅人昵称，不公开邮箱。</p><a className="primary" href={'/signin-with-chatgpt?return_to='+encodeURIComponent(location.pathname+location.search)} target="_top">使用 ChatGPT 登录</a></section>;
   return (
     <form
       onSubmit={async (e) => {
@@ -721,9 +722,9 @@ function Detail({ place: p, user, image, notify, login, config }) {
             <button
               key={photo.id}
               aria-label={`查看第 ${i + 1} 张照片`}
-              onClick={() => setSelectedImage(`/api/photos/${photo.id}`)}
+              onClick={() => setSelectedImage(apiUrl(`/api/photos/${photo.id}`))}
             >
-              <img src={`/api/photos/${photo.id}`} alt={`照片 ${i + 1}`} />
+              <img src={apiUrl(`/api/photos/${photo.id}`)} alt={`照片 ${i + 1}`} />
             </button>
           ))}
         </div>

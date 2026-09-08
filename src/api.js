@@ -1,8 +1,9 @@
 import {registerRegions} from './regions.js';
+import {apiOrigin} from './deployment.js';
 export class ApiError extends Error{
  constructor(message,{status=0,fields=null,code='request_failed'}={}){super(message);this.name='ApiError';this.status=status;this.fields=fields;this.code=code;}
 }
-export function createApi({fetchImpl=globalThis.fetch,timeoutMs=25000,uploadTimeoutMs=180000}={}){
+export function createApi({fetchImpl=globalThis.fetch,timeoutMs=25000,uploadTimeoutMs=180000,baseOrigin=apiOrigin}={}){
  return async function api(url,options={}){
   const controller=new AbortController();let timedOut=false;
   const cancel=()=>controller.abort();
@@ -10,7 +11,7 @@ export function createApi({fetchImpl=globalThis.fetch,timeoutMs=25000,uploadTime
   const multipart=options.body instanceof FormData;
   const timer=setTimeout(()=>{timedOut=true;controller.abort();},multipart?uploadTimeoutMs:timeoutMs);
   try{
-   const res=await fetchImpl('/api'+url,{...options,signal:controller.signal,headers:{...(multipart?{}:{'Content-Type':'application/json'}),...options.headers},body:multipart?options.body:options.body===undefined?undefined:JSON.stringify(options.body)});
+   const res=await fetchImpl(baseOrigin+'/api'+url,{credentials:'include',...options,signal:controller.signal,headers:{...(multipart?{}:{'Content-Type':'application/json'}),...options.headers},body:multipart?options.body:options.body===undefined?undefined:JSON.stringify(options.body)});
    if(res.status===429){const raw=Number(res.headers.get('retry-after'));throw new ApiError(`操作较频繁，请${Number.isFinite(raw)&&raw>0?`约 ${Math.min(Math.ceil(raw),3600)} 秒后`:'稍后'}再试`,{status:429,code:'rate_limited'});}
    if(res.status===413)throw new ApiError('上传内容过大，请减少照片数量或大小后重试',{status:413});
    let data;try{data=await res.json();}catch(e){if(controller.signal.aborted)throw e;throw new ApiError('服务返回了无法读取的内容，请稍后重试',{status:res.status});}
@@ -27,7 +28,7 @@ export function createApi({fetchImpl=globalThis.fetch,timeoutMs=25000,uploadTime
 }
 const localApi=createApi();
 export const api=async (url,options={})=>{
- if(import.meta.env?.MODE==='public'||(import.meta.env?.MODE==='hosted'&&url.startsWith('/regions')))
+ if(import.meta.env?.MODE==='public'||(['hosted','edgeone'].includes(import.meta.env?.MODE)&&url.startsWith('/regions')))
   return (await import('./public-api.js')).publicApi(url,options);
  return localApi(url,options);
 };

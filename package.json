@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "node server.js",
     "build": "vite build",
+    "build:edgeone": "vite build --config vite.edgeone.config.js --mode edgeone",
     "build:public": "vite build --outDir out --mode public && node scripts/public-build.mjs",
     "build:hosted": "vite build --config vite.hosted.config.js --mode hosted && node scripts/hosted-build.mjs",
     "db:generate": "drizzle-kit generate",
