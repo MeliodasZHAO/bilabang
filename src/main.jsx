@@ -33,6 +33,7 @@ import './controls.css';
 import './playful.css';
 import './pages.css';
 import PlaceGallery from './PlaceGallery.jsx';
+import ContactPage from './ContactPage.jsx';
 import RegionPicker from './RegionPicker.jsx';
 import AdminDesk from './AdminDesk.jsx';
 import ReceiptPanel from './ReceiptPanel.jsx';
@@ -47,7 +48,7 @@ const labels = {
   facilities: "设施齐全",
 };
 const dateNow = new Date().toISOString().slice(0, 10);
-const readView = () => location.pathname === '/share' ? 'submit' : ['discover','ranking','about','admin','submit'].includes(new URLSearchParams(location.search).get('view')) ? new URLSearchParams(location.search).get('view') : 'discover';
+const readView = () => location.pathname === '/contact' ? 'contact' : location.pathname === '/share' ? 'submit' : ['discover','ranking','about','admin','submit','contact'].includes(new URLSearchParams(location.search).get('view')) ? new URLSearchParams(location.search).get('view') : 'discover';
 function App() {
   const [places, setPlaces] = useState([]),
     [loading, setLoading] = useState(true),
@@ -82,7 +83,7 @@ function App() {
     const pop=()=>{restore();setModal(null);requestAnimationFrame(()=>window.scrollTo(0,history.state?.scrollY||0));};
     restore();window.addEventListener('popstate',pop);return()=>window.removeEventListener('popstate',pop);
   },[places,loading,error]);
-  useEffect(()=>{document.title=detail?.place?detail.place.name+' · 必拉榜':view==='submit'?'分享一处风景 · 必拉榜':'必拉榜 · 换个地方，看世界';},[detail,view]);
+  useEffect(()=>{document.title=detail?.place?detail.place.name+' · 必拉榜':view==='contact'?'合作与交流 · 必拉榜':view==='submit'?'分享一处风景 · 必拉榜':'必拉榜 · 换个地方，看世界';},[detail,view]);
   const notify = (t) => setToast(t);
   const refresh = () =>
     api("/places")
@@ -102,7 +103,7 @@ function App() {
     }
   }, [toast]);
   function navigate(v) {
-    const params=new URLSearchParams(location.search);if(v!=="discover"&&v!=="submit")params.set("view",v);else params.delete("view");params.delete("place");history.pushState(null,"",(v==='submit'?'/share':'/')+(params.size?"?"+params:""));
+    const params=new URLSearchParams(location.search);if(!['discover','submit','contact'].includes(v))params.set("view",v);else params.delete("view");params.delete("place");history.pushState(null,"",(v==='submit'?'/share':v==='contact'?'/contact':'/')+(params.size?"?"+params:""));
     setView(v);
     setDetail(null);setModal(null);
     setMenu(false);
@@ -143,6 +144,7 @@ function App() {
             ["discover", "发现风景"],
             ["ranking", "探索榜单"],
             ["about", "关于必拉榜"],
+            ["contact", "合作与交流"],
           ].map(([v, t]) => (
             <button
               key={v}
@@ -492,6 +494,7 @@ function App() {
           </button>
         </main>
       )}
+      {!detail && view === 'contact' && <ContactPage notify={notify} onBack={()=>navigate('discover')}/>}
       {!detail && view === "admin" && (
         <AdminDesk user={user} api={api} notify={notify} refresh={refresh} onAdd={()=>navigate("submit")} onOpen={openPlace}/>
       )}
@@ -531,6 +534,7 @@ function App() {
             © {new Date().getFullYear()} 必拉榜 · 本站用户体验不代表官方评级
           </span>
           <div>
+            <button onClick={() => navigate('contact')}>合作与交流</button>
             <button onClick={() => setModal({ type: "privacy" })}>
               隐私说明
             </button>
