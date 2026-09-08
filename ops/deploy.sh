@@ -20,7 +20,7 @@ cd "$release"
 npm ci --omit=dev --no-audit --no-fund
 node --check server/production.mjs
 # Test the same runtime and storage code before touching the active service.
-node --test tests/independent-runtime.test.js tests/independent-transfer.test.js
+node --test tests/independent-runtime.test.js tests/independent-transfer.test.js tests/account-rules.test.js
 if [[ -d dist/edgeone ]]; then
     [[ -f dist/edgeone/index.html && -d /var/www/bilabang/releases ]] || { echo 'Frontend hosting is not prepared'; exit 1; }
     public_release="/var/www/bilabang/releases/$(basename "$release")"
@@ -36,6 +36,14 @@ rollback() {
     result=$?
     trap - ERR
     if [[ "$stopped" == 1 && -n "$previous" && -d "$previous" ]]; then
+        live_schema=$(node --input-type=module -e 'import {DatabaseSync} from "node:sqlite";const db=new DatabaseSync(process.env.DATA_DIR+"/bilabang.sqlite",{readOnly:true});console.log(db.prepare("PRAGMA user_version").get().user_version);db.close();')
+        # A schema 1 release refuses schema 2. Never fake a downgrade or overwrite
+        # new user data automatically; the verified backup is available for recovery.
+        if [[ "$live_schema" -gt 1 && ! -f "$previous/server/migrations/0002_account_rules.sql" ]]; then
+            sudo -n /usr/bin/systemctl stop bilabang.service || true
+            echo "Schema upgraded; old code cannot safely start. Keep data intact and recover using backup: ${backup_dir:-see backups directory}."
+            exit "$result"
+        fi
         echo 'Deployment failed; restoring previous code (database is not overwritten).'
         ln -sfn "$previous" "$base/current.rollback"
         mv -Tf "$base/current.rollback" "$base/current"
@@ -59,7 +67,7 @@ mv -Tf "$base/current.next" "$base/current"
 sudo -n /usr/bin/systemctl restart bilabang.service
 healthy=0
 for attempt in {1..20}; do
-    if curl --fail --silent --max-time 3 "http://127.0.0.1:$PORT/api/health" | node -e 'let s="";for await(const c of process.stdin)s+=c;if(!s)process.exit(1);const r=JSON.parse(s);if(r.ok!==true||r.runtime!=="independent-node"||r.schema!==1)process.exit(1)' --input-type=module; then
+    if curl --fail --silent --max-time 3 "http://127.0.0.1:$PORT/api/health" | node -e 'let s="";for await(const c of process.stdin)s+=c;if(!s)process.exit(1);const r=JSON.parse(s);if(r.ok!==true||r.runtime!=="independent-node"||r.schema!==2)process.exit(1)' --input-type=module; then
         healthy=1
         break
     fi

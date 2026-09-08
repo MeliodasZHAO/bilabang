@@ -99,13 +99,14 @@ export async function handle(req,env){
   if(req.headers.get('origin')!==(env.SITE_ORIGIN||url.origin))fail(403,'请从本站页面提交');
   const length=Number(req.headers.get('content-length')||0);if(length>50*1024*1024)fail(413,'上传内容过大');
  }
- if(path==='/api/config')return json({demo:false,writeEnabled:true,auth:env.AUTH_MODE||'chatgpt',guestSubmission:true,community:true});
+ if(path==='/api/config')return json({demo:false,writeEnabled:true,auth:env.AUTH_MODE||'chatgpt',guestSubmission:true,community:true,...(env.accountRules?{accountRules:env.accountRules.config}:{})});
  const user=await identity(req,env);
  const member=()=>{if(!user)fail(401,'请先登录后留言');};
  const admin=()=>{if(user?.role!=='admin')fail(403,'需要管理员权限');};
  if(path==='/api/me')return json(user);
  if(path==='/api/places'&&method==='GET')return json(await placeViews(await rows(env,"SELECT * FROM places WHERE status='approved' ORDER BY created,id"),env));
  if(path==='/api/submissions'&&method==='POST'){
+  if(user&&env.accountRules?.state(user.id).status==='muted')env.accountRules.assertCanPublish(user.id);
   await rate(req,env,'submission',user,user?.role==='admin'?100:8);
   const form=await multipart(req),b=parse(form.get('payload'),{}),metadata=parse(form.get('photoMetadata'),[]),files=form.getAll('photos');
   if(!/^[\da-f-]{36}$/i.test(b.requestId||''))fail(400,'缺少投稿标识，请刷新草稿后重试');
@@ -115,7 +116,8 @@ export async function handle(req,env){
   const id=uuid(),receipt=token(),status=b.publish&&user?.role==='admin'&&!payload.customRegion?'approved':'pending';
   payload.regionPath=regionPath(payload.regionId);
   const photos=await storePhotos(files,metadata,id,null,env);
-  try{await env.DB.batch([statement(env,'INSERT INTO places(id,payload,status,version,created,receipt,request_key,owner_id) VALUES(?,?,?,1,?,?,?,?)',id,JSON.stringify(payload),status,now(),receipt,requestKey,user?.id||null),...photos.statements]);}
+  const statements=[statement(env,'INSERT INTO places(id,payload,status,version,created,receipt,request_key,owner_id) VALUES(?,?,?,1,?,?,?,?)',id,JSON.stringify(payload),status,now(),receipt,requestKey,user?.id||null),...photos.statements];
+  try{if(env.accountRules)await env.accountRules.publishSubmission(user,statements);else await env.DB.batch(statements);}
   catch(e){await photos.cleanup();const retry=await first(env,'SELECT id,status,receipt FROM places WHERE request_key=?',requestKey);if(retry)return json({id:retry.id,status:retry.status,receipt:retry.receipt});throw e;}
   return json({id,status,receipt},201);
  }
@@ -132,10 +134,13 @@ export async function handle(req,env){
    return json(await reviewViews(list,env));
   }
   if(method==='POST'){
-   member();await rate(req,env,'review',user,30);
+   member();
    const form=await multipart(req),b=parse(form.get('payload'),{}),metadata=parse(form.get('photoMetadata'),[]),files=form.getAll('photos');
    if(!/^[\da-f-]{36}$/i.test(b.requestId||''))fail(400,'缺少评论标识');
    const key=await hash('review:'+user.id+':'+b.requestId),existing=await first(env,'SELECT id,status FROM reviews WHERE request_key=?',key);if(existing)return json(existing);
+   env.accountRules?.assertCanPublish(user.id);
+   if(env.accountRules&&b.contentConsent!==true)fail(400,'请确认内容真实、图片归属及隐私要求');
+   await rate(req,env,'review',user,30);
    const kind=['visit','update','reply'].includes(b.kind)?b.kind:'visit',text=clean(b.text);
    if(text.length<2)fail(400,'请填写至少两字的实际体验或信息');
    const date=clean(b.date,10);if(kind!=='reply'&&(!/^\d{4}-\d{2}-\d{2}$/.test(date)||!Number.isFinite(Date.parse(date))||new Date(date).toISOString().slice(0,10)!==date||date>today()))fail(400,'请选择有效到访日期');
@@ -143,7 +148,8 @@ export async function handle(req,env){
    let parent=null;if(kind==='reply'){parent=await first(env,"SELECT id FROM reviews WHERE id=? AND place_id=? AND status='approved' AND parent_id IS NULL",clean(b.parentId,100),placeId);if(!parent)fail(400,'只能回复已公开的到访记录或现场信息');}
    const payload={kind,text,date:kind==='reply'?null:date,condition:['open','closed','maintenance','unknown'].includes(b.condition)?b.condition:'unknown',...Object.fromEntries(dimensions.map(k=>[k,kind==='visit'?b[k]:null]))};
    const id=uuid(),photos=await storePhotos(files,metadata,placeId,id,env);
-   try{await env.DB.batch([statement(env,"INSERT INTO reviews(id,place_id,user_id,parent_id,payload,status,version,request_key,created) VALUES(?,?,?,?,?,'pending',1,?,?)",id,placeId,user.id,parent?.id||null,JSON.stringify(payload),key,now()),...photos.statements]);}
+   const statements=[statement(env,"INSERT INTO reviews(id,place_id,user_id,parent_id,payload,status,version,request_key,created) VALUES(?,?,?,?,?,'pending',1,?,?)",id,placeId,user.id,parent?.id||null,JSON.stringify(payload),key,now()),...photos.statements];
+   try{if(env.accountRules)await env.accountRules.publishReview(user,statements,b);else await env.DB.batch(statements);}
    catch(e){await photos.cleanup();const retry=await first(env,'SELECT id,status FROM reviews WHERE request_key=?',key);if(retry)return json(retry);throw e;}
    return json({id,status:'pending'},201);
   }
@@ -191,4 +197,4 @@ export async function handle(req,env){
  }
  fail(404,'功能或记录不存在');
 }
-export default {async fetch(req,env){try{return await handle(req,env);}catch(e){if(!e.status)console.error('Community service failure',e.name,e.message);return json({error:e.status?e.message:'服务暂时无法处理，请保留草稿后重试'},e.status||500);}}};
+export default {async fetch(req,env){try{return await handle(req,env);}catch(e){if(!e.status)console.error('Community service failure',e.name,e.message);const response=json({error:e.status?e.message:'服务暂时无法处理，请保留草稿后重试'},e.status||500);if(e.retryAfter)response.headers.set('Retry-After',String(e.retryAfter));return response;}}};

@@ -6,6 +6,7 @@ import {fileURLToPath} from 'node:url';
 import sharp from 'sharp';
 
 export const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
+export const schemaVersion=2;
 export const communityTables=['users','places','reviews','photos','reports','moderation_events','place_revisions','rate_limits'];
 export const authSchema=`
 CREATE TABLE IF NOT EXISTS auth_credentials (
@@ -31,11 +32,14 @@ export function openDatabase(directory) {
   db.exec('PRAGMA foreign_keys=ON; PRAGMA journal_mode=WAL; PRAGMA busy_timeout=5000;');
   const columns=db.prepare('PRAGMA table_info(users)').all();
   if(columns.some(c=>c.name==='password')||columns.length&&!columns.some(c=>c.name==='created'))throw Error('Refusing the legacy demo database; import a Sites snapshot into a new directory.');
-  if(db.prepare('PRAGMA user_version').get().user_version>1)throw Error('Database was upgraded by a newer release; automatic rollback is unsafe.');
+  const version=db.prepare('PRAGMA user_version').get().user_version;
+  if(version>schemaVersion)throw Error('Database was upgraded by a newer release; automatic rollback is unsafe.');
   db.exec('BEGIN IMMEDIATE');
   try {
    if(!columns.length)db.exec(fs.readFileSync(path.join(root,'drizzle/0000_salty_sphinx.sql'),'utf8'));
-   db.exec(authSchema+'PRAGMA user_version=1; COMMIT;');
+   db.exec(authSchema);
+   if(version<2)db.exec(fs.readFileSync(path.join(root,'server/migrations/0002_account_rules.sql'),'utf8'));
+   db.exec('PRAGMA user_version=2; COMMIT;');
   } catch(e){db.exec('ROLLBACK');throw e;}
   return db;
  } catch(e){db.close();throw e;}

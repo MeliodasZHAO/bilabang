@@ -34,6 +34,9 @@ import './playful.css';
 import './pages.css';
 import PlaceGallery from './PlaceGallery.jsx';
 import ContactPage from './ContactPage.jsx';
+import LegalPage,{LegalContent} from './LegalPage.jsx';
+import {AgreementFields,agreementPayload,AccountRestriction} from './AccountAgreement.jsx';
+import {registrationPasswordError} from './account-policy.js';
 import RegionPicker from './RegionPicker.jsx';
 import AdminDesk from './AdminDesk.jsx';
 import ReceiptPanel from './ReceiptPanel.jsx';
@@ -48,7 +51,8 @@ const labels = {
   facilities: "设施齐全",
 };
 const dateNow = new Date().toISOString().slice(0, 10);
-const readView = () => location.pathname === '/contact' ? 'contact' : location.pathname === '/share' ? 'submit' : ['discover','ranking','about','admin','submit','contact'].includes(new URLSearchParams(location.search).get('view')) ? new URLSearchParams(location.search).get('view') : 'discover';
+const pagePaths={contact:'/contact',submit:'/share',terms:'/terms',privacy:'/privacy',rules:'/rules'};
+const readView = () => Object.keys(pagePaths).find(key=>pagePaths[key]===location.pathname)||(['discover','ranking','about','admin','submit','contact'].includes(new URLSearchParams(location.search).get('view'))?new URLSearchParams(location.search).get('view'):'discover');
 function App() {
   const [places, setPlaces] = useState([]),
     [loading, setLoading] = useState(true),
@@ -83,7 +87,7 @@ function App() {
     const pop=()=>{restore();setModal(null);requestAnimationFrame(()=>window.scrollTo(0,history.state?.scrollY||0));};
     restore();window.addEventListener('popstate',pop);return()=>window.removeEventListener('popstate',pop);
   },[places,loading,error]);
-  useEffect(()=>{document.title=detail?.place?detail.place.name+' · 必拉榜':view==='contact'?'合作与交流 · 必拉榜':view==='submit'?'分享一处风景 · 必拉榜':'必拉榜 · 换个地方，看世界';},[detail,view]);
+  useEffect(()=>{document.title=detail?.place?detail.place.name+' · 必拉榜':view==='contact'?'合作与交流 · 必拉榜':view==='submit'?'分享一处风景 · 必拉榜':['terms','privacy','rules'].includes(view)?({terms:'服务协议',privacy:'隐私说明',rules:'社区规则'}[view]+' · 必拉榜'):'必拉榜 · 换个地方，看世界';},[detail,view]);
   const notify = (t) => setToast(t);
   const refresh = () =>
     api("/places")
@@ -96,6 +100,13 @@ function App() {
     api('/config').then(c=>{if(active)setConfig(c);}).catch(()=>{if(active){setConfig({writeEnabled:false,unavailable:true});setToast('投稿服务暂不可用，仍可浏览公开地点。刷新页面可重试。');}});
     return()=>{active=false;};
   }, []);
+  useEffect(()=>{
+    if(!user?.account)return;
+    let active=true;
+    const sync=()=>{if(document.visibilityState==='visible')api('/me').then(next=>{if(active)setUser(next);}).catch(()=>{});};
+    sync();const timer=setInterval(sync,15000);window.addEventListener('focus',sync);
+    return()=>{active=false;clearInterval(timer);window.removeEventListener('focus',sync);};
+  },[user?.id,view]);
   useEffect(() => {
     if (toast) {
       const t = setTimeout(() => setToast(""), 5000);
@@ -103,7 +114,7 @@ function App() {
     }
   }, [toast]);
   function navigate(v) {
-    const params=new URLSearchParams(location.search);if(!['discover','submit','contact'].includes(v))params.set("view",v);else params.delete("view");params.delete("place");history.pushState(null,"",(v==='submit'?'/share':v==='contact'?'/contact':'/')+(params.size?"?"+params:""));
+    const params=new URLSearchParams(location.search);if(v!=='discover'&&!pagePaths[v])params.set("view",v);else params.delete("view");params.delete("place");history.pushState(null,"",(pagePaths[v]||'/')+(params.size?"?"+params:""));
     setView(v);
     setDetail(null);setModal(null);
     setMenu(false);
@@ -495,13 +506,14 @@ function App() {
         </main>
       )}
       {!detail && view === 'contact' && <ContactPage notify={notify} onBack={()=>navigate('discover')}/>}
+      {!detail && ['terms','privacy','rules'].includes(view) && <LegalPage type={view} config={config} onBack={()=>navigate('discover')}/>}
       {!detail && view === "admin" && (
-        <AdminDesk user={user} api={api} notify={notify} refresh={refresh} onAdd={()=>navigate("submit")} onOpen={openPlace}/>
+        <AdminDesk user={user} api={api} notify={notify} refresh={refresh} onAdd={()=>navigate("submit")} onOpen={openPlace} accountRules={config.accountRules}/>
       )}
       {!detail && view === 'submit' && <main className="submission-page">
         <button className="page-back" onClick={()=>navigate('discover')}>← 返回发现</button>
         <div className="submission-heading"><p className="eyebrow">好风景，别一个人蹲</p><h1>分享一处风景</h1><p>把你发现的好地方，留给下一位路过的人。</p></div>
-        <div className="submission-layout"><section className="submission-main" aria-label="地点投稿"><SubmissionWizard key={user?.id||'guest'} places={places} config={config} user={user} notify={notify} api={api} Verification={Verification} onDone={refresh} onReceipt={token=>setModal({type:'receipt',token})}/></section>
+        <div className="submission-layout"><section className="submission-main" aria-label="地点投稿">{user?.account?.status==='muted'?<AccountRestriction account={user.account}/>:<SubmissionWizard key={user?.id||'guest'} places={places} config={config} user={user} notify={notify} api={api} Verification={Verification} onDone={refresh} onReceipt={token=>setModal({type:'receipt',token})}/>}</section>
           <aside className="submission-guide"><Camera size={28}/><h2>把一处地点讲清楚</h2><p>一张看风景，一张认入口。再留几句找路说明，下一位就少绕一点路。</p><ul><li>最多 6 张照片，可选封面</li><li>地图上没有？文字路线也可以</li><li>无需注册，审核通过后公开</li></ul><p className="muted">拍建筑、拍风景，记得避开正在使用厕所的人。</p><button className="text-action" onClick={()=>setModal({type:'rules'})}>查看投稿规则 <ArrowUpRight size={16}/></button></aside></div>
       </main>}
       {detail && <main className="place-page">
@@ -535,10 +547,11 @@ function App() {
           </span>
           <div>
             <button onClick={() => navigate('contact')}>合作与交流</button>
-            <button onClick={() => setModal({ type: "privacy" })}>
+            <button onClick={() => navigate('terms')}>服务协议</button>
+            <button onClick={() => navigate('privacy')}>
               隐私说明
             </button>
-            <button onClick={() => setModal({ type: "rules" })}>
+            <button onClick={() => navigate('rules')}>
               投稿与评分规则
             </button>
             <button onClick={() => setModal({ type: "receipt" })}>
@@ -635,6 +648,8 @@ function Login({ config, onLogin }) {
     [verification, setVerification] = useState("");
   const [error, setError] = useState(""),
     [busy, setBusy] = useState(false);
+  const [showPassword,setShowPassword]=useState(false);
+  const strictRules=!!config.accountRules;
   if(sitesIdentityEnabled&&config.auth==='chatgpt')return <section className="notice"><h3>使用 ChatGPT 登录</h3><p>浏览和投稿不需要账户；评论、回复与评分会关联到你的登录身份。</p><p>首次登录会建立本站资料，公开显示旅人昵称，不公开邮箱。</p><a className="primary" href={'/signin-with-chatgpt?return_to='+encodeURIComponent(location.pathname+location.search)} target="_top">使用 ChatGPT 登录</a></section>;
   return (
     <form
@@ -643,11 +658,18 @@ function Login({ config, onLogin }) {
         setBusy(true);
         setError("");
         try {
+          const data=new FormData(e.currentTarget);
+          if(register&&strictRules){
+            const invalid=registrationPasswordError(data.get('password'),data.get('name')||'');
+            if(invalid)throw Error(invalid);
+            if(data.get('password')!==data.get('passwordConfirmation'))throw Error('两次输入的密码不一致，请检查');
+          }
           onLogin(
             await api(register ? "/register" : "/login", {
               method: "POST",
               body: {
-                ...Object.fromEntries(new FormData(e.currentTarget)),
+                ...Object.fromEntries(data),
+                ...(register&&strictRules?agreementPayload(data):{}),
                 verification,
               },
             }),
@@ -658,6 +680,7 @@ function Login({ config, onLogin }) {
           setBusy(false);
         }
       }}
+      className="account-login"
     >
       <p className="form-intro">登录后，留下评价，也让每一份评分更可信。</p>
       <div className="notice">
@@ -669,14 +692,16 @@ function Login({ config, onLogin }) {
         <button
           type="button"
           className={!register ? "selected" : ""}
-          onClick={() => setRegister(false)}
+          disabled={busy}
+          onClick={() => {setRegister(false);setError('');}}
         >
           登录
         </button>
         <button
           type="button"
           className={register ? "selected" : ""}
-          onClick={() => setRegister(true)}
+          disabled={busy}
+          onClick={() => {setRegister(true);setError('');}}
         >
           注册账户
         </button>
@@ -686,16 +711,25 @@ function Login({ config, onLogin }) {
         name="name"
         required
         autoComplete="username"
-        placeholder="Meos"
+        maxLength={24}
+        disabled={busy}
+        aria-describedby="account-name-hint"
+        placeholder={config.demo?'Meos':'例如：山海漫游者'}
       />
+      <p id="account-name-hint" className="field-hint">2–24 位文字、数字、下划线或短横线；用户名会公开显示，请勿填写手机号或冒充他人。</p>
       <Field
         label="密码"
         name="password"
-        type="password"
+        type={showPassword?'text':'password'}
         required
-        minLength={4}
+        minLength={register&&strictRules?8:4}
+        maxLength={128}
+        disabled={busy}
+        aria-describedby="account-password-hint"
         autoComplete={register ? "new-password" : "current-password"}
       />
+      <div className="account-password-help"><p id="account-password-hint" className="field-hint">{register&&strictRules?'8–128 位，建议使用独立的长密码或短语。':'使用注册时设置的密码。当前不支持自助找回。'}</p><button type="button" className="text-action" aria-pressed={showPassword} onClick={()=>setShowPassword(value=>!value)}>{showPassword?'隐藏密码':'显示密码'}</button></div>
+      {register&&strictRules&&<><Field label="再次输入密码" name="passwordConfirmation" type={showPassword?'text':'password'} autoComplete="new-password" minLength={8} maxLength={128} required disabled={busy}/><AgreementFields disabled={busy}/></>}
       {register && config.auth!=='password' && (
         <Verification config={config} onVerified={setVerification} purpose="register" />
       )}
@@ -988,56 +1022,6 @@ function Verification({ config, onVerified, skip = false, purpose = "submission"
   );
 }
 function Policy({ type,config }) {
-  return (
-    <div className="policy">
-      {type === "privacy" ? (
-        <>
-          <h3>尽量少收集，明确使用目的</h3>
-          <p>
-            {config.community?'本站保存公共地点资料、投稿图片、到访评价和审核记录。游客投稿不收集手机号；登录使用 ChatGPT 身份，本站保存身份标识与旅人昵称，邮箱不公开。':'本地体验版保存测试投稿和评价，不发送短信。'}
-          </p>
-          <h3>图片与访问控制</h3>
-          <p>
-            上传图片会重新编码并移除
-            EXIF。待审图片仅管理员与有权查看的登录投稿者可见，公开后可以被其他访问者查看。不要在照片或描述里留下私人联系方式和个人行踪。
-          </p>
-          <h3>本机草稿与回执</h3><p>投稿文字与照片保存在当前浏览器，可继续填写；成功投稿会清除该草稿。最近回执最多30条、30天，可在查询投稿中清除。本机清除不等于删除服务器投稿，共用设备使用后请清理草稿及回执。</p>
-          <h3>删除与纠错</h3>
-          <p>
-            已公开地点可通过详情中的举报入口申请纠错或下架。正式上线前将提供身份验证、账号注销、数据删除和隐私联系渠道，明确保留期限及第三方服务清单。
-          </p>
-          <h3>示意图片</h3>
-          <p>
-            首页主视觉为 AI 生成概念图，不代表真实厕所；地点资料图标明摄影作者和许可。地图瓦片由 OpenStreetMap 提供，查看地图会向地图服务发出请求。
-          </p>
-        </>
-      ) : (
-        <>
-          <h3>投稿准则</h3>
-          <p>
-            仅分享有权使用的实拍。必须区分厕内视野、建筑外观和周边景观。禁止偷拍、拍摄如厕者、暴露隔间隐私、虚构地点或发布敏感设施位置。
-          </p>
-          <h3>审核后公开</h3>
-          <p>
-            投稿和评价均先进入审核。通过审核仅代表符合发布规则，不代表平台认证卫生质量。失实、侵权内容可举报并下架。
-          </p>
-          <h3>评分与排序</h3>
-          <p>
-            每项 1–5 分。综合分按风景 40%、卫生 30%、到达 20%、设施 10%
-            加权。每个账户对每个地点只计入最近一次已审核到访评分，历史记录保留；现场信息和回复不参与评分。
-          </p>
-          <p>
-            至少 5 份有效评价才进入正式排名。排序分 =（评价数 × 平均分 + 5 ×
-            3.5）÷（评价数 +
-            5）。页面展示原始平均分，排名使用校正值。评分相同时保持地点顺序。
-          </p>
-          <h3>时效性</h3>
-          <p>
-            请查看到访日期。卫生、开放时间和设施可能变化；首版按全部已审核评价计算，暂未采用近期衰减。示意内容与本地测试数据不构成真实全球排名。
-          </p>
-        </>
-      )}
-    </div>
-  );
+  return <LegalContent type={type} config={config}/>;
 }
 createRoot(document.getElementById("root")).render(<App />);

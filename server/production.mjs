@@ -2,8 +2,9 @@ import {createServer} from 'node:http';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import worker from '../worker/index.js';
-import {openDatabase,databaseBinding,fileBinding,assetBinding} from './storage.mjs';
+import {openDatabase,databaseBinding,fileBinding,assetBinding,schemaVersion} from './storage.mjs';
 import {authService} from './auth.mjs';
+import {accountRules} from './account-rules.mjs';
 import {validateConfig} from '../ops/preflight.mjs';
 
 export function createApplication(config) {
@@ -11,7 +12,8 @@ export function createApplication(config) {
  const data=path.resolve(config.DATA_DIR),checkout=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
  if(data===checkout||data.startsWith(checkout+path.sep)||data===path.parse(data).root)throw Error('DATA_DIR must be outside the code checkout and cannot be the filesystem root');
  const db=openDatabase(config.DATA_DIR),auth=authService(db,config.RATE_SALT);
- const env={DB:databaseBinding(db),FILES:fileBinding(config.DATA_DIR),ASSETS:assetBinding(),RATE_SALT:config.RATE_SALT,SITE_ORIGIN:config.SITE_URL,AUTH_MODE:'password',getIdentity:auth.getIdentity};
+ const rules=accountRules(db);
+ const env={DB:databaseBinding(db),FILES:fileBinding(config.DATA_DIR),ASSETS:assetBinding(),RATE_SALT:config.RATE_SALT,SITE_ORIGIN:config.SITE_URL,AUTH_MODE:'password',getIdentity:auth.getIdentity,accountRules:rules};
  let activeWrites=0;
  const server=createServer(async(incoming,outgoing)=>{
   let counted=false;
@@ -19,7 +21,7 @@ export function createApplication(config) {
    const url=new URL(incoming.url,config.API_ORIGIN),origin=incoming.headers.origin;
    outgoing.setHeader('X-Content-Type-Options','nosniff');outgoing.setHeader('Cache-Control','no-store');outgoing.setHeader('Vary','Origin');
    if(origin&&origin!==config.SITE_URL){outgoing.writeHead(403,{'Content-Type':'application/json'});outgoing.end('{"error":"请求来源不匹配"}');return;}
-   if(origin===config.SITE_URL){outgoing.setHeader('Access-Control-Allow-Origin',origin);outgoing.setHeader('Access-Control-Allow-Credentials','true');}
+   if(origin===config.SITE_URL){outgoing.setHeader('Access-Control-Allow-Origin',origin);outgoing.setHeader('Access-Control-Allow-Credentials','true');outgoing.setHeader('Access-Control-Expose-Headers','Retry-After');}
    if(incoming.method==='OPTIONS'){
     if(origin!==config.SITE_URL)throw Object.assign(Error('请求来源不匹配'),{status:403});
     outgoing.writeHead(204,{'Access-Control-Allow-Methods':'GET, HEAD, POST, OPTIONS','Access-Control-Allow-Headers':'Content-Type','Access-Control-Max-Age':'600'});outgoing.end();return;
@@ -31,9 +33,9 @@ export function createApplication(config) {
     activeWrites++;counted=true;
    }
    if(url.pathname==='/api/health'&&incoming.method==='GET'){
-    db.prepare('SELECT 1').get();outgoing.writeHead(200,{'Content-Type':'application/json'});outgoing.end(JSON.stringify({ok:true,runtime:'independent-node',schema:1}));return;
+    db.prepare('SELECT 1').get();outgoing.writeHead(200,{'Content-Type':'application/json'});outgoing.end(JSON.stringify({ok:true,runtime:'independent-node',schema:schemaVersion}));return;
    }
-   const limit=['/api/register','/api/login','/api/logout'].includes(url.pathname)?16384:50*1024*1024;
+   const limit=/^\/api\/(?:register|login|logout|account\/|admin\/accounts)/.test(url.pathname)?16384:50*1024*1024;
    if(Number(incoming.headers['content-length']||0)>limit)throw Object.assign(Error('上传内容过大'),{status:413});
    const chunks=[];let length=0;
    for await(const chunk of incoming){length+=chunk.length;if(length>limit)throw Object.assign(Error('上传内容过大'),{status:413});chunks.push(chunk);}

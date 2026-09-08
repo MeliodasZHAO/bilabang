@@ -9,11 +9,13 @@ import {spawn} from 'node:child_process';
 import net from 'node:net';
 import {createApplication} from '../server/production.mjs';
 import {databaseBinding} from '../server/storage.mjs';
+import {accountPolicyVersion} from '../src/account-policy.js';
 
 test('independent HTTP runtime: password auth, spoof rejection, multipart, moderation, CORS and durable restart',async()=>{
  const dir=await fs.mkdtemp(path.join(os.tmpdir(),'bilabang-independent-'));
  const config={NODE_ENV:'production',HOST:'127.0.0.1',PORT:'5188',SITE_URL:'https://app.bilabang.com',API_ORIGIN:'https://api.bilabang.com',DATA_DIR:dir,RATE_SALT:'independent-runtime-test-'.repeat(3)};
  let app,base,cookie;
+ const password='meos-community-fixture',agreement={agreements:true,hkStorageConsent:true,policyVersion:accountPolicyVersion};
  const start=async()=>{app=createApplication(config);await new Promise(resolve=>app.server.listen(0,'127.0.0.1',resolve));base='http://127.0.0.1:'+app.server.address().port;};
  const request=async(route,{method='GET',data,form,session=cookie,headers={}}={})=>{
   const r=await fetch(base+'/api'+route,{method,headers:{Origin:config.SITE_URL,...(session?{Cookie:session}:{}),...(data?{'Content-Type':'application/json'}:{}),...headers},body:form||(data?JSON.stringify(data):undefined)});
@@ -26,13 +28,13 @@ test('independent HTTP runtime: password auth, spoof rejection, multipart, moder
   assert.equal((await request('/admin',{session:''})).status,403);
   assert.equal((await request('/login',{method:'OPTIONS',headers:{'Access-Control-Request-Method':'POST'}})).headers.get('access-control-allow-credentials'),'true');
   assert.equal((await request('/register',{method:'POST',data:{name:'Meos',password:'meos'},headers:{Origin:'https://evil.test'}})).status,403);
-  const registered=await request('/register',{method:'POST',data:{name:'Meos',password:'meos',role:'admin'}});
+  const registered=await request('/register',{method:'POST',data:{name:'Meos',password,...agreement,role:'admin'}});
   assert.equal(registered.status,200,JSON.stringify(registered.body));assert.equal(registered.body.role,'member');
   cookie=registered.headers.get('set-cookie').split(';')[0];
   assert.match(registered.headers.get('set-cookie'),/HttpOnly; Secure; SameSite=Lax/);
   assert.equal((await request('/me')).body.name,'Meos');
   assert.equal((await request('/admin')).status,403);
-  assert.equal((await request('/register',{method:'POST',data:{name:'meos',password:'meos'}})).status,409);
+  assert.equal((await request('/register',{method:'POST',data:{name:'meos',password,...agreement}})).status,409);
   assert.equal((await request('/login',{method:'POST',data:{name:'Meos',password:'wrong'}})).status,401);
   assert.equal((await request('/login',{method:'POST',data:{name:'Meos',password:'x'.repeat(18000)}})).status,413);
   assert.equal((await request('/register',{method:'POST',data:{name:'Other',password:'meos'},headers:{Origin:''}})).status,403);
@@ -45,7 +47,7 @@ test('independent HTTP runtime: password auth, spoof rejection, multipart, moder
   app.db.prepare("UPDATE auth_credentials SET role='member' WHERE user_id=?").run(registered.body.id);
   const photo=await sharp(randomBytes(1800*1200*3),{raw:{width:1800,height:1200,channels:3}}).jpeg({quality:100}).toBuffer();
   assert.ok(photo.length>1024*1024);
-  const form=()=>{const f=new FormData();f.set('payload',JSON.stringify({requestId:crypto.randomUUID(),kind:'visit',date:'2026-09-07',text:'Meos：入口清楚，现场开放。',condition:'open',scenery:5,cleanliness:4,access:3,facilities:2}));f.set('photoMetadata',JSON.stringify([{kind:'entrance',caption:'现场入口',rights:'own'}]));f.append('photos',new Blob([photo],{type:'application/octet-stream'}),'temporary-upload');return f;};
+  const form=()=>{const f=new FormData();f.set('payload',JSON.stringify({requestId:crypto.randomUUID(),kind:'visit',contentConsent:true,date:'2026-09-07',text:'Meos：入口清楚，现场开放。',condition:'open',scenery:5,cleanliness:4,access:3,facilities:2}));f.set('photoMetadata',JSON.stringify([{kind:'entrance',caption:'现场入口',rights:'own'}]));f.append('photos',new Blob([photo],{type:'application/octet-stream'}),'temporary-upload');return f;};
   assert.equal((await request(`/places/${place.id}/reviews`,{method:'POST',session:'',form:form()})).status,401);
   const submission=form();const created=await request(`/places/${place.id}/reviews`,{method:'POST',form:submission});
   assert.equal(created.status,201,JSON.stringify(created.body));
@@ -76,7 +78,7 @@ test('independent HTTP runtime: password auth, spoof rejection, multipart, moder
   assert.equal((await request('/photos/'+photoId,{session:''})).body.length,photo.length);
   assert.equal((await request('/logout',{method:'POST',data:{}})).status,200);
   assert.equal((await request('/me')).body,null);
-  const login=await request('/login',{method:'POST',data:{name:'Meos',password:'meos'}});assert.equal(login.status,200);
+  const login=await request('/login',{method:'POST',data:{name:'Meos',password}});assert.equal(login.status,200);
   assert.equal((await request('/health')).body.runtime,'independent-node');
  } finally {if(app?.server.listening)await app.close();await fs.rm(dir,{recursive:true,force:true});}
 });
