@@ -1,0 +1,37 @@
+name: Hong Kong backend
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: hong-kong-production
+  cancel-in-progress: false
+jobs:
+  deploy:
+    # Enable after the server, host fingerprint and SSH credentials are configured.
+    if: vars.HK_DEPLOY_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare source archive
+        run: git archive --format=tar.gz --output="$RUNNER_TEMP/release.tar.gz" "$GITHUB_SHA"
+      - name: Upload and deploy
+        env:
+          SSH_HOST: ${{ secrets.HK_SSH_HOST }}
+          SSH_PRIVATE_KEY: ${{ secrets.HK_SSH_PRIVATE_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.HK_SSH_KNOWN_HOSTS }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$SSH_HOST" =~ ^[a-zA-Z0-9.-]+$ ]] || exit 1
+          [[ -n "$SSH_PRIVATE_KEY" && -n "$SSH_KNOWN_HOSTS" ]] || exit 1
+          umask 077
+          key="$RUNNER_TEMP/bilabang-key"
+          hosts="$RUNNER_TEMP/bilabang-known-hosts"
+          printf '%s\n' "$SSH_PRIVATE_KEY" > "$key"
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > "$hosts"
+          scp -i "$key" -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$hosts" -o BatchMode=yes -o ConnectTimeout=15 "$RUNNER_TEMP/release.tar.gz" "bilabang@$SSH_HOST:/opt/bilabang/incoming/$GITHUB_SHA.tar.gz"
+          ssh -i "$key" -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$hosts" -o BatchMode=yes -o ConnectTimeout=15 "bilabang@$SSH_HOST" "/usr/local/bin/bilabang-deploy $GITHUB_SHA"

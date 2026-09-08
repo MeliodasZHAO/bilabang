@@ -649,7 +649,7 @@ function Login({ config, onLogin }) {
       <div className="notice">
         {config.demo
           ? "本地管理员：Meos / meos。也可使用模拟手机号验证注册测试账户；请勿填写真实个人信息。"
-          : "手机号注册与验证尚未开放。"}
+          : config.auth==='password' ? "用户名会公开显示。注册后可评论、补图和评分；发布内容需审核。请使用独立密码，当前不支持自助找回。" : "手机号注册与验证尚未开放。"}
       </div>
       <div className="tabs">
         <button
@@ -668,7 +668,7 @@ function Login({ config, onLogin }) {
         </button>
       </div>
       <Field
-        label={register ? "昵称" : "账号"}
+        label={config.auth==='password' ? "用户名" : register ? "昵称" : "账号"}
         name="name"
         required
         autoComplete="username"
@@ -682,7 +682,7 @@ function Login({ config, onLogin }) {
         minLength={4}
         autoComplete={register ? "new-password" : "current-password"}
       />
-      {register && (
+      {register && config.auth!=='password' && (
         <Verification config={config} onVerified={setVerification} purpose="register" />
       )}
       {error && (
@@ -691,7 +691,7 @@ function Login({ config, onLogin }) {
         </p>
       )}
       <button
-        disabled={busy || !config.writeEnabled || (register && !verification)}
+        disabled={busy || !config.writeEnabled || (register && config.auth!=='password' && !verification)}
         className="primary full"
       >
         {busy ? "正在处理…" : register ? "创建账户" : "登录"}

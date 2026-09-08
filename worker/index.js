@@ -13,6 +13,7 @@ const clean=(v,max=2000)=>typeof v==='string'?v.trim().slice(0,max):'';
 const hash=async s=>Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s))),b=>b.toString(16).padStart(2,'0')).join('');
 const token=()=>Array.from(crypto.getRandomValues(new Uint8Array(18)),b=>b.toString(16).padStart(2,'0')).join('');
 async function identity(req,env){
+ if(typeof env.getIdentity==='function')return env.getIdentity(req);
  const id=req.headers.get('oai-authenticated-user-id'),email=req.headers.get('oai-authenticated-user-email');
  if(!id||!email)return null;
  // These headers are supplied and protected by the Sites dispatcher, never by form data.
@@ -95,12 +96,12 @@ export async function handle(req,env){
  if(!path.startsWith('/api/'))return env.ASSETS.fetch(req);
  if(!env.DB||!env.FILES)fail(503,'社区存储正在连接，请稍后重试');
  if(method!=='GET'&&method!=='HEAD'){
-  if(req.headers.get('origin')!==url.origin)fail(403,'请从本站页面提交');
+  if(req.headers.get('origin')!==(env.SITE_ORIGIN||url.origin))fail(403,'请从本站页面提交');
   const length=Number(req.headers.get('content-length')||0);if(length>50*1024*1024)fail(413,'上传内容过大');
  }
- if(path==='/api/config')return json({demo:false,writeEnabled:true,auth:'chatgpt',guestSubmission:true,community:true});
+ if(path==='/api/config')return json({demo:false,writeEnabled:true,auth:env.AUTH_MODE||'chatgpt',guestSubmission:true,community:true});
  const user=await identity(req,env);
- const member=()=>{if(!user)fail(401,'请先使用 ChatGPT 登录后留言');};
+ const member=()=>{if(!user)fail(401,'请先登录后留言');};
  const admin=()=>{if(user?.role!=='admin')fail(403,'需要管理员权限');};
  if(path==='/api/me')return json(user);
  if(path==='/api/places'&&method==='GET')return json(await placeViews(await rows(env,"SELECT * FROM places WHERE status='approved' ORDER BY created,id"),env));

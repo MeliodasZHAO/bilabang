@@ -1,0 +1,4 @@
+ops/*.sh text eol=lf
+ops/*.service text eol=lf
+ops/Caddyfile text eol=lf
+.github/workflows/*.yml text eol=lf

@@ -1,4 +1,4 @@
-# Template: do not enable until server/production.mjs and authentication are ready.
+# Install using ops/setup.sh, which resolves the Node executable path.
 [Unit]
 Description=Bilabang community API
 After=network-online.target

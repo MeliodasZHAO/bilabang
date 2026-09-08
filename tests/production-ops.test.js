@@ -9,7 +9,8 @@ import {smoke} from '../ops/smoke.mjs';
 test('preflight rejects demo credentials, temporary hosts and public listener configuration',()=>{
  const valid={NODE_ENV:'production',HOST:'127.0.0.1',PORT:'5188',SITE_URL:'https://app.bilabang.com',API_ORIGIN:'https://api.bilabang.com',DATA_DIR:path.join(os.tmpdir(),'bilabang-ops-test'),RATE_SALT:'a'.repeat(64)};
  assert.deepEqual(validateConfig(valid),[]);
- for(const override of [{API_ORIGIN:'https://api.example.test'},{SITE_URL:'https://demo.chatgpt.site'},{RATE_SALT:'REPLACE_WITH_RANDOM_SECRET'},{HOST:'0.0.0.0'},{PORT:'5188abc'},{NODE_ENV:'development'}])assert.ok(validateConfig({...valid,...override}).length);
+ for(const override of [{API_ORIGIN:'https://api.example.test'},{API_ORIGIN:'https://api.bilabang.cloud'},{SITE_URL:'https://demo.chatgpt.site'},{RATE_SALT:'REPLACE_WITH_RANDOM_SECRET'},{HOST:'0.0.0.0'},{PORT:'5188abc'},{NODE_ENV:'development'}])assert.ok(validateConfig({...valid,...override}).length);
+ assert.deepEqual(validateConfig({...valid,SITE_URL:'https://bilabang.com'}),[]);
 });
 
 test('port probe detects an existing listener without terminating it',async()=>{

@@ -10,7 +10,7 @@ export function validateConfig(env) {
   for(const key of ['SITE_URL','API_ORIGIN']) {
     try {
       const u=new URL(env[key]);
-      if(u.protocol!=='https:'||u.username||u.password||u.pathname!=='/'||u.search||u.hash||u.port||!u.hostname.includes('.')||/^(localhost|127\.|0\.|\[)/.test(u.hostname)||/\.(test|local|localhost|chatgpt\.site)$/.test(u.hostname))throw Error();
+      if(u.protocol!=='https:'||u.origin!==env[key]||u.username||u.password||u.pathname!=='/'||u.search||u.hash||u.port||!/^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$/.test(u.hostname)||/\.(test|local|localhost|chatgpt\.site)$/.test(u.hostname))throw Error();
       origins[key]=u;
     } catch { errors.push(`${key}: requires a public HTTPS origin without path or port`); }
   }
@@ -20,6 +20,10 @@ export function validateConfig(env) {
   if(!env.DATA_DIR||!path.isAbsolute(env.DATA_DIR))errors.push('DATA_DIR must be absolute');
   if(!env.RATE_SALT||env.RATE_SALT.length<32||/REPLACE|example|test-only/i.test(env.RATE_SALT))errors.push('RATE_SALT must be a random secret of at least 32 characters');
   if(origins.SITE_URL&&origins.API_ORIGIN&&origins.SITE_URL.hostname===origins.API_ORIGIN.hostname)errors.push('Use separate app and api hostnames for this deployment');
+  if(origins.SITE_URL&&origins.API_ORIGIN){
+    const parent=origins.API_ORIGIN.hostname.split('.').slice(1).join('.'),site=origins.SITE_URL.hostname;
+    if(site!==parent&&site.split('.').slice(1).join('.')!==parent)errors.push('Frontend and API must share the same parent domain for SameSite cookies');
+  }
   return errors;
 }
 

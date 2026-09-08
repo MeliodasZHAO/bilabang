@@ -1,10 +1,10 @@
 # 必拉榜 · The Scenic Stop
 
-发现与分享风景厕所的响应式 Web 应用。项目包含本地演示服务与 Sites 托管服务两条运行路径；目前尚未完成面向国内公众正式运营的全部验收。
+发现与分享风景厕所的响应式 Web 应用。项目包含本地演示、Sites 托管和独立 Node 后端三条运行路径；目前尚未完成面向国内公众正式运营的全部验收。
 
 ## 托管版本与当前源码
 
-EdgeOne 迁移准备、构建参数、环境变量、DNS 与尚未完成的验收项见 [EdgeOne 上线检查](docs/edgeone-launch.md)。该部署路径使用 `npm run build:edgeone`，必须先配置独立香港后端的 `VITE_API_ORIGIN`，目前尚未正式上线。
+当前部署操作见 [香港生产部署手册](docs/hong-kong-production.md)。独立后端使用 Node 24 和 `npm run start:production`，包含用户名密码认证、社区审核和 SQLite/JPEG 迁移备份；前端使用 `npm run build:edgeone`，配置 `VITE_API_ORIGIN`。本地已验证，真实香港服务器和正式域名尚未部署。首次架构审计保留在 [EdgeOne 上线检查](docs/edgeone-launch.md)。
 
 - 公网地址：https://bilabang-scenic-toilets.wangjiaze203.chatgpt.site/
 - 托管后端：`worker/index.js`，D1 保存用户档案、地点、评论和审核记录，R2 保存用户上传图片；登录使用 ChatGPT 平台身份。
@@ -20,7 +20,7 @@ node --test tests/hosted-runtime.test.js tests/hosted-scale.test.js
 
 托管构建产物位于 `dist/client` 和 `dist/server`。`scripts/preview-hosted.mjs` 使用 5187 端口和隔离临时数据库进行浏览器测试；运行前检查端口空闲，它不是生产服务。运行方式、测试边界和迁移计划见 [社区运行说明](docs/community-operations.md)。
 
-仓库保存源码、数据库结构、迁移文件及带来源说明的素材，不包含生产数据库、用户上传文件或部署密钥。推送 GitHub 不会自动部署，也不会同步生产数据。
+仓库保存源码、数据库结构、迁移文件及带来源说明的素材，不包含生产数据库、用户上传文件或部署密钥。香港自动部署 workflow 已准备，默认关闭；配置服务器 Secrets 并启用 HK_DEPLOY_ENABLED 后，main push 才会触发后端发布。EdgeOne 原生 GitHub 集成需另外连接。代码发布不会自动导入旧生产数据。
 
 ## 本地演示服务
 
