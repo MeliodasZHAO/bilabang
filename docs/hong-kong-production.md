@@ -1,15 +1,15 @@
 # 香港服务器生产部署
 
-更新：2026-09-09。独立后端已实现，尚未部署到真实香港服务器。
+更新：2026-09-09。香港服务器已上线；正式前端暂由同机 Caddy 托管，EdgeOne GitHub 授权仍待完成。当前状态以 docs/live-deployment.md 为准。
 
 ## 运行方式
 
-- Node 24，Ubuntu 24.04 LTS，单实例 SQLite WAL。npm 和 package-lock.json 保持不变。
+- Node 24，Ubuntu 26.04 LTS，单实例 SQLite WAL。npm 和 package-lock.json 保持不变。
 - 后端：`npm run start:production` → `server/production.mjs`。不要使用旧 `npm start` 或 `--preview`。
 - 复用 Worker 社区业务，通过 SQLite/持久文件适配器运行；不需要 Sites D1/R2 或 ChatGPT 身份头。
-- `app.bilabang.com` → EdgeOne；`api.bilabang.com` → 香港服务器 Caddy → 127.0.0.1:5188。
+- `app.bilabang.cloud` → 香港 Caddy 静态目录（待切 EdgeOne）；`api.bilabang.cloud` → 香港服务器 Caddy → 127.0.0.1:5188。
 - EdgeOne 安装 `npm ci`、构建 `npm run build:edgeone`、输出 `dist/edgeone`；生产分支 `main`，区域不含中国大陆。
-- `VITE_API_ORIGIN=https://api.bilabang.com` 是公开构建变量，其他后端密钥不能使用 VITE_ 前缀。
+- `VITE_API_ORIGIN=https://api.bilabang.cloud` 是公开构建变量，其他后端密钥不能使用 VITE_ 前缀。
 
 ## 已确认并实施的账户方案
 
@@ -32,7 +32,7 @@
 在源码目录，以 root 运行一次性准备（部署公钥文件先放到服务器）：
 
 ```sh
-bash ops/setup.sh https://app.bilabang.com https://api.bilabang.com /root/bilabang-deploy.pub
+bash ops/setup.sh https://app.bilabang.cloud https://api.bilabang.cloud /root/bilabang-deploy.pub
 ```
 
 该脚本拒绝覆盖已存在的专用配置/账户，不安装软件包，不覆盖 Caddy 配置，不启动网站。它生成随机 RATE_SALT、解析 Node 路径、建立专用用户/目录和有限 sudo 规则。
@@ -89,7 +89,7 @@ app CNAME 使用 EdgeOne 实际分配值；api A 使用服务器 IPv4。首次�
 
 ```sh
 node ops/preflight.mjs
-node ops/smoke.mjs https://app.bilabang.com https://api.bilabang.com
+node ops/smoke.mjs https://app.bilabang.cloud https://api.bilabang.cloud
 ```
 
 预检需先加载 production.env；只读 smoke 检查首页、静态资源、SPA fallback、API/CORS 和匿名身份，不创建线上账户或数据。
