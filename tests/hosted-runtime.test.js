@@ -20,6 +20,7 @@ test('compiled Worker persists reviews and photos; guests, moderation, scoring a
   const db=await mf.getD1Database('DB'),sql=await fs.readFile('drizzle/0000_salty_sphinx.sql','utf8');
   for(const statement of sql.split('--> statement-breakpoint').map(s=>s.trim()).filter(Boolean))await db.prepare(statement).run();
   assert.equal((await request('/config')).body.writeEnabled,true);
+  assert.equal((await request('/setup-sources',{method:'POST',data:{}})).status,404);
   assert.equal((await request('/admin')).status,403);
   assert.equal((await request('/admin/import-sources',{method:'POST',headers:admin,data:{}})).status,200);
   const catalog=(await request('/places')).body;assert.equal(catalog.length,7);const place=catalog[0];

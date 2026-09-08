@@ -81,13 +81,6 @@ export async function handle(req,env){
   if(req.headers.get('origin')!==url.origin)fail(403,'请从本站页面提交');
   const length=Number(req.headers.get('content-length')||0);if(length>50*1024*1024)fail(413,'上传内容过大');
  }
- if(path==='/api/setup-sources'&&method==='POST'){
-  if(!env.BOOTSTRAP_KEY||await hash(req.headers.get('x-setup-key')||'')!==await hash(env.BOOTSTRAP_KEY))fail(403,'没有初始化权限');
-  const probe='setup-probe/'+uuid();
-  try{await env.FILES.put(probe,'storage-ready');const stored=await env.FILES.get(probe);if(!stored||await stored.text()!=='storage-ready')fail(503,'图片存储验证未通过');}finally{await env.FILES.delete(probe);}
-  await env.DB.batch(sourcePlaces.map(f=>{const p=normalizePlace(f);p.regionPath=regionPath(p.regionId);return statement(env,"INSERT OR IGNORE INTO places(id,payload,status,version,created) VALUES(?,?,'approved',1,?)",'source:'+f.importKey,JSON.stringify(p),now());}));
-  return json({ok:true});
- }
  if(path==='/api/config')return json({demo:false,writeEnabled:true,auth:'chatgpt',guestSubmission:true,community:true});
  const user=await identity(req,env);
  const member=()=>{if(!user)fail(401,'请先使用 ChatGPT 登录后留言');};
