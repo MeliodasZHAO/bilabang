@@ -26,6 +26,7 @@ import {
   Clock,
 } from "@phosphor-icons/react";
 import { demoPlaces } from "./demo";
+import "./theme.css";
 import "./style.css";
 import './controls.css';
 import './playful.css';
@@ -51,6 +52,7 @@ function App() {
     [config, setConfig] = useState({}),
     [view, setView] = useState(["discover","ranking","about"].includes(new URLSearchParams(location.search).get("view"))?new URLSearchParams(location.search).get("view"):"discover"),
     [modal, setModal] = useState(null),
+    [detail, setDetail] = useState(new URLSearchParams(location.search).has("place")?{loading:true}:null),
     [query, setQuery] = useState(new URLSearchParams(location.search).get("q")||""),
     [country, setCountry] = useState(new URLSearchParams(location.search).get("region")||""),
     [sort, setSort] = useState(new URLSearchParams(location.search).get("sort")||"overall"),
@@ -60,20 +62,23 @@ function App() {
   useEffect(()=>{const listener=()=>{const p=new URLSearchParams(location.search);setCountry(p.get('region')||'');setQuery(p.get('q')||'');setSort(Object.hasOwn(labels,p.get('sort'))?p.get('sort'):'overall');setView(['ranking','about'].includes(p.get('view'))?p.get('view'):'discover');};window.addEventListener('popstate',listener);return()=>window.removeEventListener('popstate',listener);},[]);
   useEffect(()=>{const params=new URLSearchParams(location.search);if(query)params.set('q',query);else params.delete('q');if(sort!=='overall')params.set('sort',sort);else params.delete('sort');history.replaceState(null,'',location.pathname+(params.size?'?'+params:''));},[query,sort]);
   function openPlace(place){
-    if(!place.preview){const params=new URLSearchParams(location.search);params.set('place',place.id);history.pushState(null,'',location.pathname+'?'+params);}
-    setModal({type:'detail',place});
+    history.replaceState({...history.state,scrollY:window.scrollY},'',location.href);
+    const params=new URLSearchParams(location.search);params.set('place',place.id);
+    history.pushState({fromList:true},'',location.pathname+'?'+params);
+    setDetail({place});setModal(null);setMenu(false);window.scrollTo(0,0);
   }
-  function closeModal(){
-    if(modal?.type==='login'&&modal.returnPlace){setModal({type:'detail',place:modal.returnPlace});return;}
-    if(['detail','unavailable'].includes(modal?.type)){const params=new URLSearchParams(location.search);params.delete('place');history.replaceState(null,'',location.pathname+(params.size?'?'+params:''));}
-    setModal(null);
+  function closeModal(){setModal(null);}
+  function returnToList(){
+    if(history.state?.fromList){history.back();return;}
+    navigate(view);
   }
   useEffect(()=>{
     if(loading||error)return;
-    const restore=()=>{const id=new URLSearchParams(location.search).get('place');if(id){const place=places.find(p=>p.id===id);setModal(place?{type:'detail',place}:{type:'unavailable'});}else setModal(m=>(['detail','unavailable'].includes(m?.type)||m?.returnPlace)?null:m);};
-    restore();window.addEventListener('popstate',restore);return()=>window.removeEventListener('popstate',restore);
+    const restore=()=>{const id=new URLSearchParams(location.search).get('place');const place=places.find(p=>p.id===id);setDetail(id?(place?{place}:{unavailable:true}):null);};
+    const pop=()=>{restore();setModal(null);requestAnimationFrame(()=>window.scrollTo(0,history.state?.scrollY||0));};
+    restore();window.addEventListener('popstate',pop);return()=>window.removeEventListener('popstate',pop);
   },[places,loading,error]);
-  useEffect(()=>{document.title=modal?.type==='detail'?`${modal.place.name} · 必拉榜`:'必拉榜 · 换个地方，看世界';},[modal]);
+  useEffect(()=>{document.title=detail?.place?detail.place.name+' · 必拉榜':'必拉榜 · 换个地方，看世界';},[detail]);
   const notify = (t) => setToast(t);
   const refresh = () =>
     api("/places")
@@ -95,6 +100,7 @@ function App() {
   function navigate(v) {
     const params=new URLSearchParams(location.search);if(v!=="discover"&&v!=="admin")params.set("view",v);else params.delete("view");params.delete("place");history.pushState(null,"",location.pathname+(params.size?"?"+params:""));
     setView(v);
+    setDetail(null);setModal(null);
     setMenu(false);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
@@ -201,7 +207,7 @@ function App() {
         </div>
       )}
       {config.publicPreview && <div className="demo-bar">公开预览 <span>· 可浏览地点与体验地图；投稿、评论暂未开放，持续更新中</span></div>}
-      {view === "discover" && (
+      {!detail && view === "discover" && (
         <section className="hero">
           <div className="hero-photo" />
           <div className="hero-shade" />
@@ -241,7 +247,7 @@ function App() {
           <div className="vertical-label">蹲得讲究 · 评得认真</div>
         </section>
       )}
-      {(view === "discover" || view === "ranking") && (
+      {!detail && (view === "discover" || view === "ranking") && (
         <main id="explore">
           <div className="section-heading">
             <div>
@@ -437,7 +443,7 @@ function App() {
           </section>
         </main>
       )}
-      {view === "about" && (
+      {!detail && view === "about" && (
         <main className="about">
           <div className="eyebrow">ABOUT THE SCENIC STOP</div>
           <h1>
@@ -481,9 +487,18 @@ function App() {
           </button>
         </main>
       )}
-      {view === "admin" && (
+      {!detail && view === "admin" && (
         <AdminDesk user={user} api={api} notify={notify} refresh={refresh} onAdd={()=>setModal({type:"upload"})} onOpen={openPlace}/>
       )}
+      {detail && <main className="place-page">
+        <button className="outline place-back" onClick={returnToList}>← 返回地点列表</button>
+        {detail.place?<>
+          <div className="place-page-heading"><p className="eyebrow">这站，值得蹲一蹲吗？</p><h1>{detail.place.name}</h1><p className="muted">{detail.place.regionId?regionLabel(detail.place.regionId):[detail.place.country,detail.place.city].filter(Boolean).join(' / ')}</p></div>
+          <div className="place-page-layout"><article className="place-page-content"><Detail key={detail.place.id} place={detail.place} config={config} user={user} image={image(detail.place)} notify={notify} login={()=>setModal({type:'login'})}/></article>
+            <aside className="place-page-nav" onClick={e=>{const a=e.target.closest("a");if(a&&!e.ctrlKey&&!e.metaKey&&!e.shiftKey&&!e.altKey){e.preventDefault();document.querySelector(a.hash)?.scrollIntoView({behavior:"smooth"});}}}><strong>这站怎么看</strong><a href="#place-photos">照片与地点介绍</a><a href="#place-directions">位置与找路说明</a><a href="#place-scores">到访者评分</a><a href="#place-community">评论与现场动态</a><p>先看入口怎么走，再看看最近去过的人怎么说。</p><button className="primary" onClick={()=>document.getElementById('place-community')?.scrollIntoView({behavior:'smooth'})}>我也来补充</button></aside>
+          </div>
+        </>:<section className="empty" role="status"><h1>{error?'地点暂时加载失败':detail.loading?'正在寻找这个坑位…':'这个地点暂时无法查看'}</h1><p>{error||(detail.loading?'正在读取地点资料，请稍候。':'链接可能有误，或地点尚未公开。')}</p>{error&&<button onClick={refresh}>重新加载</button>}</section>}
+      </main>}
       <footer>
         <div className="footer-top">
           <a
@@ -539,18 +554,9 @@ function App() {
               config={config}
               onLogin={(u) => {
                 setUser(u);
-                setModal(modal.returnPlace?{type:"detail",place:modal.returnPlace}:null);
+                setModal(null);
                 notify("登录成功");
               }}
-            />
-          ) : modal.type === "detail" ? (
-            <Detail
-              place={modal.place}
-              config={config}
-              user={user}
-              image={image(modal.place)}
-              notify={notify}
-              login={() => setModal({ type: "login", returnPlace:modal.place })}
             />
           ) : modal.type === "receipt" ? (
             <ReceiptPanel api={api} initialToken={modal.token||""}/>
@@ -704,10 +710,10 @@ function Detail({ place: p, user, image, notify, login, config }) {
       api(`/places/${p.id}/reviews`)
         .then(setReviews)
         .catch((e) => setError(e.message));
-  }, [p.id]);
+  }, [p.id,config?.community]);
   return (
     <>
-      <img className="detail-image" style={p.imageCredit?{objectFit:'contain',background:'#e9ece3'}:undefined} src={selectedImage} alt={p.name} />
+      <img id="place-photos" className={"detail-image"+(selectedImage==='/no-photo.svg'?' is-placeholder':'')} style={p.imageCredit?{objectFit:'contain',background:'var(--soft)'}:undefined} src={selectedImage} alt={p.name} />
       {p.imageCredit&&<p className="image-credit">{p.imageCredit.caption} · 摄影：{p.imageCredit.author}<br/><a href={p.imageCredit.url} target="_blank" rel="noreferrer">原始来源</a> · <a href={p.imageCredit.licenseUrl} target="_blank" rel="noreferrer">{p.imageCredit.license}</a> · <a href={p.image} target="_blank" rel="noreferrer">查看完整图片</a><br/><small>{p.imageCredit.changes}</small></p>}
       {p.photos?.length > 1 && (
         <div className="gallery-thumbs">
@@ -749,8 +755,8 @@ function Detail({ place: p, user, image, notify, login, config }) {
               {p.lat==null?"暂无地图点位":`${p.locationMode==='reference'?'参考地标（非厕所入口）':'厕所位置'} · WGS84：${p.lat}, ${p.lng}`}
             </span>
           </div>
-          <section className="wayfinding"><h3>怎么找到这里</h3><p>{[['wheelchair','无障碍'],['babycare','母婴'],['paper','卫生纸'],['water','水源']].map(([k,t])=>`${t}：${({yes:'有',no:'无'})[p[k]]||'待核实'}`).join(' · ')}</p>{p.landmark&&<p>参考地标：{p.landmark}</p>}<p style={{whiteSpace:'pre-line'}}>{p.directions||'入口路线待补充，请结合原文与现场指示确认。'}</p><button onClick={()=>navigator.clipboard.writeText([p.name,p.address,p.landmark,p.directions].filter(Boolean).join('\n')).then(()=>notify('找路说明已复制')).catch(()=>notify('复制不可用，请手动选择文字'))}>复制找路说明</button>{p.sourceUrl&&<p>来源：<a href={p.sourceUrl} target="_blank" rel="noreferrer">{p.publisher} · 查看原文 ↗</a><br/><small>{p.checkedAt} 核查；历史报道不代表当前卫生或开放状态。</small></p>}{p.photos?.map(ph=><p key={ph.id} className="muted">{ph.caption}{ph.author&&` · 摄影：${ph.author}`}{ph.sourceUrl&&<> · <a href={ph.sourceUrl} target="_blank" rel="noreferrer">图片来源</a> · {ph.license}</>}</p>)}</section>
-          <div className="scores">
+          <section id="place-directions" className="wayfinding"><h3>怎么找到这里</h3><p>{[['wheelchair','无障碍'],['babycare','母婴'],['paper','卫生纸'],['water','水源']].map(([k,t])=>`${t}：${({yes:'有',no:'无'})[p[k]]||'待核实'}`).join(' · ')}</p>{p.landmark&&<p>参考地标：{p.landmark}</p>}<p style={{whiteSpace:'pre-line'}}>{p.directions||'入口路线待补充，请结合原文与现场指示确认。'}</p><button onClick={()=>navigator.clipboard.writeText([p.name,p.address,p.landmark,p.directions].filter(Boolean).join('\n')).then(()=>notify('找路说明已复制')).catch(()=>notify('复制不可用，请手动选择文字'))}>复制找路说明</button>{p.sourceUrl&&<p>来源：<a href={p.sourceUrl} target="_blank" rel="noreferrer">{p.publisher} · 查看原文 ↗</a><br/><small>{p.checkedAt} 核查；历史报道不代表当前卫生或开放状态。</small></p>}{p.photos?.map(ph=><p key={ph.id} className="muted">{ph.caption}{ph.author&&` · 摄影：${ph.author}`}{ph.sourceUrl&&<> · <a href={ph.sourceUrl} target="_blank" rel="noreferrer">图片来源</a> · {ph.license}</>}</p>)}</section>
+          <div id="place-scores" className="scores">
             {Object.entries(labels)
               .filter(([k]) => k !== "overall")
               .map(([k, v]) => (

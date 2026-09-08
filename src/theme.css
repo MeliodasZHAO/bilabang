@@ -1,0 +1,23 @@
+/* Shared palette for discovery, forms, community and moderation. */
+:root {
+  --ink: #172c57;
+  --muted: #59677f;
+  --brand: #244ad1;
+  --brand-hover: #1939aa;
+  --accent: #ffe255;
+  --paper: #fffef8;
+  --surface: #ffffff;
+  --soft: #f3f5fc;
+  --selected: #e7edff;
+  --line: #d5dce9;
+  --border: #a7b3ca;
+  --warning-bg: #fff7d5;
+  --warning-ink: #775512;
+  --danger: #ab302c;
+  --danger-bg: #fff0ed;
+  --shadow: #172c5724;
+  --overlay: #172c5799;
+  --radius-control: 10px;
+  --radius-panel: 16px;
+  --orange: var(--brand); /* Existing component compatibility. */
+}

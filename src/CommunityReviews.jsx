@@ -50,7 +50,7 @@ export default function CommunityReviews({place,user,api,login,notify}){
   {!nested&&r.status==='approved'&&<button className="outline" onClick={()=>{if(!user){login();return;}setReply(r);setTimeout(()=>formRef.current?.scrollIntoView({behavior:'smooth',block:'center'}),0);}}>回复</button>}
   {!nested&&list.filter(child=>child.parentId===r.id).map(child=>renderRecord(child,true))}
  </article>;}
- return <section className="community-section"><div className="community-heading"><div><h3>到访者的真实体验</h3><p className="muted">实拍、现场变化和不同角度的评价，一起补全这个地点。</p></div><button className="outline" disabled={loading} onClick={()=>load()}>{loading?'加载中…':'刷新动态'}</button></div>
+ return <section id="place-community" className="community-section"><div className="community-heading"><div><h3>到访者的真实体验</h3><p className="muted">实拍、现场变化和不同角度的评价，一起补全这个地点。</p></div><button className="outline" disabled={loading} onClick={()=>load()}>{loading?'加载中…':'刷新动态'}</button></div>
   <p className="community-sync" role="status">{syncError||`每 15 秒同步已审核动态${updated?' · 最近更新 '+updated.toLocaleTimeString('zh-CN'): ''}`}<span>新评论先审核，不是发出即公开</span></p><div className="tabs" role="group" aria-label="筛选到访内容">{Object.entries({all:'全部',visit:'到访评价',update:'现场信息',photos:'有图片'}).map(([k,t])=><button key={k} aria-pressed={filter===k} className={filter===k?'selected':''} onClick={()=>setFilter(k)}>{t}</button>)}</div>
   {error&&<p className="error" role="alert">{error}</p>}
   {loading?<p role="status">正在加载到访记录…</p>:visible.length?visible.map(r=>renderRecord(r)):<p className="muted">{filter==='all'?'还没有到访记录，留下第一份真实体验吧。':'当前分类还没有记录，可切换查看全部。'}</p>}
