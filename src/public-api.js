@@ -1,12 +1,9 @@
 import {regions,registerRegions,regionPath,regionMap} from './regions.js';
 import {ApiError} from './api.js';
+import {createPublicReader,waitForPublicData} from './public-loader.js';
 let directory,places;
 const fold=s=>s.normalize('NFD').replace(/\p{M}/gu,'').toLowerCase().replace(/[\s/·-]/g,'');
-async function readJson(path){
- const response=await fetch(path);
- if(!response.ok)throw new ApiError('公开资料暂时无法加载，请稍后重试',{status:response.status});
- return response.json();
-}
+const readJson=createPublicReader();
 async function loadDirectory(){
  if(!directory)directory=readJson('/region-data/world.json').then(registerRegions).catch(e=>{directory=null;throw e;});
  await directory;
@@ -20,13 +17,13 @@ export async function publicApi(route,options={}){
  if(url.pathname==='/me')return null;
  if(url.pathname==='/places'){
   places??=readJson('/catalog/places.json').catch(e=>{places=null;throw e;});
-  const result=await places;check();for(const p of result)registerRegions(p.regionPath);return result;
+  const result=await waitForPublicData(places,options.signal);check();for(const p of result)registerRegions(p.regionPath);return result;
  }
  if(/^\/places\/[^/]+\/reviews$/.test(url.pathname))return [];
  if(url.pathname==='/regions'){
   const q=fold((url.searchParams.get('q')||'').trim().slice(0,100)),parent=url.searchParams.get('parent')||'',id=url.searchParams.get('id')||'';
   // Country browsing and the complete mainland directory work without downloading the overseas catalog.
-  if(q||(parent&&!parent.startsWith('CN'))||(id&&!regionMap.has(id)))await loadDirectory();
+  if(q||(parent&&!parent.startsWith('CN'))||(id&&!regionMap.has(id)))await waitForPublicData(loadDirectory(),options.signal);
   check();
   if(id)return {items:regionPath(id),total:regionMap.has(id)?1:0};
   let found;
