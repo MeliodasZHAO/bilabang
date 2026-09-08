@@ -1,0 +1,29 @@
+{
+  "name": "bilabang",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node server.js",
+    "build": "vite build",
+    "build:public": "vite build --outDir out --mode public && node scripts/public-build.mjs",
+    "start": "node server.js --production",
+    "preview": "node server.js --preview",
+    "test": "node --test tests/*.test.js"
+  },
+  "dependencies": {
+    "@phosphor-icons/react": "^2.1.10",
+    "@radix-ui/react-select": "^2.3.7",
+    "compression": "^1.8.1",
+    "express": "^5.1.0",
+    "express-rate-limit": "^8.1.0",
+    "leaflet": "^1.9.4",
+    "multer": "^2.0.2",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "sharp": "^0.35.4"
+  },
+  "devDependencies": {
+    "vite": "^7.1.5"
+  }
+}

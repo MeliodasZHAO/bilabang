@@ -1,0 +1,9 @@
+import React,{useState} from 'react';
+import {readReceipts,forgetReceipts} from './local-contributions.js';
+export default function ReceiptPanel({api,initialToken=''}){
+ const [token,setToken]=useState(initialToken),[recent,setRecent]=useState(readReceipts),[result,setResult]=useState(null),[error,setError]=useState(''),[busy,setBusy]=useState(false);
+ async function lookup(value){const clean=value.trim();if(!/^[a-f0-9]{36}$/.test(clean)){setError('请输入完整的36位投稿回执');setResult(null);return;}setToken(clean);setBusy(true);setError('');setResult(null);try{setResult(await api('/receipts/'+encodeURIComponent(clean)));}catch(e){setError(e.message);}finally{setBusy(false);}}
+ return <section><p>回执用于查询投稿进度，请妥善保管。无需创建账户。</p><form onSubmit={e=>{e.preventDefault();lookup(token);}}><label className="wizard-field">投稿回执<input value={token} onChange={e=>setToken(e.target.value)} maxLength={100} autoComplete="off" spellCheck={false}/></label><button className="primary" disabled={busy}>{busy?'查询中…':'查询进度'}</button></form>{error&&<p className="notice" role="alert">{error}</p>}{result&&<div className="notice" role="status"><strong>{{pending:'等待审核',approved:'审核通过，已公开',rejected:'未通过或已下架'}[result.status]||'状态待确认'}</strong>{result.reason&&<p>处理说明：{result.reason}</p>}<p>提交时间：{result.created}（UTC）</p></div>}
+ {recent.length>0&&<><h3>这台设备的最近投稿</h3><p className="muted">最多保留30条、30天，仅此浏览器可见。清除记录不会撤回投稿。</p><ul className="recent-receipts">{recent.map(r=><li key={r.token}><strong>{r.name}</strong><span>{new Date(r.savedAt).toLocaleDateString('zh-CN')}</span><button className="outline" disabled={busy} onClick={()=>lookup(r.token)}>查询这条投稿</button></li>)}</ul><button className="outline" onClick={()=>{try{forgetReceipts();setRecent([]);}catch{setError('无法清除本机记录，请检查浏览器存储权限');}}}>清除本机回执记录</button></>}
+ </section>;
+}
