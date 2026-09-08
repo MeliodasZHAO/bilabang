@@ -5,7 +5,7 @@ import {api} from './api.js';
 export default function RegionPicker({value='',onChange,places=[],creation=false}){
  const [open,setOpen]=useState(false),[pending,setPending]=useState(value),[search,setSearch]=useState(''),[rows,setRows]=useState([]),[total,setTotal]=useState(0),[offset,setOffset]=useState(0),[busy,setBusy]=useState(false),[error,setError]=useState(''),[version,setVersion]=useState(0);
  const root=useRef(null),trigger=useRef(null),input=useRef(null);
- const [side,setSide]=useState('bottom');
+ const [side,setSide]=useState('bottom'),[space,setSpace]=useState(600);
  const counts=useMemo(()=>{const map=new Map();for(const p of places)for(const r of regionPath(p.regionId))map.set(r.id,(map.get(r.id)||0)+1);return map;},[places,version]);
  const dismiss=()=>{setOpen(false);trigger.current?.focus();};
  useEffect(()=>{if(!value||regionMap.has(value))return;let active=true;api('/regions?id='+encodeURIComponent(value)).then(r=>{if(active){registerRegions(r.items);setVersion(v=>v+1);}}).catch(()=>{});return()=>{active=false;};},[value]);
@@ -19,8 +19,8 @@ export default function RegionPicker({value='',onChange,places=[],creation=false
  const selectedPath=regionPath(value),last=selectedPath.at(-1),context=selectedPath[0]?.id==='CN'?selectedPath.find(r=>r.level==='city')||selectedPath[1]:selectedPath[0];
  const selectedLabel=last?[last.name,...(context&&context.id!==last.id?[context.name]:[])].join(' · '):'全球 · 选择地区';
  return <div className={'region-control '+(open?'is-open ':'')+(creation?'is-creation':'')} ref={root} onBlur={e=>{if(open&&e.relatedTarget&&!root.current?.contains(e.relatedTarget))setOpen(false);}}>
-  <button type="button" className="region-trigger" ref={trigger} title={regionLabel(value)||'全球地区'} aria-expanded={open} aria-haspopup="dialog" onClick={()=>{browse(value);const rect=trigger.current.getBoundingClientRect();setSide(innerHeight-rect.bottom<500&&rect.top>innerHeight-rect.bottom?'top':'bottom');setOpen(!open);}}><GlobeHemisphereWest size={19}/><span>{selectedLabel}</span><CaretDown size={16}/></button>
-  {open&&<section className="region-panel" data-side={side} role="dialog" aria-label="地区选择" onKeyDown={e=>{if(e.key==='Escape'){e.stopPropagation();dismiss();}}}>
+  <button type="button" className="region-trigger" ref={trigger} title={regionLabel(value)||'全球地区'} aria-expanded={open} aria-haspopup="dialog" onClick={()=>{browse(value);const rect=trigger.current.getBoundingClientRect();const above=innerHeight-rect.bottom<500&&rect.top>innerHeight-rect.bottom;setSide(above?'top':'bottom');setSpace(Math.max(180,(above?rect.top:innerHeight-rect.bottom)-24));setOpen(!open);}}><GlobeHemisphereWest size={19}/><span>{selectedLabel}</span><CaretDown size={16}/></button>
+  {open&&<section className="region-panel" data-side={side} style={{'--region-space':space+'px'}} role="dialog" aria-label="地区选择" onKeyDown={e=>{if(e.key==='Escape'){e.stopPropagation();dismiss();}}}>
    <div className="region-heading"><div><strong>你想去哪里？</strong><p>国家 / 地区 → 省州 → 城市 / 区县</p></div><button type="button" onClick={dismiss} aria-label="关闭地区选择"><X size={20}/></button></div>
    <div className="region-search"><MagnifyingGlass size={18}/><input ref={input} aria-label="搜索全球地区" placeholder="搜索国家或城市，如 Paris、上海虹口" value={search} onChange={e=>{setSearch(e.target.value);setOffset(0);}}/>{search&&<button type="button" aria-label="清除地区搜索" onClick={()=>{setSearch('');setOffset(0);input.current?.focus();}}><X size={16}/></button>}</div>
    <div className="region-breadcrumb"><button type="button" onClick={()=>browse('')}>全球</button>{regionPath(pending).map(r=><React.Fragment key={r.id}><CaretRight size={12}/><button type="button" onClick={()=>browse(r.id)}>{r.name}</button></React.Fragment>)}</div>
