@@ -26,14 +26,12 @@ import {
   Drop,
   Clock,
 } from "@phosphor-icons/react";
-import PlaceCard from "./PlaceCard.jsx";
+import { demoPlaces } from "./demo";
 import "./theme.css";
 import "./style.css";
 import './controls.css';
-
+import './playful.css';
 import './pages.css';
-import './atlas.css';
-import './supporting.css';
 import PlaceGallery from './PlaceGallery.jsx';
 import ContactPage from './ContactPage.jsx';
 import LegalPage,{LegalContent} from './LegalPage.jsx';
@@ -89,7 +87,7 @@ function App() {
     const pop=()=>{restore();setModal(null);requestAnimationFrame(()=>window.scrollTo(0,history.state?.scrollY||0));};
     restore();window.addEventListener('popstate',pop);return()=>window.removeEventListener('popstate',pop);
   },[places,loading,error]);
-  useEffect(()=>{document.title=detail?.place?detail.place.name+' · 必拉榜':view==='contact'?'合作与交流 · 必拉榜':view==='submit'?'分享一处风景 · 必拉榜':['terms','privacy','rules'].includes(view)?({terms:'服务协议',privacy:'隐私说明',rules:'社区规则'}[view]+' · 必拉榜'):'必拉榜 · 世界厕所图鉴';},[detail,view]);
+  useEffect(()=>{document.title=detail?.place?detail.place.name+' · 必拉榜':view==='contact'?'合作与交流 · 必拉榜':view==='submit'?'分享一处风景 · 必拉榜':['terms','privacy','rules'].includes(view)?({terms:'服务协议',privacy:'隐私说明',rules:'社区规则'}[view]+' · 必拉榜'):'必拉榜 · 换个地方，看世界';},[detail,view]);
   const notify = (t) => setToast(t);
   const refresh = () =>
     api("/places")
@@ -122,7 +120,8 @@ function App() {
     setMenu(false);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
-  const items = places;
+  const isDemo = config.demo && places.length === 0;
+  const items = isDemo ? demoPlaces : places;
   const filtered = items
     .filter(
       (p) =>
@@ -132,8 +131,7 @@ function App() {
           .includes(query.toLowerCase()),
     )
     .sort(
-      (a, b) => (b.scores?.[sort]?.rank ?? -1) - (a.scores?.[sort]?.rank ?? -1)
-        || (view==='discover' ? Number(Boolean(b.image||b.photos?.length))-Number(Boolean(a.image||a.photos?.length)) : 0),
+      (a, b) => (b.scores?.[sort]?.rank ?? -1) - (a.scores?.[sort]?.rank ?? -1),
     );
   const image = (p) => p.image || (p.photos?.length ? apiUrl(`/api/photos/${p.photos[0].id}`) : "/no-photo.svg");
   return (
@@ -148,9 +146,9 @@ function App() {
           }}
         >
           <span className="brand-icon">
-            <ArrowUpRight size={22} />
+            <Mountains size={26} weight="bold" />
           </span>
-          必拉榜
+          必拉榜<span className="brand-en">THE SCENIC STOP</span>
         </a>
         <nav className={menu ? "open" : ""}>
           {[
@@ -161,7 +159,7 @@ function App() {
           ].map(([v, t]) => (
             <button
               key={v}
-              className={view === v && !detail ? "active" : ""}
+              className={view === v ? "active" : ""}
               onClick={() => navigate(v)}
             >
               {t}
@@ -205,15 +203,14 @@ function App() {
           )}
           <button
             className="primary compact"
-            aria-label="提交地点"
             onClick={() => navigate("submit")}
           >
             <Plus size={17} />
-            <span className="contribute-label">提交地点</span>
+            分享一处风景
           </button>
           <button
             className="mobile-menu icon-button"
-            aria-label={menu ? "收起导航" : "展开导航"}
+            aria-label="展开导航"
             aria-expanded={menu}
             onClick={() => setMenu(!menu)}
           >
@@ -228,21 +225,111 @@ function App() {
       )}
       {config.publicPreview && <div className="demo-bar">公开预览 <span>· 可浏览地点与体验地图；投稿、评论暂未开放，持续更新中</span></div>}
       {!detail && view === "discover" && (
-        <section className="discovery-intro">
-          <div><p className="intro-kicker"><span aria-hidden="true"/>世界厕所图鉴</p><h1>世界这么大，<br/>总得找个好地方。</h1></div>
-          <div className="intro-search"><p>发现、点评世界各地的漂亮厕所。</p><label className="search"><MagnifyingGlass size={20}/><input aria-label="搜索地点" placeholder="搜索地点、城市或风景" value={query} onChange={e=>setQuery(e.target.value)}/></label></div>
+        <section className="hero">
+          <div className="hero-photo" />
+          <div className="hero-shade" />
+          <div className="hero-copy">
+            <div className="eyebrow light">
+              <span /> 人生大事，也要选个好风景
+            </div>
+            <h1>
+              世界那么大，
+              <br />
+              蹲哪儿<span className="orange">？</span>
+            </h1>
+            <p>
+              有人追日落，有人追厕所。
+              <br />
+              我们负责把这两件事，认真地凑到一起。
+            </p>
+            <button
+              className="hero-cta"
+              onClick={() =>
+                document
+                  .getElementById("explore")
+                  .scrollIntoView({ behavior: "smooth" })
+              }
+            >
+              带我找个好坑位 <ArrowUpRight size={22} />
+            </button>
+          </div>
+          <div className="toilet-stamp" aria-hidden="true"><strong>WC</strong><span>值得专程<br/>上个厕所</span></div><div className="hero-caption">
+            <span className="caption-line" />
+            <div>
+              <span>设计想象 / 山湖之间</span>
+              <small>AI 生成概念图 · 非真实地点</small>
+            </div>
+            <span className="photo-index">CONCEPT / 001</span>
+          </div>
+          <div className="vertical-label">蹲得讲究 · 评得认真</div>
         </section>
       )}
       {!detail && (view === "discover" || view === "ranking") && (
         <main id="explore">
-          <div className="section-heading"><h2>{view==='ranking'?'社区评分榜':'发现好地方'}</h2><div className="listing-summary"><span className="small-note">{loading?'正在加载':query||country?filtered.length+' 处符合条件':places.length+' 处已收录'}</span><button className="text-action random-stop" disabled={!filtered.length} onClick={()=>openPlace(filtered[Math.floor(Math.random()*filtered.length)])}>随机看看 <ArrowUpRight size={18}/></button></div></div>
-          {view==='ranking'&&<div className="ranking-search"><label className="search"><MagnifyingGlass size={20}/><input aria-label="搜索地点" placeholder="搜索地点、城市或风景" value={query} onChange={e=>setQuery(e.target.value)}/></label></div>}
+          <div className="section-heading">
+            <div>
+              <h2>
+                {view === "ranking"
+                  ? "厕所也能争 C 位。"
+                  : "下一站，在哪儿蹲？"}
+              </h2>
+            </div>
+            <button className="random-stop" disabled={!filtered.length} onClick={()=>openPlace(filtered[Math.floor(Math.random()*filtered.length)])}>随缘蹲一站 ↗</button><span className="small-note">
+              {isDemo
+                ? "从第一份真实分享开始"
+                : `${filtered.length} / ${places.length} 处地点 · 资料与实地分享`}
+            </span>
+          </div>
           <div className="filter-bar">
-            <div className="search-controls"><RegionPicker value={country} onChange={updateRegion} places={items}/>{country&&<button className="text-action clear-region" onClick={()=>updateRegion('')}>清除地区 <X size={16}/></button>}</div>
-            <div className="tabs discovery-sorts" aria-label="排行榜维度">
-              {Object.entries(labels).map(([k,v])=><button aria-pressed={sort===k} className={sort===k?'selected':''} onClick={()=>setSort(k)} key={k}>{v}</button>)}
+            <div className="tabs" aria-label="排行榜维度">
+              {Object.entries(labels).map(([k, v]) => (
+                <button
+                  aria-pressed={sort === k}
+                  className={sort === k ? "selected" : ""}
+                  onClick={() => setSort(k)}
+                  key={k}
+                >
+                  {k === "overall" ? (
+                    <Compass />
+                  ) : k === "scenery" ? (
+                    <Mountains />
+                  ) : k === "cleanliness" ? (
+                    <Drop />
+                  ) : k === "access" ? (
+                    <Path />
+                  ) : (
+                    <ShieldCheck />
+                  )}
+                  {v}
+                </button>
+              ))}
+            </div>
+            <div className="search-controls">
+              <label className="search">
+                <MagnifyingGlass size={19} />
+                <input
+                  aria-label="搜索地点"
+                  placeholder="搜索目的地、风景…"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                />
+              </label>
+              <RegionPicker value={country} onChange={updateRegion} places={items}/>
+              {country&&<button onClick={()=>updateRegion('')}>清除地区 ×</button>}
+
             </div>
           </div>
+          {isDemo && !loading && (
+            <div className="editorial-note">
+              <Leaf size={19} />
+              <span>
+                灵感先行，真实分享由你开启。以下为旅行风景示意，未核实为厕所，不参与排名。
+              </span>
+              <button onClick={() => navigate("submit")}>
+                分享一处风景 <ArrowRight />
+              </button>
+            </div>
+          )}
           {view === "ranking" && (
             <div className="ranking-explainer">
               榜单至少需要 5 位有效评价。综合权重：风景 40% · 卫生 30% · 到达
@@ -253,7 +340,7 @@ function App() {
             </div>
           )}
           {loading ? (
-            <div className="place-grid loading-grid" role="status" aria-label="正在加载地点">{[0,1,2].map(n=><div className="place-skeleton" key={n}><div/><span/><span/></div>)}</div>
+            <div className="empty">正在寻找风景…</div>
           ) : error ? (
             <div className="empty" role="alert">
               {error}
@@ -269,8 +356,8 @@ function App() {
           ) : filtered.length === 0 ? (
             <div className="empty">
               <Compass size={40} />
-              <h3>这里还没有收录</h3>
-              <p>换个筛选条件，或者看看其他地方。</p>{country&&<button onClick={()=>updateRegion(regionMap.get(country)?.parentId||'')}>扩大到上一级地区</button>}
+              <h3>这一站，还没有被发现</h3>
+              <p>换个关键词，或分享你知道的风景。</p>{country&&<button onClick={()=>updateRegion(regionMap.get(country)?.parentId||'')}>扩大到上一级地区</button>}
               <button
                 onClick={() => {
                   setQuery("");
@@ -286,16 +373,97 @@ function App() {
                 view === "ranking" ? "place-grid ranking-grid" : "place-grid"
               }
             >
-              {filtered.map((p,i)=><PlaceCard key={p.id} place={p} image={image(p)} sort={sort} rank={view==='ranking'&&p.scores?.[sort]?.rank!=null&&(p.scores?.[sort]?.count||0)>=5?i+1:null} onOpen={openPlace} notify={notify}/>)}
+              {filtered.map((p, i) => (
+                <article key={p.id} className="place-card">
+                 <a className="place-open" aria-label={`查看${p.name}`} href={p.preview?'#':`/?place=${encodeURIComponent(p.id)}`} onClick={e=>{if(e.button===0&&!e.ctrlKey&&!e.metaKey&&!e.shiftKey&&!e.altKey){e.preventDefault();openPlace(p);}}}>
+                  <div className="card-image">
+                    <img
+                      src={image(p)}
+                      alt={p.preview ? `${p.name}，旅行风景示意` : p.name}
+                      loading="lazy"
+                    />
+                    <span className="image-label">
+                      {p.preview
+                        ? "灵感示意"
+                        : p.demo
+                          ? "本地测试投稿"
+                          : p.template === "source" ? "公开资料收录" : "社区实拍"}
+                    </span>
+                    <span className="image-arrow">
+                      <ArrowUpRight size={23} />
+                    </span>
+                    {view === "ranking" && (
+                      <span className="rank-number">
+                        {p.scores?.[sort]?.rank
+                          ? String(i + 1).padStart(2, "0")
+                          : "—"}
+                      </span>
+                    )}
+                  </div>
+                  <div className="card-body"><div className="card-meta">
+                    <span>
+                      <MapPin size={14} />
+                      {p.regionId?regionLabel(p.regionId):`${p.country} · ${p.city}`}
+                    </span>
+                    <span>{p.imageCredit?`摄影：${p.imageCredit.author}`:p.scene || (p.template === "source" ? (p.imageCredit?"开放许可图片":"待补实拍") : "实拍分享")}</span>
+                  </div>
+                  <div className="card-title">
+                    <h3>{p.name}</h3>
+                    {p.scores?.[sort]?.average ? (
+                      <strong>
+                        <Star size={17} weight="fill" />
+                        {p.scores[sort].average.toFixed(1)}
+                      </strong>
+                    ) : (
+                      <span className="no-score">暂无评分</span>
+                    )}
+                  </div>
+                  <p>{p.description}</p>
 
+                  <div className="card-bottom">
+                    <span>
+                      {p.preview
+                        ? "等待真实地点投稿"
+                        : `${p.scores?.overall?.count || 0} 位评价 · ${(p.scores?.overall?.count || 0) < 5 ? "评价不足，暂不上榜" : "社区评价"}`}
+                    </span>
+                    <span>
+                      去看看 <ArrowRight size={16} />
+                    </span>
+                  </div>
+                  </div>
+                 </a>
+                 {!p.preview&&<button type="button" className="card-share" aria-label={`复制${p.name}的链接`} onClick={async()=>{const url=new URL(location.href);url.search='';url.searchParams.set('place',p.id);try{await navigator.clipboard.writeText(url.href);notify('地点链接已复制');}catch{notify('复制不可用，请打开地点后复制地址栏链接');}}}><LinkSimple size={15}/>复制链接</button>}
+                </article>
+              ))}
             </div>
           )}
-
+          <section className="invite">
+            <div className="invite-number">＋</div>
+            <div>
+              <h2>
+                你见过的风景，
+                <br />
+                也许是别人的下一站。
+              </h2>
+              <p>
+                一张实拍，一个位置，一段真实体验。
+                <br />
+                无需创建账户，也能为这份特别的清单添上一笔。
+              </p>
+            </div>
+            <button
+              className="primary"
+              onClick={() => navigate("submit")}
+            >
+              <Camera size={21} />
+              分享一处风景 <ArrowUpRight size={20} />
+            </button>
+          </section>
         </main>
       )}
       {!detail && view === "about" && (
         <main className="about">
-          <div className="eyebrow">关于必拉榜</div>
+          <div className="eyebrow">ABOUT THE SCENIC STOP</div>
           <h1>
             让旅途中的小停留，
             <br />
@@ -344,17 +512,18 @@ function App() {
       )}
       {!detail && view === 'submit' && <main className="submission-page">
         <button className="page-back" onClick={()=>navigate('discover')}>← 返回发现</button>
-        <div className="submission-heading"><p className="eyebrow">共同完善这份图鉴</p><h1>分享一处风景</h1><p>把你发现的好地方，留给下一位路过的人。</p></div>
+        <div className="submission-heading"><p className="eyebrow">好风景，别一个人蹲</p><h1>分享一处风景</h1><p>把你发现的好地方，留给下一位路过的人。</p></div>
         <div className="submission-layout"><section className="submission-main" aria-label="地点投稿">{user?.account?.status==='muted'?<AccountRestriction account={user.account}/>:<SubmissionWizard key={user?.id||'guest'} places={places} config={config} user={user} notify={notify} api={api} Verification={Verification} onDone={refresh} onReceipt={token=>setModal({type:'receipt',token})}/>}</section>
           <aside className="submission-guide"><Camera size={28}/><h2>把一处地点讲清楚</h2><p>一张看风景，一张认入口。再留几句找路说明，下一位就少绕一点路。</p><ul><li>最多 6 张照片，可选封面</li><li>地图上没有？文字路线也可以</li><li>无需注册，审核通过后公开</li></ul><p className="muted">拍建筑、拍风景，记得避开正在使用厕所的人。</p><button className="text-action" onClick={()=>setModal({type:'rules'})}>查看投稿规则 <ArrowUpRight size={16}/></button></aside></div>
       </main>}
       {detail && <main className="place-page">
         <button className="outline place-back" onClick={returnToList}>← 返回地点列表</button>
         {detail.place?<>
-          <div className="place-page-heading"><h1>{detail.place.name}</h1><p className="place-heading-location"><MapPin size={18}/>{detail.place.regionId?regionLabel(detail.place.regionId):[detail.place.country,detail.place.city].filter(Boolean).join(' / ')}</p><p className="place-heading-score">{detail.place.scores?.overall?.average!=null&&detail.place.scores?.overall?.count>0?<><Star size={18}/><strong>{detail.place.scores.overall.average.toFixed(1)} / 5</strong><span>{detail.place.scores.overall.count} 位评价</span></>:'暂无评分'}</p></div>
-          <article className="place-page-content"><Detail key={detail.place.id} place={detail.place} config={config} user={user} image={image(detail.place)} notify={notify} login={()=>setModal({type:'login'})}/></article>
-
-        </>:<section className="empty" role="status"><h1>{error?'地点暂时加载失败':detail.loading?'正在加载地点…':'这个地点暂时无法查看'}</h1><p>{error||(detail.loading?'正在读取地点资料，请稍候。':'链接可能有误，或地点尚未公开。')}</p>{error&&<button onClick={refresh}>重新加载</button>}</section>}
+          <div className="place-page-heading"><p className="eyebrow">这站，值得蹲一蹲吗？</p><h1>{detail.place.name}</h1><p className="muted">{detail.place.regionId?regionLabel(detail.place.regionId):[detail.place.country,detail.place.city].filter(Boolean).join(' / ')}</p></div>
+          <div className="place-page-layout"><article className="place-page-content"><Detail key={detail.place.id} place={detail.place} config={config} user={user} image={image(detail.place)} notify={notify} login={()=>setModal({type:'login'})}/></article>
+            <aside className="place-page-nav" onClick={e=>{const a=e.target.closest("a");if(a&&!e.ctrlKey&&!e.metaKey&&!e.shiftKey&&!e.altKey){e.preventDefault();document.querySelector(a.hash)?.scrollIntoView({behavior:"smooth"});}}}><strong>这站怎么看</strong><a href="#place-photos">照片与地点介绍</a><a href="#place-directions">位置与找路说明</a><a href="#place-scores">到访者评分</a><a href="#place-community">评论与现场动态</a><p>先看入口怎么走，再看看最近去过的人怎么说。</p><button className="primary" onClick={()=>document.getElementById('place-community')?.scrollIntoView({behavior:'smooth'})}>我也来补充</button></aside>
+          </div>
+        </>:<section className="empty" role="status"><h1>{error?'地点暂时加载失败':detail.loading?'正在寻找这个坑位…':'这个地点暂时无法查看'}</h1><p>{error||(detail.loading?'正在读取地点资料，请稍候。':'链接可能有误，或地点尚未公开。')}</p>{error&&<button onClick={refresh}>重新加载</button>}</section>}
       </main>}
       <footer>
         <div className="footer-top">
@@ -366,11 +535,11 @@ function App() {
               navigate("discover");
             }}
           >
-            <span className="brand-icon"><ArrowUpRight size={22}/></span>
+            <Mountains size={27} />
             必拉榜
           </a>
-          <p>发现、点评世界各地的漂亮厕所。</p>
-
+          <p>世界很大，厕所也得挑一下。</p>
+          <span>发现 · 分享 · 认真评价</span>
         </div>
         <div className="footer-bottom">
           <span>
@@ -594,35 +763,32 @@ function Detail({ place: p, user, image, notify, login, config }) {
   return (
     <>
       <PlaceGallery place={p}/>
-      <div className="detail-body">
-      <section className="place-introduction"><div className="section-title"><h2>地点介绍</h2>{!p.preview&&<button className="text-action" onClick={async()=>{const url=new URL(location.origin);url.searchParams.set('place',p.id);try{await navigator.clipboard.writeText(url.href);notify('地点链接已复制');}catch{notify('复制不可用，可复制浏览器地址栏链接');}}}><LinkSimple size={16}/>复制链接</button>}</div><p>{p.description}</p></section>      {p.preview ? (
+      <section className="place-introduction"><div className="section-title"><h2>这一站的看点</h2>{!p.preview&&<button className="text-action" onClick={async()=>{const url=new URL(location.origin);url.searchParams.set('place',p.id);try{await navigator.clipboard.writeText(url.href);notify('地点链接已复制');}catch{notify('复制不可用，可复制浏览器地址栏链接');}}}><LinkSimple size={16}/>复制链接</button>}</div><p>{p.description}</p></section>      {p.preview ? (
         <div className="notice">
           这是一张旅行风景示意图，未核实为真实厕所。位置、导航和评分不开放；欢迎提交你亲自到访的地点。
         </div>
       ) : (
         <>
-          <section id="place-directions" className="wayfinding"><div className="section-title"><h2>地点与访问</h2><MapPin size={24}/></div>
+          <section id="place-directions" className="wayfinding"><div className="section-title"><h2>先认路，再看风景</h2><MapPin size={24}/></div>
             <dl className="visit-facts"><div><dt>具体位置</dt><dd>{p.address||'详细地址待补充'}</dd></div><div><dt>开放时间</dt><dd>{p.hours||'待核实'}</dd></div><div><dt>费用与门票</dt><dd>{p.fee||'待核实'}</dd></div><div><dt>{p.date?'最近投稿到访':'资料核查'}</dt><dd>{p.date||p.checkedAt||'日期待补充'}</dd></div></dl>
             <div className="route-notes"><h3>入口怎么走</h3>{p.landmark&&<p className="landmark">参考地标：{p.landmark}</p>}<p>{p.directions||'入口路线待补充，请结合原文与现场指示确认。'}</p><button className="outline" onClick={()=>navigator.clipboard.writeText([p.name,p.address,p.landmark,p.directions].filter(Boolean).join('\n')).then(()=>notify('找路说明已复制')).catch(()=>notify('复制不可用，请手动选择文字'))}>复制找路说明</button></div>
             <div className="facility-list">{[['wheelchair','无障碍'],['babycare','母婴空间'],['paper','卫生纸'],['water','洗手水源']].map(([k,t])=><span key={k}><span>{t}</span><strong>{({yes:'有',no:'无'})[p[k]]||'待核实'}</strong></span>)}</div>
             <p className="coordinate-note">{p.lat==null?'暂无地图点位，以文字说明找路。':`${p.locationMode==='reference'?'参考地标坐标 · 非厕所入口':'厕所位置'} · WGS84 ${p.lat}, ${p.lng}`}</p>
           </section>
           {p.sourceUrl&&<div className="place-source"><span>资料来源</span><a href={p.sourceUrl} target="_blank" rel="noreferrer">{p.publisher||'查看原文'} <ArrowUpRight size={16}/></a><small>历史资料不代表当前卫生与开放状态，出发前请再次确认。</small></div>}
-          <section className="detail-scores"><div className="section-title score-heading"><h2>各项评分</h2><span className="muted">{p.scores?.overall?.count||0} 位有效评价</span></div>          <div id="place-scores" className="scores">
+          <div className="section-title score-heading"><h2>这站，你给几分？</h2><span className="muted">{p.scores?.overall?.count||0} 位有效评价</span></div>          <div id="place-scores" className="scores">
             {Object.entries(labels)
               .filter(([k]) => k !== "overall")
               .map(([k, v]) => (
                 <div key={k}>
+                  <strong>{p.scores[k].average?.toFixed(1) || "—"}</strong>
                   <span>{v}</span>
-                  <div className="score-track" aria-hidden="true"><i style={{width:((p.scores?.[k]?.average||0)/5*100)+'%'}}/></div>
-                  <strong>{p.scores?.[k]?.average?.toFixed(1) || '暂无评分'}</strong>
                 </div>
               ))}
           </div>
           <p className="muted">
-            {p.scores?.overall?.count||0} 位有效评价 · 满分 5 分 · 少于 5 位暂不上榜
+            {p.scores.overall.count} 位有效评价 · 少于 5 位暂不上榜
           </p>
-          </section><section className="detail-discussion">
           {config?.community?<CommunityReviews place={p} user={user} api={api} login={login} notify={notify}/>:<>
           <h3>到访者的真实体验</h3>
           {reviews.length ? (
@@ -698,12 +864,12 @@ function Detail({ place: p, user, image, notify, login, config }) {
                 />
               </Field>
               <button className="primary" disabled={busy}>
-                {busy ? "正在提交…" : "发表评论"}
+                {busy ? "正在提交…" : "提交评价"}
               </button>
             </form>
           ) : (
             <button className="outline" onClick={login}>
-              登录后发表评论 <ArrowRight />
+              登录后评分与留言 <ArrowRight />
             </button>
           )}
           </>}
@@ -739,7 +905,6 @@ function Detail({ place: p, user, image, notify, login, config }) {
               <button className="outline">提交举报</button>
             </form>
           )}
-          </section>
         </>
       )}
       {error && (
@@ -747,11 +912,9 @@ function Detail({ place: p, user, image, notify, login, config }) {
           {error}
         </p>
       )}
-      </div>
     </>
   );
 }
-
 function Verification({ config, onVerified, skip = false, purpose = "submission" }) {
   const [phone, setPhone] = useState(""),
     [code, setCode] = useState(""),

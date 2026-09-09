@@ -1,37 +1,23 @@
-/* One palette shared by discovery, forms, community and moderation. */
+/* Shared palette for discovery, forms, community and moderation. */
 :root {
-  --bg: #F7F9FC;
-  --surface: #FFFFFF;
-  --text: #17212B;
-  --text-secondary: #526171;
-  --text-muted: #657384;
-  --border: #DFE5ED;
-  --brand: #2157F3;
-  --brand-hover: #1747D1;
-  --brand-soft: #EAF0FF;
-  --success: #18764B;
-  --success-soft: #EAF6EF;
-  --warning: #9A5B00;
-  --warning-soft: #FFF4DB;
-  --danger: #C53C37;
-  --danger-soft: #FDEEEE;
-  --radius-control: 8px;
-  --radius-image: 10px;
-  --radius-dialog: 12px;
-  --shadow-floating: 0 10px 30px rgb(23 33 43 / 10%);
-  /* Compatibility aliases keep existing components on the same palette. */
-  --ink: var(--text);
-  --muted: var(--text-secondary);
-  --paper: var(--bg);
-  --soft: var(--bg);
-  --selected: var(--brand-soft);
-  --line: var(--border);
-  --accent: var(--brand);
-  --orange: var(--brand);
-  --warning-bg: var(--warning-soft);
-  --warning-ink: var(--warning);
-  --danger-bg: var(--danger-soft);
-  --shadow: rgb(23 33 43 / 10%);
-  --overlay: rgb(23 33 43 / 40%);
-  --radius-panel: var(--radius-dialog);
+  --ink: #172c57;
+  --muted: #59677f;
+  --brand: #244ad1;
+  --brand-hover: #1939aa;
+  --accent: #ffe255;
+  --paper: #fffef8;
+  --surface: #ffffff;
+  --soft: #f3f5fc;
+  --selected: #e7edff;
+  --line: #d5dce9;
+  --border: #a7b3ca;
+  --warning-bg: #fff7d5;
+  --warning-ink: #775512;
+  --danger: #ab302c;
+  --danger-bg: #fff0ed;
+  --shadow: #172c5724;
+  --overlay: #172c5799;
+  --radius-control: 10px;
+  --radius-panel: 16px;
+  --orange: var(--brand); /* Existing component compatibility. */
 }

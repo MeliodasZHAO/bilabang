@@ -45,8 +45,8 @@ export default function CommunityReviews({place,user,api,login,notify}){
   }catch(e){setError(e.message);if(e.status===403&&user?.account){try{setAccount((await api('/me'))?.account);}catch{}}}finally{setBusy(false);}
  }
  function renderRecord(r,nested=false){return <article className={'community-record'+(nested?' is-reply':'')} key={r.id}>
-  <div className="community-author"><span className="community-avatar" aria-hidden="true">{Array.from(r.name||'')[0]}</span><div className="community-author-detail"><div className="community-byline"><strong>{r.name}</strong><span>{r.kind==='reply'?'回复':r.kind==='update'?'现场信息':'到访评价'}</span>{r.status!=='approved'&&<span className="status">{r.status==='pending'?'审核中 · 仅你可见':'未公开 · 仅你可见'}</span>}</div>
-  <p className="community-date">{r.date?`${r.date} 到访 · `:''}{new Date(r.created).toLocaleString('zh-CN')} 发布</p></div></div>
+  <div className="community-byline"><strong>{r.name}</strong><span>{r.kind==='reply'?'回复':r.kind==='update'?'现场信息':'到访评价'}</span>{r.status!=='approved'&&<span className="status">{r.status==='pending'?'审核中 · 仅你可见':'未公开 · 仅你可见'}</span>}</div>
+  <p className="muted">{r.date?`${r.date} 到访 · `:''}{new Date(r.created).toLocaleString('zh-CN')} 发布</p>
   {r.kind==='visit'&&<div className="community-ratings">{Object.entries(labels).map(([k,t])=><span key={k}>{t} <strong>{r[k]}</strong><small>/5</small></span>)}</div>}
   {r.condition&&r.condition!=='unknown'&&<p className="community-condition">现场记录：{conditions[r.condition]} <small>以到访日期为准，当前情况可能变化</small></p>}
   <p className="community-text">{r.text}</p>
@@ -54,21 +54,21 @@ export default function CommunityReviews({place,user,api,login,notify}){
   {!nested&&r.status==='approved'&&<button className="outline" onClick={()=>{if(!user){login();return;}setReply(r);setTimeout(()=>formRef.current?.scrollIntoView({behavior:'smooth',block:'center'}),0);}}>回复</button>}
   {!nested&&list.filter(child=>child.parentId===r.id).map(child=>renderRecord(child,true))}
  </article>;}
- return <section id="place-community" className="community-section"><div className="community-heading"><div><h3>评论与到访记录</h3><p className="muted">实拍、现场变化和不同角度的评价，一起补全这个地点。</p></div><button className="outline" disabled={loading} onClick={()=>load()}>{loading?'加载中…':'刷新动态'}</button></div>
+ return <section id="place-community" className="community-section"><div className="community-heading"><div><h3>到访者的真实体验</h3><p className="muted">实拍、现场变化和不同角度的评价，一起补全这个地点。</p></div><button className="outline" disabled={loading} onClick={()=>load()}>{loading?'加载中…':'刷新动态'}</button></div>
   <p className="community-sync" role="status">{syncError||`每 15 秒同步已审核动态${updated?' · 最近更新 '+updated.toLocaleTimeString('zh-CN'): ''}`}<span>新评论先审核，不是发出即公开</span></p><div className="tabs" role="group" aria-label="筛选到访内容">{Object.entries({all:'全部',visit:'到访评价',update:'现场信息',photos:'有图片'}).map(([k,t])=><button key={k} aria-pressed={filter===k} className={filter===k?'selected':''} onClick={()=>setFilter(k)}>{t}</button>)}</div>
   {error&&<p className="error" role="alert">{error}</p>}
   {loading?<p role="status">正在加载到访记录…</p>:visible.length?visible.map(r=>renderRecord(r)):<p className="muted">{filter==='all'?'还没有到访记录，留下第一份真实体验吧。':'当前分类还没有记录，可切换查看全部。'}</p>}
   {user&&account?.status==='muted'?<AccountRestriction account={account}/>:user&&account&&!account.policyAccepted?<AccountAgreement api={api} onAccepted={me=>{setAccount(me.account);setError('');notify('协议已确认，可以填写到访记录了');}}/>:user?<form ref={formRef} className="review-form community-form" onSubmit={submit}><fieldset disabled={busy} style={{border:0,padding:0,margin:0,minWidth:0}}>
-   <h3>{reply?`回复 ${reply.name}`:'发表评论'}</h3>
+   <h3>{reply?`回复 ${reply.name}`:'补充你的到访记录'}</h3>
    {reply?<div className="notice">{reply.text.slice(0,100)}<button type="button" onClick={()=>setReply(null)}>取消回复</button></div>:<label className="wizard-field">记录类型<Select value={kind} onChange={e=>setKind(e.target.value)}><option value="visit">到访评价 · 参与评分</option><option value="update">现场信息 · 不参与评分</option></Select></label>}
    {!reply&&<div className="form-grid"><label className="wizard-field">实际到访日期 · 必填<input name="date" type="date" required max={today()}/></label><label className="wizard-field">当时的开放状态<Select name="condition" defaultValue="unknown">{Object.entries(conditions).map(([k,t])=><option key={k} value={k}>{t}</option>)}</Select></label></div>}
    {!reply&&kind==='visit'&&<><div className="form-grid">{Object.entries(labels).map(([k,t])=><label className="wizard-field" key={k}>{t} · 必填<Select name={k} required defaultValue=""><option value="" disabled>请选择</option>{[1,2,3,4,5].map(n=><option key={n} value={n}>{n} 分 · {['很差','较差','一般','不错','非常好'][n-1]}</option>)}</Select></label>)}</div><p className="muted">每个地点取你最近一次已审核到访评分；历史记录仍保留，重复到访不增加评分人数。</p></>}
    <label className="wizard-field">{reply?'回复内容':'实际体验 / 变化说明'} · 必填<textarea name="text" required minLength={2} maxLength={2000} rows={4} placeholder="例如：今天入口在建筑背面，有纸，但洗手池暂时停水。"/></label>
    <label className="wizard-field">补充实拍 · 选填<input type="file" accept="image/jpeg,image/png,image/webp" multiple disabled={busy} onChange={e=>{const files=[...e.target.files];e.target.value='';if(files.length+photos.length>6||files.some(f=>f.size>8*1024*1024)){setError('最多六张照片，每张不超过 8 MB');return;}setPhotos(old=>[...old,...files.map(file=>({file,url:URL.createObjectURL(file),kind:'exterior',caption:''}))]);}}/></label>
-   {photos.map((p,i)=><div className="photo-editor" key={p.url}><img src={p.url} alt={`待提交实拍 ${i+1}`}/><div><label>照片用途<Select value={p.kind} onChange={e=>setPhotos(old=>old.map((x,n)=>n===i?{...x,kind:e.target.value}:x))}>{Object.entries(photoKinds).map(([k,t])=><option key={k} value={k}>{t}</option>)}</Select></label><label>照片说明 · 必填<input aria-label={`照片 ${i+1} 说明`} required maxLength={300} placeholder="说明照片里看到什么" value={p.caption} onChange={e=>setPhotos(old=>old.map((x,n)=>n===i?{...x,caption:e.target.value}:x))}/></label><button type="button" disabled={busy} onClick={()=>{URL.revokeObjectURL(p.url);setPhotos(old=>old.filter((_,n)=>n!==i));}}>移除</button></div></div>)}
+   {photos.map((p,i)=><div className="photo-editor" key={p.url}><img src={p.url} alt={`待提交实拍 ${i+1}`}/><div><label>照片用途<Select value={p.kind} onChange={e=>setPhotos(old=>old.map((x,n)=>n===i?{...x,kind:e.target.value}:x))}>{Object.entries(photoKinds).map(([k,t])=><option key={k} value={k}>{t}</option>)}</Select></label><input aria-label={`照片 ${i+1} 说明`} required maxLength={300} placeholder="说明照片里看到什么（必填）" value={p.caption} onChange={e=>setPhotos(old=>old.map((x,n)=>n===i?{...x,caption:e.target.value}:x))}/><button type="button" disabled={busy} onClick={()=>{URL.revokeObjectURL(p.url);setPhotos(old=>old.filter((_,n)=>n!==i));}}>移除</button></div></div>)}
    <label className="consent"><input name="contentConsent" type="checkbox" required/>我确认内容真实，附图为本人拍摄，未包含如厕者、隔间隐私或私人信息。</label>
    <p className="muted">图片会压缩并移除位置元数据，审核后公开。{account?'连续发布需间隔至少 30 秒。':''}请勿把短期状态当作长期保证。</p>
-   <button className="primary" disabled={busy}>{busy?'正在处理并提交…':'发表评论'}</button>
-  </fieldset></form>:<button className="primary" onClick={login}>登录后发表评论</button>}
+   <button className="primary" disabled={busy}>{busy?'正在处理并提交…':'提交审核'}</button>
+  </fieldset></form>:<button className="outline" onClick={login}>登录后补充图片、评分与留言</button>}
  </section>;
 }
