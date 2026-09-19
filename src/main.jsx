@@ -32,8 +32,10 @@ import "./style.css";
 import './controls.css';
 import './playful.css';
 import './pages.css';
+import './editorial.css';
 import PlaceGallery from './PlaceGallery.jsx';
 import ContactPage from './ContactPage.jsx';
+const EditorialPlaces=React.lazy(()=>import('./EditorialPlaces.jsx'));
 import LegalPage,{LegalContent} from './LegalPage.jsx';
 import {AgreementFields,agreementPayload,AccountRestriction} from './AccountAgreement.jsx';
 import {registrationPasswordError} from './account-policy.js';
@@ -51,7 +53,7 @@ const labels = {
   facilities: "设施齐全",
 };
 const dateNow = new Date().toISOString().slice(0, 10);
-const pagePaths={contact:'/contact',submit:'/share',terms:'/terms',privacy:'/privacy',rules:'/rules'};
+const pagePaths={editorial:'/editorial',contact:'/contact',submit:'/share',terms:'/terms',privacy:'/privacy',rules:'/rules'};
 const readView = () => Object.keys(pagePaths).find(key=>pagePaths[key]===location.pathname)||(['discover','ranking','about','admin','submit','contact'].includes(new URLSearchParams(location.search).get('view'))?new URLSearchParams(location.search).get('view'):'discover');
 function App() {
   const [places, setPlaces] = useState([]),
@@ -153,6 +155,7 @@ function App() {
         <nav className={menu ? "open" : ""}>
           {[
             ["discover", "发现风景"],
+            ["editorial", "城市精选"],
             ["ranking", "探索榜单"],
             ["about", "关于必拉榜"],
             ["contact", "合作与交流"],
@@ -266,6 +269,7 @@ function App() {
       )}
       {!detail && (view === "discover" || view === "ranking") && (
         <main id="explore">
+          <a className="editorial-home-entry" href="/editorial" onClick={e=>{e.preventDefault();navigate('editorial')}}><strong>一城一厕 · 编辑推荐 TOP30 ↗</strong><span>84处特色厕所资料，沿着城市与风景找下一站。</span></a>
           <div className="section-heading">
             <div>
               <h2>
@@ -506,6 +510,7 @@ function App() {
         </main>
       )}
       {!detail && view === 'contact' && <ContactPage notify={notify} onBack={()=>navigate('discover')}/>}
+      {!detail && view === 'editorial' && <React.Suspense fallback={<p role="status">正在载入城市精选…</p>}><EditorialPlaces/></React.Suspense>}
       {!detail && ['terms','privacy','rules'].includes(view) && <LegalPage type={view} config={config} onBack={()=>navigate('discover')}/>}
       {!detail && view === "admin" && (
         <AdminDesk user={user} api={api} notify={notify} refresh={refresh} onAdd={()=>navigate("submit")} onOpen={openPlace} accountRules={config.accountRules}/>
