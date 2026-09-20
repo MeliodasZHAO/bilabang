@@ -1,3 +1,12 @@
+# 图片优先修复（2026-09-20，替代下方公开档案方案）
+
+用户明确否定普通档案照片和无图表格：首页恢复原84处特色地点的实拍展示，全国30城以图片卡片为默认入口。5张档案照片和2支宣传片不再占据首页。评分表保留缩略图，详情显示大图、作者和原始来源。
+
+本次按用户要求发布原有来源图片；转载授权没有因此获得确认，manifest的publicationApproved仍全部为false，详情如实标注。署名不被记录为授权。此项属于尚未解决的媒体授权问题。
+
+验证：公开构建通过；HTTP获取84张匹配图片全部200并可解码，合计10,910,642字节。浏览器核实图片卡片、带图表格、TOP30三页和大图详情。没有数据库或用户评分变更。
+
+---
 # 公开版发布更新（2026-09-20）
 
 公开构建已改为独立的 PublicEditorial 页面，不再使用研究预览媒体过滤整张榜单。下文“不能部署”描述的是此前研究改版，已由本节方案替代。
@@ -54,4 +63,3 @@ node node_modules/vite/bin/vite.js preview --outDir output/editorial-review --ho
 - 首页、/editorial直达、旅人分享切换及返回恢复正常；最后一轮无JavaScript运行错误。
 
 截图：`output/collection-summary/redesign-desktop.png`、`redesign-cards.png`、`redesign-table.png`、`redesign-detail.png`、`redesign-mobile.png`。
-
