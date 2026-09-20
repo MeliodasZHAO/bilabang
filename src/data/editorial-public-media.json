@@ -1,0 +1,100 @@
+{
+  "asOf": "2026-09-20",
+  "photos": [
+    {
+      "id": "ae33604b69d7feb8",
+      "name": "元江高桥景区透视公厕",
+      "city": "玉溪·元江",
+      "province": "云南",
+      "src": "/editorial-archive/ae33604b69d7feb8.webp",
+      "author": "瑞丽江的河水",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:%E4%B8%96%E7%95%8C%E7%AC%AC%E4%B8%80%E9%AB%98%E6%A1%A5%E6%99%AF%E5%8C%BA_-_%E9%80%8F%E8%A7%86%E5%85%AC%E5%8E%95_-_2024-10-05.jpg",
+      "date": "2024-10-05 11:49:29",
+      "sha256": "6ceefd6ba515d6048836ebab405275dcf34dd0a14bc6e49d55868e0579b823b2",
+      "modifications": "缩小至1000像素并转WebP；未改变照片内容",
+      "note": "照片外墙写明透视公厕；元数据坐标指向元江景区，不是北盘江大桥。只看到外观，不能声称已经验证透视效果。需复核当前营业和具体入场条件。"
+    },
+    {
+      "id": "cf236ceb6e4031f9",
+      "name": "鼓楼南街公厕",
+      "city": "临汾",
+      "province": "山西",
+      "src": "/editorial-archive/cf236ceb6e4031f9.webp",
+      "author": "三猎",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:%E4%B8%B4%E6%B1%BE%E9%BC%93%E6%A5%BC%E5%8D%97%E8%A1%97%E5%85%AC%E5%8E%95.JPG",
+      "date": "2016-05-05 16:43:13",
+      "sha256": "54c1e95e52040d57bf38b68cab0d76772f88aa2dce37d7f9988a472c376d5212",
+      "modifications": "缩小至1000像素并转WebP；未改变照片内容",
+      "note": "入口彩色立面及“旅游卫生间”字样可辨；照片2016年，鼓楼南街有多处公厕，缺门牌和近期外观确认。"
+    },
+    {
+      "id": "ba13331961203437",
+      "name": "通济堰景区厕所",
+      "city": "丽水",
+      "province": "浙江",
+      "src": "/editorial-archive/ba13331961203437.webp",
+      "author": "三猎",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:%E9%80%9A%E6%B5%8E%E5%A0%B0%E6%99%AF%E5%8C%BA%E5%8E%95%E6%89%80.jpg",
+      "date": "2017-08-26 13:19:47",
+      "sha256": "fc5fb9140dcfdd3975e2cc001676c4eac33914042f890888e1ff6b230dea3726",
+      "modifications": "缩小至1000像素并转WebP；未改变照片内容",
+      "note": "竹林环境与低矮建筑可辨；2017年照片，缺景区内精确入口及近期证据。"
+    },
+    {
+      "id": "a83ee89599490819",
+      "name": "灵山景区竹林旁厕所（描述名）",
+      "city": "无锡",
+      "province": "江苏",
+      "src": "/editorial-archive/a83ee89599490819.webp",
+      "author": "Walter Grassroot",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:2021%E5%B9%B43%E6%9C%88_%E6%97%A0%E9%94%A1%E7%81%B5%E5%B1%B1%E5%A4%A7%E4%BD%9B_19_%E5%8E%95%E6%89%80.jpg",
+      "date": "2021-03-20 11:11:30",
+      "sha256": "e95bed4a5c38cc49b4e4c2940d7147e567547f12be332ffa3fe247abfa928c5b",
+      "modifications": "缩小至1000像素并转WebP；未改变照片内容",
+      "note": "2021年实拍有坐标、厕所标识和竹林；照片没有正式名称，不能与鼋头渚竹林厕所合并。"
+    },
+    {
+      "id": "ae41117aa5d6269c",
+      "name": "天府机场T1卫生间",
+      "city": "成都",
+      "province": "四川",
+      "src": "/editorial-archive/ae41117aa5d6269c.webp",
+      "author": "Nord794ub",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Toilet_in_T1_Chengdu_Tianfu_Airport_01.jpg",
+      "date": "2025-03-26",
+      "sha256": "b869ffca024b03caab8ae219ff54fe4c4c0dec3dec6db8621ccbbda5c7f2b8e9",
+      "modifications": "缩小至1000像素并转WebP；未改变照片内容",
+      "note": "2025年图片较新，洗手区真实清晰，但目前是普通功能空间，具体楼层与安检区域不明。"
+    }
+  ],
+  "videos": [
+    {
+      "id": "cangnan-film",
+      "title": "长在海边的卫生间",
+      "embedUrl": "https://v.qq.com/txp/iframe/player.html?vid=j3171wfxru8",
+      "sourceUrl": "https://socialbeta.com/campaign/26064",
+      "publisher": "京东项目 / 天与空创意案例，SocialBeta收录",
+      "date": "2025-09-19",
+      "note": "历史设计案例：影片标注限时体验，显示2025年9月截止。当前开放情况未确认。"
+    },
+    {
+      "id": "axilixi-film",
+      "title": "海拔2000米上，一件天大的小事",
+      "embedUrl": "https://v.qq.com/txp/iframe/player.html?vid=n31817pmai2",
+      "sourceUrl": "https://socialbeta.com/campaign/26595",
+      "publisher": "京东智能卫生间项目，SocialBeta收录",
+      "date": "2025-12-09",
+      "note": "项目观察：影片展示阿西里西特色公厕，单体入口和当前开放情况待核。"
+    }
+  ]
+}

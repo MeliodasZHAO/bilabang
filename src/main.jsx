@@ -54,7 +54,7 @@ const labels = {
 };
 const dateNow = new Date().toISOString().slice(0, 10);
 const pagePaths={editorial:'/editorial',contact:'/contact',submit:'/share',terms:'/terms',privacy:'/privacy',rules:'/rules'};
-const readView = () => Object.keys(pagePaths).find(key=>pagePaths[key]===location.pathname)||(['discover','ranking','about','admin','submit','contact'].includes(new URLSearchParams(location.search).get('view'))?new URLSearchParams(location.search).get('view'):'discover');
+const readView = () => Object.keys(pagePaths).find(key=>pagePaths[key]===location.pathname)||(['discover','ranking','about','admin','submit','contact'].includes(new URLSearchParams(location.search).get('view'))?new URLSearchParams(location.search).get('view'):'editorial');
 function App() {
   const [places, setPlaces] = useState([]),
     [loading, setLoading] = useState(true),
@@ -89,13 +89,16 @@ function App() {
     const pop=()=>{restore();setModal(null);requestAnimationFrame(()=>window.scrollTo(0,history.state?.scrollY||0));};
     restore();window.addEventListener('popstate',pop);return()=>window.removeEventListener('popstate',pop);
   },[places,loading,error]);
-  useEffect(()=>{document.title=detail?.place?detail.place.name+' · 必拉榜':view==='contact'?'合作与交流 · 必拉榜':view==='submit'?'分享一处风景 · 必拉榜':['terms','privacy','rules'].includes(view)?({terms:'服务协议',privacy:'隐私说明',rules:'社区规则'}[view]+' · 必拉榜'):'必拉榜 · 换个地方，看世界';},[detail,view]);
+  useEffect(()=>{document.title=detail?.place?detail.place.name+' · 必拉榜':view==='editorial'?'全国30城厕所推荐榜 · 必拉榜':view==='contact'?'合作与交流 · 必拉榜':view==='submit'?'分享一处风景 · 必拉榜':['terms','privacy','rules'].includes(view)?({terms:'服务协议',privacy:'隐私说明',rules:'社区规则'}[view]+' · 必拉榜'):'必拉榜 · 换个地方，看世界';},[detail,view]);
   const notify = (t) => setToast(t);
   const refresh = () =>
     api("/places")
       .then(p=>{setPlaces(p);setError("");})
       .catch((e) => setError(e.message));
   useEffect(() => {
+    if(import.meta.env.MODE==='editorial-review'){
+      setLoading(false);setConfig({writeEnabled:false});return;
+    }
     let active=true;
     api('/places').then(p=>{if(active)setPlaces(p);}).catch(e=>{if(active)setError(e.message);}).finally(()=>{if(active)setLoading(false);});
     api('/me').then(u=>{if(active)setUser(u);}).catch(()=>{if(active)setToast('账号服务暂不可用，仍可浏览公开地点。刷新页面可重试。');});
@@ -116,7 +119,7 @@ function App() {
     }
   }, [toast]);
   function navigate(v) {
-    const params=new URLSearchParams(location.search);if(v!=='discover'&&!pagePaths[v])params.set("view",v);else params.delete("view");params.delete("place");history.pushState(null,"",(pagePaths[v]||'/')+(params.size?"?"+params:""));
+    const params=new URLSearchParams(location.search);if(!pagePaths[v])params.set("view",v);else params.delete("view");params.delete("place");history.pushState(null,"",(pagePaths[v]||'/')+(params.size?"?"+params:""));
     setView(v);
     setDetail(null);setModal(null);
     setMenu(false);
@@ -144,7 +147,7 @@ function App() {
           href="#"
           onClick={(e) => {
             e.preventDefault();
-            navigate("discover");
+            navigate("editorial");
           }}
         >
           <span className="brand-icon">
@@ -154,9 +157,9 @@ function App() {
         </a>
         <nav className={menu ? "open" : ""}>
           {[
-            ["discover", "发现风景"],
-            ["editorial", "城市精选"],
-            ["ranking", "探索榜单"],
+            ["editorial", "全国30城榜"],
+            ["discover", "旅人分享"],
+            ["ranking", "用户评分榜"],
             ["about", "关于必拉榜"],
             ["contact", "合作与交流"],
           ].map(([v, t]) => (
