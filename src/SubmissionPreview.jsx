@@ -16,7 +16,7 @@ export default function SubmissionPreview({place:p,photos,onEdit}){
   <dt>{p.template==='visited'?'到访日期':'资料核查日期'}</dt><dd>{p.template==='visited'?p.date:p.checkedAt}</dd></dl>
   <div className="preview-heading"><h3>照片与来源</h3>{onEdit&&<button type="button" onClick={()=>onEdit(2)}>修改照片与来源</button>}</div>
   {p.template==='source'&&<p>发布者：{p.publisher}<br/>{safeUrl(p.sourceUrl)&&<a href={p.sourceUrl} target="_blank" rel="noreferrer">查看原文 ↗</a>}</p>}
-  {!photos.length&&!p.imageCredit&&<p className="notice">暂缺实拍，公开页面会显示“待补实拍”。资料收录不产生评分。</p>}
+  {!photos.length&&!p.imageCredit&&<p className="notice">暂缺实拍，地点不会出现在公开列表中。补齐真实照片后再展示。</p>}
   <div className="preview-photos">{photos.map((photo,i)=><figure key={photo.url}><img src={photo.url} alt={photo.caption}/><figcaption><strong>{i===0?'封面 · ':''}{photoKinds[photo.kind]}</strong><p>{photo.caption}</p><small>{photo.rights==='own'?'本人拍摄':`摄影：${photo.author} · ${photo.license}`}</small>{photo.rights!=='own'&&safeUrl(photo.sourceUrl)&&<p><a href={photo.sourceUrl} target="_blank" rel="noreferrer">核对图片来源 ↗</a></p>}</figcaption></figure>)}</div>
  </section>;
 }

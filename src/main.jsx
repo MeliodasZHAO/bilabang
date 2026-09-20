@@ -26,7 +26,7 @@ import {
   Drop,
   Clock,
 } from "@phosphor-icons/react";
-import { demoPlaces } from "./demo";
+import {hasPublicPhoto,publicPhoto} from "./public-place-media.js";
 import "./theme.css";
 import "./style.css";
 import './controls.css';
@@ -54,8 +54,10 @@ const labels = {
 };
 const dateNow = new Date().toISOString().slice(0, 10);
 const pagePaths={editorial:'/editorial',contact:'/contact',submit:'/share',terms:'/terms',privacy:'/privacy',rules:'/rules'};
-const readView = () => Object.keys(pagePaths).find(key=>pagePaths[key]===location.pathname)||(['discover','ranking','about','admin','submit','contact'].includes(new URLSearchParams(location.search).get('view'))?new URLSearchParams(location.search).get('view'):'editorial');
+const readView = () => Object.keys(pagePaths).find(key=>pagePaths[key]===location.pathname)||(['discover','ranking','about','admin','submit','contact'].includes(new URLSearchParams(location.search).get('view'))?new URLSearchParams(location.search).get('view'):'discover');
 function App() {
+  const [failedPhotos,setFailedPhotos]=useState([]);
+  const hideFailedPhoto=id=>setFailedPhotos(old=>old.includes(id)?old:[...old,id]);
   const [places, setPlaces] = useState([]),
     [loading, setLoading] = useState(true),
     [error, setError] = useState(""),
@@ -85,10 +87,10 @@ function App() {
   }
   useEffect(()=>{
     if(loading||error)return;
-    const restore=()=>{const id=new URLSearchParams(location.search).get('place');const place=places.find(p=>p.id===id);setDetail(id?(place?{place}:{unavailable:true}):null);};
+    const restore=()=>{const id=new URLSearchParams(location.search).get('place');const place=places.find(p=>p.id===id&&hasPublicPhoto(p)&&!failedPhotos.includes(p.id));setDetail(id?(place?{place}:{unavailable:true}):null);};
     const pop=()=>{restore();setModal(null);requestAnimationFrame(()=>window.scrollTo(0,history.state?.scrollY||0));};
     restore();window.addEventListener('popstate',pop);return()=>window.removeEventListener('popstate',pop);
-  },[places,loading,error]);
+  },[places,loading,error,failedPhotos]);
   useEffect(()=>{document.title=detail?.place?detail.place.name+' · 必拉榜':view==='editorial'?'全国30城厕所推荐榜 · 必拉榜':view==='contact'?'合作与交流 · 必拉榜':view==='submit'?'分享一处风景 · 必拉榜':['terms','privacy','rules'].includes(view)?({terms:'服务协议',privacy:'隐私说明',rules:'社区规则'}[view]+' · 必拉榜'):'必拉榜 · 换个地方，看世界';},[detail,view]);
   const notify = (t) => setToast(t);
   const refresh = () =>
@@ -119,7 +121,7 @@ function App() {
     }
   }, [toast]);
   function navigate(v) {
-    const params=new URLSearchParams(location.search);if(!pagePaths[v])params.set("view",v);else params.delete("view");params.delete("place");history.pushState(null,"",(pagePaths[v]||'/')+(params.size?"?"+params:""));
+    const params=new URLSearchParams(location.search);if(!pagePaths[v]&&v!=="discover")params.set("view",v);else params.delete("view");params.delete("place");history.pushState(null,"",(pagePaths[v]||'/')+(params.size?"?"+params:""));
     setView(v);
     setDetail(null);setModal(null);
     setMenu(false);
@@ -138,7 +140,7 @@ function App() {
     .sort(
       (a, b) => (b.scores?.[sort]?.rank ?? -1) - (a.scores?.[sort]?.rank ?? -1),
     );
-  const image = (p) => p.image || (p.photos?.length ? apiUrl(`/api/photos/${p.photos[0].id}`) : "/no-photo.svg");
+  const image = publicPhoto;
   return (
     <>
       <header>
@@ -147,7 +149,7 @@ function App() {
           href="#"
           onClick={(e) => {
             e.preventDefault();
-            navigate("editorial");
+            navigate("discover");
           }}
         >
           <span className="brand-icon">
@@ -157,8 +159,8 @@ function App() {
         </a>
         <nav className={menu ? "open" : ""}>
           {[
-            ["editorial", "全国30城榜"],
             ["discover", "旅人分享"],
+            ["editorial", "全国30城榜"],
             ["ranking", "用户评分榜"],
             ["about", "关于必拉榜"],
             ["contact", "合作与交流"],
@@ -284,7 +286,7 @@ function App() {
             <button className="random-stop" disabled={!filtered.length} onClick={()=>openPlace(filtered[Math.floor(Math.random()*filtered.length)])}>随缘蹲一站 ↗</button><span className="small-note">
               {isDemo
                 ? "从第一份真实分享开始"
-                : `${filtered.length} / ${places.length} 处地点 · 资料与实地分享`}
+                : `${filtered.length} / ${items.length} 处地点 · 资料与实地分享`}
             </span>
           </div>
           <div className="filter-bar">
@@ -412,7 +414,7 @@ function App() {
                       <MapPin size={14} />
                       {p.regionId?regionLabel(p.regionId):`${p.country} · ${p.city}`}
                     </span>
-                    <span>{p.imageCredit?`摄影：${p.imageCredit.author}`:p.scene || (p.template === "source" ? (p.imageCredit?"开放许可图片":"待补实拍") : "实拍分享")}</span>
+                    <span>{p.imageCredit?`摄影：${p.imageCredit.author}`:p.scene || (p.template === "source" ? "来源实拍" : "实拍分享")}</span>
                   </div>
                   <div className="card-title">
                     <h3>{p.name}</h3>
@@ -528,7 +530,7 @@ function App() {
         <button className="outline place-back" onClick={returnToList}>← 返回地点列表</button>
         {detail.place?<>
           <div className="place-page-heading"><p className="eyebrow">这站，值得蹲一蹲吗？</p><h1>{detail.place.name}</h1><p className="muted">{detail.place.regionId?regionLabel(detail.place.regionId):[detail.place.country,detail.place.city].filter(Boolean).join(' / ')}</p></div>
-          <div className="place-page-layout"><article className="place-page-content"><Detail key={detail.place.id} place={detail.place} config={config} user={user} image={image(detail.place)} notify={notify} login={()=>setModal({type:'login'})}/></article>
+          <div className="place-page-layout"><article className="place-page-content"><Detail onPhotoUnavailable={()=>hideFailedPhoto(detail.place.id)} key={detail.place.id} place={detail.place} config={config} user={user} image={image(detail.place)} notify={notify} login={()=>setModal({type:'login'})}/></article>
             <aside className="place-page-nav" onClick={e=>{const a=e.target.closest("a");if(a&&!e.ctrlKey&&!e.metaKey&&!e.shiftKey&&!e.altKey){e.preventDefault();document.querySelector(a.hash)?.scrollIntoView({behavior:"smooth"});}}}><strong>这站怎么看</strong><a href="#place-photos">照片与地点介绍</a><a href="#place-directions">位置与找路说明</a><a href="#place-scores">到访者评分</a><a href="#place-community">评论与现场动态</a><p>先看入口怎么走，再看看最近去过的人怎么说。</p><button className="primary" onClick={()=>document.getElementById('place-community')?.scrollIntoView({behavior:'smooth'})}>我也来补充</button></aside>
           </div>
         </>:<section className="empty" role="status"><h1>{error?'地点暂时加载失败':detail.loading?'正在寻找这个坑位…':'这个地点暂时无法查看'}</h1><p>{error||(detail.loading?'正在读取地点资料，请稍候。':'链接可能有误，或地点尚未公开。')}</p>{error&&<button onClick={refresh}>重新加载</button>}</section>}
@@ -756,7 +758,7 @@ function Login({ config, onLogin }) {
     </form>
   );
 }
-function Detail({ place: p, user, image, notify, login, config }) {
+function Detail({ place: p, user, image, notify, login, config, onPhotoUnavailable }) {
 
   const [reviews, setReviews] = useState([]),
     [error, setError] = useState(""),
@@ -770,7 +772,7 @@ function Detail({ place: p, user, image, notify, login, config }) {
   }, [p.id,config?.community]);
   return (
     <>
-      <PlaceGallery place={p}/>
+      <PlaceGallery place={p} onUnavailable={onPhotoUnavailable}/>
       <section className="place-introduction"><div className="section-title"><h2>这一站的看点</h2>{!p.preview&&<button className="text-action" onClick={async()=>{const url=new URL(location.origin);url.searchParams.set('place',p.id);try{await navigator.clipboard.writeText(url.href);notify('地点链接已复制');}catch{notify('复制不可用，可复制浏览器地址栏链接');}}}><LinkSimple size={16}/>复制链接</button>}</div><p>{p.description}</p></section>      {p.preview ? (
         <div className="notice">
           这是一张旅行风景示意图，未核实为真实厕所。位置、导航和评分不开放；欢迎提交你亲自到访的地点。
