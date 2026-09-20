@@ -127,8 +127,8 @@ function App() {
     setMenu(false);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
-  const isDemo = config.demo && places.length === 0;
-  const items = isDemo ? demoPlaces : places;
+  const isDemo = false;
+  const items = places.filter(p=>hasPublicPhoto(p)&&!failedPhotos.includes(p.id));
   const filtered = items
     .filter(
       (p) =>
@@ -388,6 +388,7 @@ function App() {
                   <div className="card-image">
                     <img
                       src={image(p)}
+                      onError={()=>hideFailedPhoto(p.id)}
                       alt={p.preview ? `${p.name}，旅行风景示意` : p.name}
                       loading="lazy"
                     />
