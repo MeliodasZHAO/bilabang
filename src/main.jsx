@@ -33,6 +33,7 @@ import './controls.css';
 import './playful.css';
 import './pages.css';
 import './editorial.css';
+import './home-announcement.css';
 import PlaceGallery from './PlaceGallery.jsx';
 import ContactPage from './ContactPage.jsx';
 const EditorialPlaces=React.lazy(()=>import('./EditorialPlaces.jsx'));
@@ -232,6 +233,13 @@ function App() {
         </div>
       )}
       {config.publicPreview && <div className="demo-bar">公开预览 <span>· 可浏览地点与体验地图；投稿、评论暂未开放，持续更新中</span></div>}
+      {!detail && view === 'discover' && <aside className="home-announcement" aria-label="本期推荐公告">
+        <a href="/editorial" onClick={e=>{if(e.button===0&&!e.ctrlKey&&!e.metaKey&&!e.shiftKey&&!e.altKey){e.preventDefault();navigate('editorial');}}}>
+          <div className="announcement-photo"><img src="/editorial-media/2541cb200daccbbf.webp" alt="南京四方艺术湖区“树上的云”卫生间，面向松林的真实空间"/><span>南京 · 树上的云</span></div>
+          <div className="announcement-copy"><span className="announcement-tag">本期推荐 <span>全国 30 城 · 一城一厕</span></span><h2>最好看的厕所，值得专程去一趟。</h2><p>森林里的玻璃屋、海边的海螺驿站……看看你的城市上榜了吗？</p></div>
+          <span className="announcement-action">看有图推荐榜 <ArrowUpRight size={23}/></span>
+        </a>
+      </aside>}
       {!detail && view === "discover" && (
         <section className="hero">
           <div className="hero-photo" />
