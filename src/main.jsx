@@ -26,14 +26,17 @@ import {
   Drop,
   Clock,
 } from "@phosphor-icons/react";
-import { demoPlaces } from "./demo";
+import {hasPublicPhoto,publicPhoto} from "./public-place-media.js";
 import "./theme.css";
 import "./style.css";
 import './controls.css';
 import './playful.css';
 import './pages.css';
+import './editorial.css';
+import './home-announcement.css';
 import PlaceGallery from './PlaceGallery.jsx';
 import ContactPage from './ContactPage.jsx';
+const EditorialPlaces=React.lazy(()=>import('./EditorialPlaces.jsx'));
 import LegalPage,{LegalContent} from './LegalPage.jsx';
 import {AgreementFields,agreementPayload,AccountRestriction} from './AccountAgreement.jsx';
 import {registrationPasswordError} from './account-policy.js';
@@ -51,9 +54,11 @@ const labels = {
   facilities: "设施齐全",
 };
 const dateNow = new Date().toISOString().slice(0, 10);
-const pagePaths={contact:'/contact',submit:'/share',terms:'/terms',privacy:'/privacy',rules:'/rules'};
+const pagePaths={editorial:'/editorial',contact:'/contact',submit:'/share',terms:'/terms',privacy:'/privacy',rules:'/rules'};
 const readView = () => Object.keys(pagePaths).find(key=>pagePaths[key]===location.pathname)||(['discover','ranking','about','admin','submit','contact'].includes(new URLSearchParams(location.search).get('view'))?new URLSearchParams(location.search).get('view'):'discover');
 function App() {
+  const [failedPhotos,setFailedPhotos]=useState([]);
+  const hideFailedPhoto=id=>setFailedPhotos(old=>old.includes(id)?old:[...old,id]);
   const [places, setPlaces] = useState([]),
     [loading, setLoading] = useState(true),
     [error, setError] = useState(""),
@@ -83,17 +88,20 @@ function App() {
   }
   useEffect(()=>{
     if(loading||error)return;
-    const restore=()=>{const id=new URLSearchParams(location.search).get('place');const place=places.find(p=>p.id===id);setDetail(id?(place?{place}:{unavailable:true}):null);};
+    const restore=()=>{const id=new URLSearchParams(location.search).get('place');const place=places.find(p=>p.id===id&&hasPublicPhoto(p)&&!failedPhotos.includes(p.id));setDetail(id?(place?{place}:{unavailable:true}):null);};
     const pop=()=>{restore();setModal(null);requestAnimationFrame(()=>window.scrollTo(0,history.state?.scrollY||0));};
     restore();window.addEventListener('popstate',pop);return()=>window.removeEventListener('popstate',pop);
-  },[places,loading,error]);
-  useEffect(()=>{document.title=detail?.place?detail.place.name+' · 必拉榜':view==='contact'?'合作与交流 · 必拉榜':view==='submit'?'分享一处风景 · 必拉榜':['terms','privacy','rules'].includes(view)?({terms:'服务协议',privacy:'隐私说明',rules:'社区规则'}[view]+' · 必拉榜'):'必拉榜 · 换个地方，看世界';},[detail,view]);
+  },[places,loading,error,failedPhotos]);
+  useEffect(()=>{document.title=detail?.place?detail.place.name+' · 必拉榜':view==='editorial'?'全国30城厕所推荐榜 · 必拉榜':view==='contact'?'合作与交流 · 必拉榜':view==='submit'?'分享一处风景 · 必拉榜':['terms','privacy','rules'].includes(view)?({terms:'服务协议',privacy:'隐私说明',rules:'社区规则'}[view]+' · 必拉榜'):'必拉榜 · 换个地方，看世界';},[detail,view]);
   const notify = (t) => setToast(t);
   const refresh = () =>
     api("/places")
       .then(p=>{setPlaces(p);setError("");})
       .catch((e) => setError(e.message));
   useEffect(() => {
+    if(import.meta.env.MODE==='editorial-review'){
+      setLoading(false);setConfig({writeEnabled:false});return;
+    }
     let active=true;
     api('/places').then(p=>{if(active)setPlaces(p);}).catch(e=>{if(active)setError(e.message);}).finally(()=>{if(active)setLoading(false);});
     api('/me').then(u=>{if(active)setUser(u);}).catch(()=>{if(active)setToast('账号服务暂不可用，仍可浏览公开地点。刷新页面可重试。');});
@@ -114,14 +122,14 @@ function App() {
     }
   }, [toast]);
   function navigate(v) {
-    const params=new URLSearchParams(location.search);if(v!=='discover'&&!pagePaths[v])params.set("view",v);else params.delete("view");params.delete("place");history.pushState(null,"",(pagePaths[v]||'/')+(params.size?"?"+params:""));
+    const params=new URLSearchParams(location.search);if(!pagePaths[v]&&v!=="discover")params.set("view",v);else params.delete("view");params.delete("place");history.pushState(null,"",(pagePaths[v]||'/')+(params.size?"?"+params:""));
     setView(v);
     setDetail(null);setModal(null);
     setMenu(false);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
-  const isDemo = config.demo && places.length === 0;
-  const items = isDemo ? demoPlaces : places;
+  const isDemo = false;
+  const items = places.filter(p=>hasPublicPhoto(p)&&!failedPhotos.includes(p.id));
   const filtered = items
     .filter(
       (p) =>
@@ -133,7 +141,7 @@ function App() {
     .sort(
       (a, b) => (b.scores?.[sort]?.rank ?? -1) - (a.scores?.[sort]?.rank ?? -1),
     );
-  const image = (p) => p.image || (p.photos?.length ? apiUrl(`/api/photos/${p.photos[0].id}`) : "/no-photo.svg");
+  const image = publicPhoto;
   return (
     <>
       <header>
@@ -152,8 +160,9 @@ function App() {
         </a>
         <nav className={menu ? "open" : ""}>
           {[
-            ["discover", "发现风景"],
-            ["ranking", "探索榜单"],
+            ["discover", "旅人分享"],
+            ["editorial", "全国30城榜"],
+            ["ranking", "用户评分榜"],
             ["about", "关于必拉榜"],
             ["contact", "合作与交流"],
           ].map(([v, t]) => (
@@ -224,6 +233,13 @@ function App() {
         </div>
       )}
       {config.publicPreview && <div className="demo-bar">公开预览 <span>· 可浏览地点与体验地图；投稿、评论暂未开放，持续更新中</span></div>}
+      {!detail && view === 'discover' && <aside className="home-announcement" aria-label="本期推荐公告">
+        <a href="/editorial" onClick={e=>{if(e.button===0&&!e.ctrlKey&&!e.metaKey&&!e.shiftKey&&!e.altKey){e.preventDefault();navigate('editorial');}}}>
+          <div className="announcement-photo"><img src="/editorial-media/2541cb200daccbbf.webp" alt="南京四方艺术湖区“树上的云”卫生间，面向松林的真实空间"/><span>南京 · 树上的云</span></div>
+          <div className="announcement-copy"><span className="announcement-tag">本期推荐 <span>全国 30 城 · 一城一厕</span></span><h2>最好看的厕所，值得专程去一趟。</h2><p>森林里的玻璃屋、海边的海螺驿站……看看你的城市上榜了吗？</p></div>
+          <span className="announcement-action">看有图推荐榜 <ArrowUpRight size={23}/></span>
+        </a>
+      </aside>}
       {!detail && view === "discover" && (
         <section className="hero">
           <div className="hero-photo" />
@@ -266,6 +282,7 @@ function App() {
       )}
       {!detail && (view === "discover" || view === "ranking") && (
         <main id="explore">
+          <a className="editorial-home-entry" href="/editorial" onClick={e=>{e.preventDefault();navigate('editorial')}}><strong>一城一厕 · 编辑推荐 TOP30 ↗</strong><span>84处特色厕所资料，沿着城市与风景找下一站。</span></a>
           <div className="section-heading">
             <div>
               <h2>
@@ -277,7 +294,7 @@ function App() {
             <button className="random-stop" disabled={!filtered.length} onClick={()=>openPlace(filtered[Math.floor(Math.random()*filtered.length)])}>随缘蹲一站 ↗</button><span className="small-note">
               {isDemo
                 ? "从第一份真实分享开始"
-                : `${filtered.length} / ${places.length} 处地点 · 资料与实地分享`}
+                : `${filtered.length} / ${items.length} 处地点 · 资料与实地分享`}
             </span>
           </div>
           <div className="filter-bar">
@@ -379,6 +396,7 @@ function App() {
                   <div className="card-image">
                     <img
                       src={image(p)}
+                      onError={()=>hideFailedPhoto(p.id)}
                       alt={p.preview ? `${p.name}，旅行风景示意` : p.name}
                       loading="lazy"
                     />
@@ -405,7 +423,7 @@ function App() {
                       <MapPin size={14} />
                       {p.regionId?regionLabel(p.regionId):`${p.country} · ${p.city}`}
                     </span>
-                    <span>{p.imageCredit?`摄影：${p.imageCredit.author}`:p.scene || (p.template === "source" ? (p.imageCredit?"开放许可图片":"待补实拍") : "实拍分享")}</span>
+                    <span>{p.imageCredit?`摄影：${p.imageCredit.author}`:p.scene || (p.template === "source" ? "来源实拍" : "实拍分享")}</span>
                   </div>
                   <div className="card-title">
                     <h3>{p.name}</h3>
@@ -506,6 +524,7 @@ function App() {
         </main>
       )}
       {!detail && view === 'contact' && <ContactPage notify={notify} onBack={()=>navigate('discover')}/>}
+      {!detail && view === 'editorial' && <React.Suspense fallback={<p role="status">正在载入城市精选…</p>}><EditorialPlaces/></React.Suspense>}
       {!detail && ['terms','privacy','rules'].includes(view) && <LegalPage type={view} config={config} onBack={()=>navigate('discover')}/>}
       {!detail && view === "admin" && (
         <AdminDesk user={user} api={api} notify={notify} refresh={refresh} onAdd={()=>navigate("submit")} onOpen={openPlace} accountRules={config.accountRules}/>
@@ -520,7 +539,7 @@ function App() {
         <button className="outline place-back" onClick={returnToList}>← 返回地点列表</button>
         {detail.place?<>
           <div className="place-page-heading"><p className="eyebrow">这站，值得蹲一蹲吗？</p><h1>{detail.place.name}</h1><p className="muted">{detail.place.regionId?regionLabel(detail.place.regionId):[detail.place.country,detail.place.city].filter(Boolean).join(' / ')}</p></div>
-          <div className="place-page-layout"><article className="place-page-content"><Detail key={detail.place.id} place={detail.place} config={config} user={user} image={image(detail.place)} notify={notify} login={()=>setModal({type:'login'})}/></article>
+          <div className="place-page-layout"><article className="place-page-content"><Detail onPhotoUnavailable={()=>hideFailedPhoto(detail.place.id)} key={detail.place.id} place={detail.place} config={config} user={user} image={image(detail.place)} notify={notify} login={()=>setModal({type:'login'})}/></article>
             <aside className="place-page-nav" onClick={e=>{const a=e.target.closest("a");if(a&&!e.ctrlKey&&!e.metaKey&&!e.shiftKey&&!e.altKey){e.preventDefault();document.querySelector(a.hash)?.scrollIntoView({behavior:"smooth"});}}}><strong>这站怎么看</strong><a href="#place-photos">照片与地点介绍</a><a href="#place-directions">位置与找路说明</a><a href="#place-scores">到访者评分</a><a href="#place-community">评论与现场动态</a><p>先看入口怎么走，再看看最近去过的人怎么说。</p><button className="primary" onClick={()=>document.getElementById('place-community')?.scrollIntoView({behavior:'smooth'})}>我也来补充</button></aside>
           </div>
         </>:<section className="empty" role="status"><h1>{error?'地点暂时加载失败':detail.loading?'正在寻找这个坑位…':'这个地点暂时无法查看'}</h1><p>{error||(detail.loading?'正在读取地点资料，请稍候。':'链接可能有误，或地点尚未公开。')}</p>{error&&<button onClick={refresh}>重新加载</button>}</section>}
@@ -748,7 +767,7 @@ function Login({ config, onLogin }) {
     </form>
   );
 }
-function Detail({ place: p, user, image, notify, login, config }) {
+function Detail({ place: p, user, image, notify, login, config, onPhotoUnavailable }) {
 
   const [reviews, setReviews] = useState([]),
     [error, setError] = useState(""),
@@ -762,7 +781,7 @@ function Detail({ place: p, user, image, notify, login, config }) {
   }, [p.id,config?.community]);
   return (
     <>
-      <PlaceGallery place={p}/>
+      <PlaceGallery place={p} onUnavailable={onPhotoUnavailable}/>
       <section className="place-introduction"><div className="section-title"><h2>这一站的看点</h2>{!p.preview&&<button className="text-action" onClick={async()=>{const url=new URL(location.origin);url.searchParams.set('place',p.id);try{await navigator.clipboard.writeText(url.href);notify('地点链接已复制');}catch{notify('复制不可用，可复制浏览器地址栏链接');}}}><LinkSimple size={16}/>复制链接</button>}</div><p>{p.description}</p></section>      {p.preview ? (
         <div className="notice">
           这是一张旅行风景示意图，未核实为真实厕所。位置、导航和评分不开放；欢迎提交你亲自到访的地点。
