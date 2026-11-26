@@ -14,6 +14,13 @@ const tabs = [
   ['popular', '当下推荐', Fire],
   ['films', '实拍短片', FilmSlate],
 ];
+const filmCategories = ['全部', '景区', '酒店', '山野', '城市'];
+const olderCategories = {
+  'dunhuang-night-market': '城市', 'deji-blue-room': '城市', 'liuba-brick': '城市',
+  'cangnan-coast': '景区', 'axilixi-plateau': '山野',
+};
+const filmCategory = film => film.category || olderCategories[film.id];
+const cueLabel = seconds => `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
 
 function spotlight(event) {
   if (event.pointerType === 'touch') return;
@@ -42,38 +49,58 @@ function VideoFrame({ film }) {
 function FilmShelf({ onEditionLink, initialFilm }) {
   const [active, setActive] = useState(Math.max(0, films.findIndex(film => film.id === initialFilm)));
   const [playing, setPlaying] = useState(false);
+  const [category, setCategory] = useState('全部');
   const buttons = useRef([]);
   const film = films[active];
   const place = places.get(film.placeId);
+  const visible = films.map((item, index) => ({ item, index })).filter(({ item }) => category === '全部' || filmCategory(item) === category);
   function select(index) {
     if (index === active) return;
     setActive(index);
     setPlaying(false);
   }
+  function selectCategory(next) {
+    setCategory(next);
+    if (next !== '全部' && filmCategory(film) !== next) select(films.findIndex(item => filmCategory(item) === next));
+  }
   function move(event, index) {
     const step = { ArrowDown: 1, ArrowUp: -1, ArrowRight: 1, ArrowLeft: -1 }[event.key];
     if (!step) return;
     event.preventDefault();
-    const next = (index + step + films.length) % films.length;
+    const position = visible.findIndex(row => row.index === index);
+    const next = visible[(position + step + visible.length) % visible.length].index;
     select(next);
     buttons.current[next]?.focus();
   }
-  return <div className="feed-film">
+  const playLabel = film.embed ? '播放原片' : '到原文播放';
+  const cover = <>
+    {place && <img src={place.media.src} alt={place.name} loading="lazy" decoding="async" />}
+    <span className="feed-film-label">{film.platform} · {film.city}</span>
+    {!place && <span className="feed-film-word">{film.city.split('·').at(-1)}</span>}
+    <span className="feed-play">{film.embed ? <Play weight="fill" size={20} /> : <ArrowUpRight size={20} />} {playLabel}</span>
+  </>;
+  return <>
+    <div className="feed-film-filters" role="group" aria-label="短片分类">
+      {filmCategories.map(value => {
+        const count = value === '全部' ? films.length : films.filter(item => filmCategory(item) === value).length;
+        return count ? <button key={value} aria-pressed={value === category} onClick={() => selectCategory(value)}>{value} <small>{count}</small></button> : null;
+      })}
+    </div>
+    <div className="feed-film">
     <div className="feed-film-main" key={film.id}>
       <div className={`feed-screen ${playing && film.portrait ? 'feed-screen-portrait' : ''}`}>
-        {playing ? <VideoFrame film={film} /> :
-          <button onClick={() => setPlaying(true)} className="feed-film-cover" aria-label={`播放${film.title}`}>
-            {place && <img src={place.media.src} alt={place.name} loading="lazy" decoding="async" />}
-            <span className="feed-film-label">{film.platform} · {film.city}</span>
-            {!place && <span className="feed-film-word">{film.city.split('·').at(-1)}</span>}
-            <span className="feed-play"><Play weight="fill" size={20} /> 播放原片</span>
-          </button>}
+        {playing ? <VideoFrame film={film} /> : film.embed ?
+          <button onClick={() => setPlaying(true)} className="feed-film-cover" aria-label={`播放${film.title}`}>{cover}</button> :
+          <a className="feed-film-cover" href={film.original} target="_blank" rel="noopener noreferrer" aria-label={`在原文播放${film.title}`}>{cover}</a>}
       </div>
       <div className="feed-film-caption">
         <h3>{film.title}</h3>
         <p>{film.description}</p>
+        {film.venue && <p className="feed-film-venue"><MapPin size={15} /> {film.venue} · {film.access}</p>}
+        {Number.isFinite(film.cue) && <p className="feed-film-cue">看点在 {cueLabel(film.cue)} 左右</p>}
         <div className="feed-film-links">
           <a href={film.original} target="_blank" rel="noopener noreferrer">原片出处 <ArrowUpRight size={14} /></a>
+          {film.evidence && film.evidence !== film.original && <a href={film.evidence} target="_blank" rel="noopener noreferrer">地点依据 <ArrowUpRight size={14} /></a>}
           {film.noteUrl && <a href={film.noteUrl} target="_blank" rel="noopener noreferrer">小红书原帖 <ArrowUpRight size={14} /></a>}
           {place && <a href={stopUrl(place)} onClick={event => onEditionLink(event, stopUrl(place))}>地点详情 <ArrowUpRight size={14} /></a>}
           {playing && <button onClick={() => setPlaying(false)}>关闭播放器</button>}
@@ -82,7 +109,7 @@ function FilmShelf({ onEditionLink, initialFilm }) {
       </div>
     </div>
     <ol className="feed-film-list" aria-label="短片选集">
-      {films.map((item, index) => <li key={item.id}>
+      {visible.map(({ item, index }) => <li key={item.id}>
         <button ref={node => { buttons.current[index] = node; }} aria-pressed={active === index}
           onKeyDown={event => move(event, index)} onClick={() => select(index)}>
           <span className="feed-episode">{String(index + 1).padStart(2, '0')}</span>
@@ -91,7 +118,8 @@ function FilmShelf({ onEditionLink, initialFilm }) {
         </button>
       </li>)}
     </ol>
-  </div>;
+    </div>
+  </>;
 }
 
 export default function DiscoveryFeed({ onEditionLink }) {

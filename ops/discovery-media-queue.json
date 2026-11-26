@@ -1,0 +1,150 @@
+{
+  "feeds": [
+    {"label": "抖音公开话题：用旅行的方式打开厕所", "url": "https://www.douyin.com/topic/7625397692553840681"},
+    {"label": "小红书公开搜索：景区公厕", "url": "https://www.rednote.com/search_result?keyword=%E6%99%AF%E5%8C%BA%E5%85%AC%E5%8E%95"},
+    {"label": "小红书公开搜索：设计酒店卫浴", "url": "https://www.rednote.com/search_result?keyword=%E8%AE%BE%E8%AE%A1%E9%85%92%E5%BA%97%E5%8D%AB%E6%B5%B4"}
+  ],
+  "searches": [
+    "张家界 黄龙洞 草树茅斯 实拍",
+    "梅河口 知北村 书吧 公厕",
+    "文成 铜铃山 山景公厕",
+    "瑞丽 莫里 雨林 洗手间",
+    "云台山 天空之院 一楼 卫生间",
+    "涪陵 刀片民宿 浴室",
+    "桂林 阳朔 糖舍 双台盆 浴室",
+    "深圳 莲花山 北山栖鸢 公厕",
+    "青岛 麦岛湾 观景公厕",
+    "嘉兴 银杏天鹅湖 潜望镜厕所"
+  ],
+  "candidates": [
+    {
+      "url": "https://www.douyin.com/video/7635072537177415273",
+      "status": "approved",
+      "film": {
+        "id": "tonglingshan-window",
+        "category": "山野",
+        "title": "铜铃山，把一整片青山框进窗",
+        "city": "温州·文成",
+        "venue": "文成县铜铃山景区 · 片中观景卫生间",
+        "description": "八秒里，镜头先拍窗边的洁具，再转向层层叠叠的山。光是那个视角，就值得看一眼。",
+        "publisher": "杨杨",
+        "date": "2026-05-02",
+        "access": "具体入口和当前开放状态待确认",
+        "evidence": "https://minyi.zjzwfw.gov.cn/dczjnewls/upload/attachment/6971e71c4867455fab342e741ded5e0a.pdf"
+      },
+      "review": {
+        "checked": "2026-11-27",
+        "seconds": 1,
+        "shot": "画面前景为洁具和柱盆，窗外连绵山脊，随后镜头离开设施转向群山。",
+        "distinction": "镜头能说明窗与洁具的空间关系，单看远山不能替代这条实拍。",
+        "locationMatch": "原帖明确定位铜铃山，文成县森林公园规划核对景区名称；不把园区位置写成具体厕所入口。",
+        "privacy": "clear"
+      }
+    },
+    {
+      "url": "https://www.douyin.com/video/7601170922897028962",
+      "status": "approved",
+      "film": {
+        "id": "ruili-moli-washroom",
+        "category": "景区",
+        "title": "瑞丽莫里雨林，洗手区藏了面木墙",
+        "city": "德宏·瑞丽",
+        "venue": "瑞丽莫里热带雨林景区 · 片中洗手区",
+        "description": "从林间步道走到洗手区，近看石纹、圆形嵌饰和一整面木截面墙。视频里的材质说法没有独立证据。",
+        "publisher": "奔跑的儿娃子",
+        "date": "2026-01-30",
+        "access": "景区内设施，具体入口请询问景区",
+        "evidence": "https://www.mlrdyl.cn/contact.html"
+      },
+      "review": {
+        "checked": "2026-11-27",
+        "seconds": 32,
+        "shot": "旅途中近拍洗手区的台面饰面和木截面墙，约 40 秒有同一作者给出的景区卫生间字幕。",
+        "distinction": "设施细节可辨认，林间步道和洗手区属于同一段旅行记录。原题关于翡翠不可证实。",
+        "locationMatch": "片中字幕与原帖均指向瑞丽莫里景区，运营方官网给出瑞丽莫里峡谷位置。未找到单体门牌。",
+        "privacy": "clear"
+      }
+    },
+    {
+      "url": "https://jingxuan.douyin.com/m/video/7484210556069596455",
+      "status": "approved",
+      "film": {
+        "id": "yangshuo-sugar-house",
+        "category": "酒店",
+        "title": "阳朔糖舍的洗手台，旁边是一面纹理墙",
+        "city": "桂林·阳朔",
+        "venue": "阳朔糖舍度假酒店 · 片中客房卫浴",
+        "description": "设计团队实地看房，在镜子前停下来讲墙面材质、两只台盆和采光。顺便看看旧糖厂的空间如何延续到客房。",
+        "publisher": "壹柒设计事务所",
+        "date": "2025-03-21",
+        "access": "住客卫浴，不作为公共厕所推荐",
+        "evidence": "https://www.gooood.cn/interior-design-of-alila-yangshuo-china-by-horizontal-space-design.htm"
+      },
+      "review": {
+        "checked": "2026-11-27",
+        "seconds": 47,
+        "shot": "从盥洗镜和双台盆开始，几名参与拍摄的成年设计团队成员讨论墙面。约 122 秒仍可看到洗手台细节。",
+        "distinction": "空间材质和双人盥洗布局拍得清楚，有设计团队讲解。",
+        "locationMatch": "片名和设计团队说明均指向阳朔糖舍，水平线设计的项目供稿可核对室内项目身份；不推断客房房型。",
+        "privacy": "clear"
+      }
+    },
+    {
+      "url": "https://www.ctdsb.net/c1476_202211/1554555.html",
+      "status": "approved",
+      "film": {
+        "id": "fuling-flying-washroom",
+        "category": "景区",
+        "title": "涪陵崖边，一道镜面悬在江上",
+        "city": "重庆·涪陵",
+        "venue": "美心红酒小镇 · 飞天厕所",
+        "description": "原报道用镜面外墙、崖边平台和江面三个视角，交代这座洗手间与江景的关系。",
+        "publisher": "极目新闻 · 张皓、谢茂；剪辑 轩逸瑶",
+        "date": "2022-11-02",
+        "access": "历史实拍，当前开放未核实",
+        "evidence": "https://www.ctdsb.net/c1476_202211/1554555.html"
+      },
+      "review": {
+        "checked": "2026-11-27",
+        "seconds": 7,
+        "shot": "原站 8 秒片末尾可见平台护栏和镜面外墙，片中段有对应的远处江景。",
+        "distinction": "镜面和悬挑结构辨识度高。保留报道原播放器入口，不转载新闻素材。",
+        "locationMatch": "报道内采访了美心红酒小镇创意人员，对方明确确认设施名称与景区。",
+        "privacy": "clear"
+      }
+    },
+    {
+      "url": "https://cbgc.scol.com.cn/news/361600",
+      "status": "approved",
+      "film": {
+        "id": "danling-orange-station",
+        "category": "景区",
+        "title": "丹棱下高速，两只桔橙竟是驿站",
+        "city": "眉山·丹棱",
+        "venue": "遂资眉高速丹棱出口 · 丹棱县景观驿站",
+        "description": "航拍先给出两只剪纸造型的桔橙，进屋才看到这个驿站同时做厕所、休息和地方展览。",
+        "publisher": "川观新闻 / 丹棱县文广旅局供资料",
+        "date": "2020-09-07",
+        "access": "历史实拍，当前开放未核实",
+        "evidence": "https://cbgc.scol.com.cn/news/361600"
+      },
+      "review": {
+        "checked": "2026-11-27",
+        "seconds": 16,
+        "shot": "片头航拍能看到成对的橙色造型和周围道路，随后展示设施指引、内部服务和展陈。",
+        "distinction": "建筑用地方桔橙与剪纸轮廓塑造明确的入口辨识度，影片有完整的外景到室内过渡。",
+        "locationMatch": "报道由丹棱县文广旅局提供图片及资料，给出名称和高速丹棱出口。",
+        "privacy": "clear"
+      }
+    },
+    {"url": "https://www.douyin.com/video/7282295903191436604", "status": "held", "reason": "昌都孜珠寺有地貌实拍，但地点有暂停开放提示，影片以攀爬为主，具体设施开放和画面边界不明确"},
+    {"url": "https://www.douyin.com/video/7597001698703461674", "status": "held", "reason": "龙里大地之子是新闻拼图，多种造型切换，未取得连续探访实拍"},
+    {"url": "https://www.douyin.com/video/7329169393135439138", "status": "held", "reason": "宝格丽有盥洗台，但该段主要展示备品，辨识度低于本批酒店故事"},
+    {"url": "https://www.douyin.com/video/7527630903557770542", "status": "held", "reason": "四姑娘山酒店画面以山景、外立面和起居为主，未确认对应卫浴镜头"},
+    {"url": "https://www.douyin.com/video/7672324561429718086", "status": "held", "reason": "焦作亲子游视频只核到酒店线索，未确认天空之院首层同一洗手间"},
+    {"url": "https://www.douyin.com/video/7512751752328842508", "status": "held", "reason": "重庆刀片民宿场地可核对，核看片段有镜面外墙和卧室，未锁定卫生间镜头"},
+    {"url": "https://www.rednote.com/zh/discovery/item/69ec9171000000003601fd46", "status": "held", "reason": "小红书敦煌攻略在讲书局、印局和规局，缺净界卫生间明确实拍"},
+    {"url": "https://www.rednote.com/zh/discovery/item/69c29667000000001d0182d2", "status": "held", "reason": "小红书青浦露营帖只提供普通村厕提示，场景很美但不是特色厕所素材"},
+    {"url": "https://www.rednote.com/zh/discovery/item/69f0d037000000002003bd7a", "status": "held", "reason": "小红书阳朔窗景在拍咖啡店，与糖舍浴室不是一处"}
+  ]
+}

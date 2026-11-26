@@ -1,9 +1,18 @@
 import { readFile } from 'node:fs/promises';
+import { publicPost } from './discovery-media-rules.mjs';
 
 // Checks known editorial links. A working link is not a new publication decision.
 const films = JSON.parse(await readFile(new URL('../src/data/discovery-films.json', import.meta.url)));
 for (const film of films) {
   try {
+    if (!film.embed) {
+      const post = publicPost(film.original);
+      if (!post?.sourceVideo) throw new Error('缺少支持的公开原文播放器');
+      const original = await fetch(post.url, { redirect: 'manual', signal: AbortSignal.timeout(8000) });
+      if (!original.ok || !/<video\b/i.test(await original.text())) throw new Error('原文播放器未找到');
+      console.log(`通过  ${film.id} · 原文包含视频`);
+      continue;
+    }
     const embed = new URL(film.embed);
     if (embed.hostname === 'open.douyin.com') {
       const id = embed.searchParams.get('vid');
