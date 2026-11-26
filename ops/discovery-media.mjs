@@ -1,5 +1,5 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import { findPublicPosts, initialInterest, publicPost, reviewedFilm, validateCandidate } from './discovery-media-rules.mjs';
+import { findPublicPosts, initialInterest, probeBilibiliVideo, publicPost, reviewedFilm, validateCandidate } from './discovery-media-rules.mjs';
 
 const queueFile = new URL('./discovery-media-queue.json', import.meta.url);
 const libraryFile = new URL('../src/data/discovery-films.json', import.meta.url);
@@ -13,6 +13,10 @@ const deadline = () => AbortSignal.timeout(10000);
 
 async function probePlayer(row) {
   const post = publicPost(row.url);
+  if (post.platform === '哔哩哔哩') {
+    await probeBilibiliVideo(post, row.review.seconds, deadline());
+    return null;
+  }
   if (post.sourceVideo) {
     if (!/<video\b/i.test(await readPublicPage(post.url))) throw new Error('原文未发现播放器');
     return null;

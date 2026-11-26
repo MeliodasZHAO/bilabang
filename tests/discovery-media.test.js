@@ -14,6 +14,9 @@ test('public cards and sharing URLs deduplicate without keeping tracking tokens'
   assert.equal(initialInterest('便携式户外折叠马桶'), '排除：用品或广告');
   assert.equal(publicPost('https://www.douyin.com.example.org/video/' + id), null);
   assert.equal(publicPost('https://www.xiaohongshu.com/explore/69ec9171000000003601fd46?xsec_token=abc').key, 'xhs:69ec9171000000003601fd46');
+  const bilibili = publicPost('https://www.bilibili.com/video/BV1aa411279j?t=85');
+  assert.equal(bilibili.url, 'https://www.bilibili.com/video/BV1aa411279j/');
+  assert.equal(bilibili.sourceVideo, true);
 });
 
 test('approval requires a verified location and reviewed footage', async () => {

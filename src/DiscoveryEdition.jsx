@@ -39,7 +39,7 @@ export default function DiscoveryEdition({ onEditionLink }) {
           <a className="edition-primary" href="/editorial#city-leaderboard" data-traffic="home-primary" onClick={event => go(event, '/editorial#city-leaderboard')}>
             查看全国 {cityRanking.length} 城榜 <ArrowUpRight size={20} weight="bold" />
           </a>
-          <a className="edition-cover-films" href="/?film=tonglingshan-window#discovery-feed">看实拍短片 <ArrowDown size={15} /></a>
+          <a className="edition-cover-films" href="/?film=jiaying-stone-channel#discovery-feed">看实拍短片 <ArrowDown size={15} /></a>
         </div>
         <div className="edition-index">
           <span><strong>{cityRanking.length}</strong> 城上榜</span>

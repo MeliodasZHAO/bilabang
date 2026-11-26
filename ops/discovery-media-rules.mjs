@@ -13,6 +13,10 @@ export function publicPost(input) {
     const id = url.pathname.match(/^\/(?:zh\/)?(?:explore|discovery\/item)\/([0-9a-f]{24})\/?$/i)?.[1]?.toLowerCase();
     if (id) return { platform: '小红书', key: `xhs:${id}`, url: `https://www.rednote.com/zh/discovery/item/${id}`, id };
   }
+  if (['www.bilibili.com', 'bilibili.com'].includes(url.hostname)) {
+    const id = url.pathname.match(/^\/video\/(BV[1-9A-Za-z]{10})\/?$/)?.[1];
+    if (id) return { platform: '哔哩哔哩', key: `bilibili:${id}`, url: `https://www.bilibili.com/video/${id}/`, id, sourceVideo: true };
+  }
   const newsrooms = {
     'cbgc.scol.com.cn': ['川观新闻', /^\/news\/\d+$/],
     'www.ctdsb.net': ['极目新闻', /^\/c\d+_\d{6}\/\d+\.html$/],
@@ -47,6 +51,17 @@ export function embeddedVideo(post) {
   return post.platform === '抖音' ? `https://open.douyin.com/player/video?vid=${post.id}&autoplay=0` : null;
 }
 
+export async function probeBilibiliVideo(post, cue, signal) {
+  const url = new URL('https://api.bilibili.com/x/web-interface/view');
+  url.searchParams.set('bvid', post.id);
+  const response = await fetch(url, { signal });
+  const { code, data } = await response.json();
+  if (!response.ok || code !== 0 || data?.bvid !== post.id ||
+      !data.owner?.mid || !(data.duration > cue)) {
+    throw new Error('原帖身份或核片时间未通过');
+  }
+}
+
 export function validateCandidate(row) {
   if (row.status !== 'approved') return [row.reason || '尚未完成人工核片'];
   const errors = [];
@@ -66,7 +81,7 @@ export function validateCandidate(row) {
   try {
     const evidence = new URL(film.evidence);
     if (evidence.protocol !== 'https:' || evidence.username || evidence.password ||
-        evidence.port || /(^|\.)(douyin\.com|rednote\.com|xiaohongshu\.com)$/.test(evidence.hostname) || !review.locationMatch) {
+        evidence.port || /(^|\.)(douyin\.com|rednote\.com|xiaohongshu\.com|bilibili\.com)$/.test(evidence.hostname) || !review.locationMatch) {
       errors.push('缺少独立地点依据');
     }
   } catch { errors.push('缺少独立地点依据'); }
