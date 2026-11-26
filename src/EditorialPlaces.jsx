@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { ArrowDown, ArrowUpRight, GridFour, LinkSimple, ListBullets, MagnifyingGlass, X } from '@phosphor-icons/react';
 import { cityRanking, editorialDate, editorialRecords, featuredStops, stopUrl } from './editorial-catalog.js';
 import { recordTraffic } from './traffic.js';
+import films from './data/discovery-films.json';
 
 const reviewMode = import.meta.env.MODE === 'editorial-review';
 const dimensions = [
@@ -41,6 +42,7 @@ function StopDetail({ place, close, onError }) {
   const [copied, setCopied] = useState('');
   const permalink = new URL(stopUrl(place), location.origin).href;
   const story = featuredStops.find(item => item.id === place.id)?.story;
+  const film = films.find(item => item.placeId === place.id);
   useEffect(() => {
     const modal = dialog.current;
     modal.showModal();
@@ -78,6 +80,7 @@ function StopDetail({ place, close, onError }) {
           <ScoreBar key={dimension} {...{ place, dimension, index, label, max }} />
         )}</div>
         <div className="ed-source-links">
+          {film && <a href={`/?film=${film.id}#discovery-feed`}>看这处的实拍短片 <ArrowUpRight size={14} /></a>}
           <a href={place.sourceUrl} target="_blank" rel="noopener noreferrer">项目原文 <ArrowUpRight size={14} /></a>
           <Credit place={place} />
           <button onClick={copyLink}><LinkSimple size={16} /> 复制地点链接</button>
@@ -147,7 +150,7 @@ export default function EditorialPlaces() {
   const cover = featuredStops.slice(1).find(place => !failed.includes(place.id));
   const selected = records.find(place => place.id === openId);
   useEffect(() => {
-    if (selected) recordTraffic('detail_view', 'editorial-detail');
+    if (selected) recordTraffic('detail_view', 'editorial-detail', 'editorial-detail', selected.id);
     else if (!openId) recordTraffic('rank_view', 'editorial');
     else recordTraffic('entry', 'other');
   }, [openId, selected?.id]);

@@ -95,6 +95,9 @@ body { background: var(--edition-paper); }
   transition: background .2s, color .2s, transform .2s;
 }
 .edition-primary:hover { background: var(--edition-ink); color: var(--edition-lime); transform: translateY(-2px); }
+.edition-cover-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 13px; }
+.edition-cover-films { display: inline-flex; align-items: center; gap: 4px; color: var(--edition-ink); font-size: 13px; font-weight: 700; }
+.edition-cover-films:hover { text-decoration: underline; text-underline-offset: 4px; }
 .edition-index {
   display: flex;
   flex-wrap: wrap;

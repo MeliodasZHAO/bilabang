@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ArrowDown, ArrowRight, ArrowUpRight, MapPin, MagnifyingGlass } from '@phosphor-icons/react';
 import { cityRanking, cityUrl, editorialRecords, featuredStops, stopUrl } from './editorial-catalog.js';
+import DiscoveryFeed from './DiscoveryFeed.jsx';
 import './discovery-edition.css';
 
 const lead = featuredStops[0];
@@ -17,7 +18,6 @@ export default function DiscoveryEdition({ onEditionLink }) {
   const [broken, setBroken] = useState([]);
   const hidePhoto = id => setBroken(current => current.includes(id) ? current : [...current, id]);
   const leadVisible = lead && !broken.includes(lead.id);
-  const picks = featuredStops.slice(1).filter(place => !broken.includes(place.id));
   const go = (event, href) => onEditionLink(event, href);
   const cityMatches = city.trim() ? cityRanking.filter(place =>
     `${place.displayCity} ${place.province}`.includes(city.trim())
@@ -35,9 +35,12 @@ export default function DiscoveryEdition({ onEditionLink }) {
         <p className="edition-masthead">THE SCENIC STOP <span>旅行与公共空间</span></p>
         <h1>这也能是<br />厕所<span>？</span></h1>
         <p className="edition-deck">湖边的白塔、海边的海螺、树林里的一扇窗。来看看哪些厕所，值得你在路上多停一站。</p>
-        <a className="edition-primary" href="/editorial#city-leaderboard" data-traffic="home-primary" onClick={event => go(event, '/editorial#city-leaderboard')}>
-          查看全国 {cityRanking.length} 城榜 <ArrowUpRight size={20} weight="bold" />
-        </a>
+        <div className="edition-cover-actions">
+          <a className="edition-primary" href="/editorial#city-leaderboard" data-traffic="home-primary" onClick={event => go(event, '/editorial#city-leaderboard')}>
+            查看全国 {cityRanking.length} 城榜 <ArrowUpRight size={20} weight="bold" />
+          </a>
+          <a className="edition-cover-films" href="/?film=dunhuang-night-market#discovery-feed">看实拍短片 <ArrowDown size={15} /></a>
+        </div>
         <div className="edition-index">
           <span><strong>{cityRanking.length}</strong> 城上榜</span>
           <span><strong>{editorialRecords.length}</strong> 处实拍</span>
@@ -58,26 +61,7 @@ export default function DiscoveryEdition({ onEditionLink }) {
         </figcaption>
       </figure>}
     </section>
-    <section className="edition-picks" aria-labelledby="edition-picks-title">
-      <div className="edition-section-heading">
-        <div><p>编辑选题</p><h2 id="edition-picks-title">为这几处，多绕一段路。</h2></div>
-        <a href="/editorial?scope=all#city-leaderboard" data-traffic="home-library" onClick={event => go(event, '/editorial?scope=all#city-leaderboard')}>全部有图地点 <ArrowUpRight size={17} /></a>
-      </div>
-      <div className="edition-stories">
-        {picks.map(place => <article className="edition-story" key={place.id}>
-          <a href={stopUrl(place)} onClick={event => go(event, stopUrl(place))}>
-            <div className="edition-story-photo">
-              <img src={place.media.src} alt={place.name} loading="lazy" decoding="async" onError={() => hidePhoto(place.id)} />
-              <span className="edition-story-tag">{place.theme} · {place.displayCity}</span>
-              <span className="edition-photo-arrow"><ArrowUpRight size={19} /></span>
-            </div>
-            <h3>{place.headline}</h3>
-            <p>{place.story}</p>
-          </a>
-          <PhotoCredit place={place} />
-        </article>)}
-      </div>
-    </section>
+    <DiscoveryFeed onEditionLink={onEditionLink} />
     <section className="edition-cities" aria-labelledby="edition-cities-title">
       <div className="edition-city-intro">
         <p>一城一厕</p>

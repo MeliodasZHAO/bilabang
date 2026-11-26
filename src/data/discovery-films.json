@@ -1,0 +1,64 @@
+[
+  {
+    "id": "dunhuang-night-market",
+    "placeId": "city-extra:facc6a3c7b49757ccdf2",
+    "title": "在敦煌夜市，走进一座雅丹",
+    "city": "酒泉·敦煌",
+    "description": "在夜市的人流里看净界的灯光和空间，感受一座公共卫生间为什么成了打卡点。",
+    "publisher": "圆圆满满",
+    "platform": "抖音",
+    "date": "2026-08-09",
+    "original": "https://www.douyin.com/video/7672038616328474852",
+    "embed": "https://open.douyin.com/player/video?vid=7672038616328474852&autoplay=0",
+    "portrait": true
+  },
+  {
+    "id": "deji-blue-room",
+    "placeId": "national:fed99143e0203cd54c5d",
+    "title": "德基一期二楼，洗手间也能像精品店",
+    "city": "南京",
+    "description": "跟镜头看德基广场一期二楼的入口和内部，别跟同一商场其他楼层的主题卫生间弄混。",
+    "publisher": "琳中仙女",
+    "platform": "抖音",
+    "date": "2023-10-14",
+    "original": "https://www.douyin.com/video/7289677739760651578",
+    "embed": "https://open.douyin.com/player/video?vid=7289677739760651578&autoplay=0",
+    "portrait": true,
+    "evidence": "https://swj.nanjing.gov.cn/bmdt/202512/t20251229_5752922.html"
+  },
+  {
+    "id": "liuba-brick",
+    "placeId": "national:78e6f9f11faaf74770bd",
+    "title": "留坝老街的红砖公厕，天黑后更好看",
+    "city": "汉中·留坝",
+    "description": "设计团队自己的影片。看看街道边的红砖、木屋架和留给路人坐下歇脚的空间。",
+    "publisher": "尌林建筑",
+    "platform": "优酷",
+    "date": "2024-08-16",
+    "original": "https://www.gooood.cn/red-brick-public-toilet-on-liuba-old-street-by-shulin-architecture.htm",
+    "embed": "https://player.youku.com/embed/XNjQxNDg0MzQyNA=="
+  },
+  {
+    "id": "cangnan-coast",
+    "title": "当一卷卫生纸躺上苍南的悬崖",
+    "city": "温州·苍南",
+    "description": "168 黄金海岸线的项目影像。镜头里的限时设施属于历史记录，现状需核实。",
+    "publisher": "京东 × 苍南文旅",
+    "platform": "腾讯视频",
+    "date": "2025-09-19",
+    "original": "https://socialbeta.com/campaign/26064",
+    "embed": "https://v.qq.com/txp/iframe/player.html?vid=j3171wfxru8"
+  },
+  {
+    "id": "axilixi-plateau",
+    "title": "海拔两千米，草甸上有间洗手间",
+    "city": "毕节·赫章",
+    "description": "从保洁员的视角走进阿西里西的草垛与山脊项目。影片记录项目，单体开放情况请先查景区。",
+    "publisher": "京东 × 赫章文旅",
+    "platform": "腾讯视频",
+    "date": "2025-12-09",
+    "original": "https://socialbeta.com/campaign/26595",
+    "noteUrl": "https://www.xiaohongshu.com/explore/692d700d000000001b0219ce",
+    "embed": "https://v.qq.com/txp/iframe/player.html?vid=n31817pmai2"
+  }
+]

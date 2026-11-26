@@ -73,12 +73,13 @@ export function setTrafficDisabled(disabled) {
 
 const randomId = () => crypto.randomUUID().replaceAll('-', '');
 
-function sendEvent(event, surface, session, test) {
-  const path = `/_traffic/v1/${event}/${surface}/${session.source}/${session.visitor}/${session.id}/${test ? 'qa' : 'live'}`;
+function sendEvent(event, surface, session, test, stop) {
+  const target = /^(national|city-extra):[a-f0-9]{20}$/.test(stop || '') ? '/' + stop : '';
+  const path = `/_traffic/v1/${event}/${surface}/${session.source}/${session.visitor}/${session.id}/${test ? 'qa' : 'live'}${target}`;
   fetch(path, { method: 'POST', keepalive: true, credentials: 'omit', referrerPolicy: 'origin' }).catch(() => {});
 }
 
-export function recordTraffic(event, surface, entry = surface) {
+export function recordTraffic(event, surface, entry = surface, stop) {
   if (location.origin !== productionOrigin || trafficDisabled() || navigator.doNotTrack === '1' || navigator.globalPrivacyControl || !crypto.randomUUID) return;
   const now = Date.now();
   visitor = readRecord('localStorage', visitorKey) || visitor;
@@ -98,5 +99,5 @@ export function recordTraffic(event, surface, entry = surface) {
   }
   visit.lastSeen = now;
   writeStorage('sessionStorage', visitKey, JSON.stringify(visit));
-  if (event !== 'entry') sendEvent(event, surface, visit, test);
+  if (event !== 'entry') sendEvent(event, surface, visit, test, stop);
 }
