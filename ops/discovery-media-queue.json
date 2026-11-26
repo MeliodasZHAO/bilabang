@@ -1,0 +1,480 @@
+{
+  "feeds": [
+    {"label":"小红书 · 张家界 武陵源 黄龙洞 草树茅斯","url":"https://www.rednote.com/zh/search_result?keyword=%E5%BC%A0%E5%AE%B6%E7%95%8C%20%E6%AD%A6%E9%99%B5%E6%BA%90%20%E9%BB%84%E9%BE%99%E6%B4%9E%20%E8%8D%89%E6%A0%91%E8%8C%85%E6%96%AF"},
+    {"label":"小红书 · 烟台 昆嵛山 石门里 山之厕所","url":"https://www.rednote.com/zh/search_result?keyword=%E7%83%9F%E5%8F%B0%20%E6%98%86%E5%B5%9B%E5%B1%B1%20%E7%9F%B3%E9%97%A8%E9%87%8C%20%E5%B1%B1%E4%B9%8B%E5%8E%95%E6%89%80"},
+    {"label":"小红书 · 丽水 松阳 大岭根村 村口公厕","url":"https://www.rednote.com/zh/search_result?keyword=%E4%B8%BD%E6%B0%B4%20%E6%9D%BE%E9%98%B3%20%E5%A4%A7%E5%B2%AD%E6%A0%B9%E6%9D%91%20%E6%9D%91%E5%8F%A3%E5%85%AC%E5%8E%95"},
+    {"label":"小红书 · 宜宾 屏山 玫鳞花溪 棕厕","url":"https://www.rednote.com/zh/search_result?keyword=%E5%AE%9C%E5%AE%BE%20%E5%B1%8F%E5%B1%B1%20%E7%8E%AB%E9%B3%9E%E8%8A%B1%E6%BA%AA%20%E6%A3%95%E5%8E%95"},
+    {"label":"小红书 · 宜宾 翠屏 安石村 卷厕","url":"https://www.rednote.com/zh/search_result?keyword=%E5%AE%9C%E5%AE%BE%20%E7%BF%A0%E5%B1%8F%20%E5%AE%89%E7%9F%B3%E6%9D%91%20%E5%8D%B7%E5%8E%95"}
+  ],
+  "searches": [
+    "张家界 武陵源 黄龙洞 草树茅斯",
+    "烟台 昆嵛山 石门里 山之厕所",
+    "丽水 松阳 大岭根村 村口公厕",
+    "宜宾 屏山 玫鳞花溪 棕厕",
+    "宜宾 翠屏 安石村 卷厕",
+    "青岛 崂山 麦岛湾公厕",
+    "武汉 武昌 紫阳公园 东门 水杉公厕",
+    "秦皇岛 石城子村 红顶公厕",
+    "曲靖 师宗 凤凰谷 女儿湖半岛厕所",
+    "广州 番禺 岭南印象园 龙舟池公厕",
+    "广元 朝天 水磨沟景区 古建公厕",
+    "乐山 犍为 世界茉莉博览园 镜面公厕"
+  ],
+  "candidates": [
+    {
+      "url": "https://www.bilibili.com/video/BV14mUxY2EBQ/",
+      "status": "approved",
+      "film": {
+        "id": "lianhuashan-forest-restroom",
+        "category": "景区",
+        "title": "莲花山顶，从公厕望进一整片山林",
+        "city": "深圳·福田",
+        "venue": "莲花山公园山顶 · 小平像广场旁 · 北山栖鸢公厕",
+        "description": "航拍顺着树冠落到山顶公厕。进到里面，镜头沿着分隔开的厕位走，抬眼就能看见山坡的树林。",
+        "publisher": "番外的片",
+        "date": "2024-11-19",
+        "access": "公园公厕 · 小平像广场旁",
+        "evidence": "https://www.sznews.com/news/content/2021-02/24/content_23995946.htm"
+      },
+      "review": {
+        "checked": "2026-11-27",
+        "seconds": 173,
+        "shot": "约 2:19 航拍山顶建筑并明确标注莲花山公园顶的公厕，2:53 看见朝向山坡树林的洁具、隔板和穿孔屏风，3:10 从另一侧再次拍到林景与厕位。",
+        "distinction": "从屋顶到厕位的镜头能核对同一座设施，开敞一侧把山林引入视线。",
+        "locationMatch": "深圳市建筑工务署供稿指出公厕位于山顶广场后方，南近小平铜像广场。对比项目原图，屋顶、起坡一侧的长窗带、截面和穿孔屏风与该段实拍对应。",
+        "privacy": "clear",
+        "bilibiliEmbed": true
+      }
+    },
+    {
+      "url": "https://www.digitaling.com/projects/369586.html",
+      "status": "approved",
+      "film": {
+        "id": "nalati-pebble-restroom",
+        "category": "山野",
+        "title": "那拉提草原上，这块巨石是一座公厕",
+        "city": "伊犁·新源",
+        "venue": "那拉提空中草原 · 天牧台与游牧人家之间的自驾停车区",
+        "description": "片中从草坡拍到鹅卵石形的外墙，再走进有天窗、碎瓷片墙面和独立厕位的室内。视频由项目方拍摄。",
+        "publisher": "天与空 · 京东与九牧项目影像",
+        "date": "2026-06-17",
+        "access": "景区公厕 · 进入景区按当日安排",
+        "evidence": "https://m.dzplus.dzng.com/share/general/0/NEWS3450827WXLZPMQSROLTW"
+      },
+      "review": {
+        "checked": "2026-11-27",
+        "seconds": 69,
+        "shot": "0:34 是草原低机位的外观，0:45 对着顶光与洗手区，0:57 有碎瓷墙特写；1:09 外景看见石形主体和玻璃入口，1:20 拍到空置厕位。",
+        "distinction": "草坡、石形轮廓、玻璃入口和实际洁具均出现在项目方影片；画面中有品牌宣传，只据建筑实拍和采访记事实。",
+        "locationMatch": "项目方在数英的原片与大众新闻现场采访的照片一致；记者与景区管委会人员核对，报道写明自驾停车区在天牧台和游牧人家之间。",
+        "privacy": "clear"
+      }
+    },
+    {
+      "url": "https://www.ctdsb.net/c1476_202210/1525654.html",
+      "status": "approved",
+      "film": {
+        "id": "zhibei-village-reading-restroom",
+        "category": "景区",
+        "title": "知北村的公厕，进门先遇见一排书",
+        "city": "梅河口",
+        "venue": "吉林梅河口 · 知北村艺术田园生活度假区 · 书吧公厕",
+        "description": "镜头从红砖入口进到室内，沿着弧形书架走，再转向一排带灯的盥洗镜。总设计师在报道中介绍了书架和休息区的由来。",
+        "publisher": "极目新闻 · 彭柳刘剪辑",
+        "date": "2022-10-02",
+        "access": "景区设施 · 2022 年原始实拍",
+        "evidence": "https://www.ctdsb.net/c1476_202210/1525654.html"
+      },
+      "review": {
+        "checked": "2026-11-27",
+        "seconds": 5,
+        "shot": "约 0:01 是红砖入口，0:05 镜头经过室内的发光弧形书架，0:08 看到数面拱形补光镜。记者原文有同一空间的截图。",
+        "distinction": "书架、休憩空间与盥洗设施属于同一个公厕，入口与室内有连续镜头。",
+        "locationMatch": "记者直接采访知北村总规划总设计师于桐，正文确认这座公厕位于梅河口知北村度假区。报道时间和附片一致，当前具体开放时段未核。",
+        "privacy": "clear"
+      }
+    },
+    {
+      "url": "https://www.bilibili.com/video/BV1kr5Cz5EG9/",
+      "status": "approved",
+      "film": {
+        "id": "dali-wuliang-tea-valley",
+        "category": "山野",
+        "title": "无量山茶谷里，折过三道屋脊的厕所",
+        "city": "大理·南涧",
+        "venue": "南涧县碧溪乡凤凰山茶庄 · 民宿背坡的无量山风景厕所",
+        "description": "深色折屋顶贴着坡地，楼梯从屋顶下穿过去。镜头从雾里的屋顶转到半敞开的廊道，能看清厕所怎样借来山谷的景色。",
+        "publisher": "ZaomeDesign · 直译建筑摄影",
+        "date": "2025-04-21",
+        "access": "茶庄民宿配套 · 到访前向运营方确认",
+        "evidence": "https://www.gooood.cn/scenic-restroom-in-dali-wuliang-mountain-by-kongxiangwei-studio.htm"
+      },
+      "review": {
+        "checked": "2026-11-27",
+        "seconds": 46,
+        "shot": "约 0:08 可见完整折屋顶，0:46 可见厕所横向廊道旁被光照亮的楼梯，约 0:55 镜头从走廊看向山谷。",
+        "distinction": "山雾、折屋面、架空廊道及观景方向在一个短片中连贯可见。视频重点是厕所本体与交通空间，非洁具特写。",
+        "locationMatch": "原片名称、折屋面、贴坡楼梯和设计团队项目稿相符；设计稿给出南涧县碧溪乡凤凰山茶庄。",
+        "privacy": "clear",
+        "bilibiliEmbed": true
+      }
+    },
+    {
+      "url": "https://www.bilibili.com/video/BV1STEv6FEZg/",
+      "status": "approved",
+      "film": {
+        "id": "qiandaohu-ahnlan-lake-bath",
+        "category": "酒店",
+        "title": "千岛湖安岚，浴缸就在湖景窗下",
+        "city": "杭州·淳安",
+        "venue": "淳安县 · 千岛湖安岚酒店 · 片中别墅卫浴",
+        "description": "走进湖边别墅，镜头先带过两面镜子和盥洗台，接着转到窗下的浴缸。湖湾和浴缸在同一画面里。",
+        "publisher": "COCOGO旅行",
+        "date": "2026-06-11",
+        "access": "住客卫浴 · 房型请向酒店确认",
+        "evidence": "https://www.ahnlanqiandaohu.cn/contact.html"
+      },
+      "review": {
+        "checked": "2026-11-27",
+        "seconds": 77,
+        "shot": "1:14 见并排镜面及台盆，1:17 见浴缸边缘、独立水龙头和窗外湖湾，字幕标明临湖浴缸。",
+        "distinction": "拍清了浴缸、整扇窗、湖湾三者的位置关系，主角是空间设计。",
+        "locationMatch": "开头实拍千岛湖安岚招牌；原片的房间探访与临湖位置连贯，酒店站确认千岛湖安岚项目身份。",
+        "privacy": "clear",
+        "bilibiliEmbed": true
+      }
+    },
+    {
+      "url": "https://www.bilibili.com/video/BV1wa411i7DA/",
+      "status": "approved",
+      "film": {
+        "id": "xinchang-ahnlan-mountaintop-bath",
+        "category": "酒店",
+        "title": "新昌安岚，山顶套房的浴缸贴着斜顶大窗",
+        "city": "绍兴·新昌",
+        "venue": "穿岩十九峰景区 · 绍兴新昌安岚酒店 · 片中山顶套房",
+        "description": "套房把浴缸摆在随屋顶抬高的窗边。镜头绕过双台盆，斜顶、窗框和窗外山林都看得清楚。",
+        "publisher": "小艾大叔",
+        "date": "2022-04-01",
+        "access": "住客卫浴 · 2022 年实拍",
+        "evidence": "https://www.ahnlanxinchang.cn/"
+      },
+      "review": {
+        "checked": "2026-11-27",
+        "seconds": 217,
+        "shot": "3:27 有浴缸、斜顶玻璃和台盆同框，3:37 从台盆方向拍向缸和大窗，之后进入淋浴区。",
+        "distinction": "窗随斜屋面上扬，浴缸处能看到整套房与山坡的空间关系，片子拍清了整间卫浴的布局。",
+        "locationMatch": "原作者标题及画面明确介绍的是新昌安岚山顶总统套房，酒店官网确认项目位置和云海山巅功能区。",
+        "privacy": "clear",
+        "bilibiliEmbed": true
+      }
+    },
+    {
+      "url": "https://www.bilibili.com/video/BV1LmpiziEwq/",
+      "status": "approved",
+      "film": {
+        "id": "shanghai-regent-green-vanity",
+        "category": "酒店",
+        "title": "上海海鸥丽晶，外滩客房里的绿纹洗手台",
+        "city": "上海·虹口",
+        "venue": "苏州河与黄浦江交汇处 · 上海海鸥丽晶酒店 · 片中客房卫浴",
+        "description": "客房探访从靠窗的浴缸走到两面带灯镜，再近拍绿色纹理的台面与黑色龙头。转角处另有独立厕位。",
+        "publisher": "有李酒店说",
+        "date": "2025-09-18",
+        "access": "住客卫浴 · 2025 年实拍",
+        "evidence": "https://www.ihg.com/regent/hotels/cn/zh/shanghai/shabn/hoteldetail/rooms"
+      },
+      "review": {
+        "checked": "2026-11-27",
+        "seconds": 348,
+        "shot": "5:35–6:01 见双台盆、带灯镜与绿色纹理台面，6:28 见独立分隔厕位。片中另介绍临窗浴缸。",
+        "distinction": "深色龙头、绿纹石面和灯镜的搭配明确可辨，视频完整展示盥洗台、浴缸与厕位的布局。",
+        "locationMatch": "原片名称和房间实拍指向上海海鸥丽晶，洲际官方客房页面确认酒店和临窗带浴缸的客房；不推断房型。",
+        "privacy": "clear",
+        "bilibiliEmbed": true
+      }
+    },
+    {
+      "url": "https://www.douyin.com/video/7625078998721509979",
+      "status": "approved",
+      "film": {
+        "id": "jiaying-stone-channel",
+        "category": "山野",
+        "title": "甲应村的厕所，石板下面有一条水道",
+        "city": "林芝·察隅",
+        "venue": "察瓦龙乡甲应村 · 片中石槽厕所",
+        "description": "镜头对着石板间的开口，能看见水连续流过下面的槽。另有到访记录拍到当地以水渠作厕槽的做法。",
+        "publisher": "GAI溜子",
+        "date": "2026-04-05",
+        "access": "具体入口及当前通行待确认",
+        "evidence": "https://chayu.gov.cn/chyx/xwzx/202608/91590a80eb4549b4a6ef294f2069a772.shtml"
+      },
+      "review": {
+        "checked": "2026-11-27",
+        "seconds": 2,
+        "shot": "约 2 秒可见石墙、石板和夹在两侧石板间的流水；字幕写甲应村。画面全程对着厕槽。",
+        "distinction": "外部水渠直接穿过石槽的做法少见，流水有连续可观察的实拍。",
+        "locationMatch": "抖音话题卡与视频字幕均标明甲应村，察隅县政府确认村名与所在片区，独立到访记录 https://chejiahao.autohome.com.cn/info/8055592 中也拍到甲应村石槽引水。未确认具体入口与当天路况。作者见播放器，发布日期根据视频 ID 时间推算。",
+        "privacy": "clear"
+      }
+    },
+    {
+      "url": "https://www.bilibili.com/video/BV1nb4y1v7LB/",
+      "status": "approved",
+      "film": {
+        "id": "chongzuo-lux-stone-washroom",
+        "category": "酒店",
+        "title": "崇左丽世，石墙旁的洗手台",
+        "city": "崇左·大新",
+        "venue": "大新县明仕村 · 广西崇左秘境丽世度假村 · 片中客房卫浴",
+        "description": "镜头从绿植移到石墙旁的方形台盆，后面还拍到了嵌在台面里的长浴槽。两处都能看到粗糙石面与平整台面的搭配。",
+        "publisher": "奥杰同学",
+        "date": "2021-12-21",
+        "access": "住客卫浴 · 2021 年拍摄 · 房型请向酒店确认",
+        "evidence": "https://factsheets.theluxcollective.com/LRH/china/luxchongzuo/LUXChongzuo_CN.pdf"
+      },
+      "review": {
+        "checked": "2026-11-27",
+        "seconds": 68,
+        "shot": "约 1:08 客房原片出现粗石墙、绿植和立方形洗手盆，约 2:23 复看到长形嵌入浴槽及台面龙头。",
+        "distinction": "客房游览拍清了绿植、石墙与盥洗台的空间关系，以及不常见的嵌入式长浴槽。",
+        "locationMatch": "原片标题和开箱内容指向广西崇左秘境丽世，酒店集团项目资料确认大新明仕河畔位置及客房卫浴。未推断具体房型；早期实拍应注明年份。",
+        "privacy": "clear",
+        "bilibiliEmbed": true
+      }
+    },
+    {
+      "url": "https://www.bilibili.com/video/BV1aa411279j/",
+      "status": "approved",
+      "film": {
+        "id": "yubeng-yeyu-copper-basin",
+        "category": "酒店",
+        "title": "雨崩野语，雪山脚下的铜洗脸盆",
+        "city": "迪庆·德钦",
+        "venue": "雨崩下村 · 野语 YÉYU 雨崩野景民宿首店 · 片中客房卫浴",
+        "description": "客房窗外是雪后的山谷。镜头进浴室后，从圆镜转到铜洗脸盆，再给两个像山峰一样起伏的漱口杯一个特写。",
+        "publisher": "牧羊博士说酒店",
+        "date": "2022-02-06",
+        "access": "住客卫浴 · 2022 年拍摄",
+        "evidence": "https://hotels.ctrip.com/hotels/78225549.html"
+      },
+      "review": {
+        "checked": "2026-11-27",
+        "seconds": 85,
+        "shot": "约 1:23 至 1:29 展示石色墙面、圆镜、铜盆以及两个山形杯；镜头中的用品有野语标识，更早的片段明确标出下雨崩。",
+        "distinction": "这段实拍给出洗手盆和杯子的特写，室内设计细节与雪山旅程能在片中对上。",
+        "locationMatch": "原帖介绍下雨崩野语，画面用品可对上品牌；住宿方公开房源页注明雨崩下村首店，和后开的鹿谷分开。",
+        "privacy": "clear",
+        "bilibiliEmbed": true
+      }
+    },
+    {
+      "url": "https://www.douyin.com/video/7635072537177415273",
+      "status": "approved",
+      "film": {
+        "id": "tonglingshan-window",
+        "category": "山野",
+        "title": "铜铃山，把一整片青山框进窗",
+        "city": "温州·文成",
+        "venue": "文成县铜铃山景区 · 片中观景卫生间",
+        "description": "八秒里，镜头先拍窗边的洁具，再转向层层叠叠的山。光是那个视角，就值得看一眼。",
+        "publisher": "杨杨",
+        "date": "2026-05-02",
+        "access": "具体入口和当前开放状态待确认",
+        "evidence": "https://minyi.zjzwfw.gov.cn/dczjnewls/upload/attachment/6971e71c4867455fab342e741ded5e0a.pdf"
+      },
+      "review": {
+        "checked": "2026-11-27",
+        "seconds": 1,
+        "shot": "画面前景为洁具和柱盆，窗外连绵山脊，随后镜头离开设施转向群山。",
+        "distinction": "镜头能说明窗与洁具的空间关系，单看远山不能替代这条实拍。",
+        "locationMatch": "原帖明确定位铜铃山，文成县森林公园规划核对景区名称；不把园区位置写成具体厕所入口。",
+        "privacy": "clear"
+      }
+    },
+    {
+      "url": "https://www.douyin.com/video/7601170922897028962",
+      "status": "approved",
+      "film": {
+        "id": "ruili-moli-washroom",
+        "category": "景区",
+        "title": "瑞丽莫里雨林，洗手区藏了面木墙",
+        "city": "德宏·瑞丽",
+        "venue": "瑞丽莫里热带雨林景区 · 片中洗手区",
+        "description": "从林间步道走到洗手区，近看石纹、圆形嵌饰和一整面木截面墙。视频里的材质说法没有独立证据。",
+        "publisher": "奔跑的儿娃子",
+        "date": "2026-01-30",
+        "access": "景区内设施，具体入口请询问景区",
+        "evidence": "https://www.mlrdyl.cn/contact.html"
+      },
+      "review": {
+        "checked": "2026-11-27",
+        "seconds": 32,
+        "shot": "旅途中近拍洗手区的台面饰面和木截面墙，约 40 秒有同一作者给出的景区卫生间字幕。",
+        "distinction": "设施细节可辨认，林间步道和洗手区属于同一段旅行记录。原题关于翡翠不可证实。",
+        "locationMatch": "片中字幕与原帖均指向瑞丽莫里景区，运营方官网给出瑞丽莫里峡谷位置。未找到单体门牌。",
+        "privacy": "clear"
+      }
+    },
+    {
+      "url": "https://jingxuan.douyin.com/m/video/7484210556069596455",
+      "status": "approved",
+      "film": {
+        "id": "yangshuo-sugar-house",
+        "category": "酒店",
+        "title": "阳朔糖舍的洗手台，旁边是一面纹理墙",
+        "city": "桂林·阳朔",
+        "venue": "阳朔糖舍度假酒店 · 片中客房卫浴",
+        "description": "设计团队实地看房，在镜子前停下来讲墙面材质、两只台盆和采光。顺便看看旧糖厂的空间如何延续到客房。",
+        "publisher": "壹柒设计事务所",
+        "date": "2025-03-21",
+        "access": "住客卫浴，不作为公共厕所推荐",
+        "evidence": "https://www.gooood.cn/interior-design-of-alila-yangshuo-china-by-horizontal-space-design.htm"
+      },
+      "review": {
+        "checked": "2026-11-27",
+        "seconds": 47,
+        "shot": "从盥洗镜和双台盆开始，几名参与拍摄的成年设计团队成员讨论墙面。约 122 秒仍可看到洗手台细节。",
+        "distinction": "空间材质和双人盥洗布局拍得清楚，有设计团队讲解。",
+        "locationMatch": "片名和设计团队说明均指向阳朔糖舍，水平线设计的项目供稿可核对室内项目身份；不推断客房房型。",
+        "privacy": "clear"
+      }
+    },
+    {
+      "url": "https://www.ctdsb.net/c1476_202211/1554555.html",
+      "status": "approved",
+      "film": {
+        "id": "fuling-flying-washroom",
+        "category": "景区",
+        "title": "涪陵崖边，一道镜面悬在江上",
+        "city": "重庆·涪陵",
+        "venue": "美心红酒小镇 · 飞天厕所",
+        "description": "原报道用镜面外墙、崖边平台和江面三个视角，交代这座洗手间与江景的关系。",
+        "publisher": "极目新闻 · 张皓、谢茂；剪辑 轩逸瑶",
+        "date": "2022-11-02",
+        "access": "历史实拍，当前开放未核实",
+        "evidence": "https://www.ctdsb.net/c1476_202211/1554555.html"
+      },
+      "review": {
+        "checked": "2026-11-27",
+        "seconds": 7,
+        "shot": "原站 8 秒片末尾可见平台护栏和镜面外墙，片中段有对应的远处江景。",
+        "distinction": "镜面和悬挑结构辨识度高。保留报道原播放器入口，不转载新闻素材。",
+        "locationMatch": "报道内采访了美心红酒小镇创意人员，对方明确确认设施名称与景区。",
+        "privacy": "clear"
+      }
+    },
+    {
+      "url": "https://cbgc.scol.com.cn/news/361600",
+      "status": "approved",
+      "film": {
+        "id": "danling-orange-station",
+        "category": "景区",
+        "title": "丹棱下高速，两只桔橙竟是驿站",
+        "city": "眉山·丹棱",
+        "venue": "遂资眉高速丹棱出口 · 丹棱县景观驿站",
+        "description": "航拍先给出两只剪纸造型的桔橙，进屋才看到这个驿站同时做厕所、休息和地方展览。",
+        "publisher": "川观新闻 / 丹棱县文广旅局供资料",
+        "date": "2020-09-07",
+        "access": "历史实拍，当前开放未核实",
+        "evidence": "https://cbgc.scol.com.cn/news/361600"
+      },
+      "review": {
+        "checked": "2026-11-27",
+        "seconds": 16,
+        "shot": "片头航拍能看到成对的橙色造型和周围道路，随后展示设施指引、内部服务和展陈。",
+        "distinction": "建筑用地方桔橙与剪纸轮廓塑造明确的入口辨识度，影片有完整的外景到室内过渡。",
+        "locationMatch": "报道由丹棱县文广旅局提供图片及资料，给出名称和高速丹棱出口。",
+        "privacy": "clear"
+      }
+    },
+    {"url": "https://www.douyin.com/video/7282295903191436604", "status": "held", "reason": "昌都孜珠寺有地貌实拍，但地点有暂停开放提示，影片以攀爬为主，具体设施开放和画面边界不明确"},
+    {"url": "https://www.douyin.com/video/7597001698703461674", "status": "held", "reason": "龙里大地之子是新闻拼图，多种造型切换，未取得连续探访实拍"},
+    {"url": "https://www.douyin.com/video/7329169393135439138", "status": "held", "reason": "宝格丽有盥洗台，但该段主要展示备品，辨识度低于本批酒店故事"},
+    {"url": "https://www.douyin.com/video/7527630903557770542", "status": "held", "reason": "四姑娘山酒店画面以山景、外立面和起居为主，未确认对应卫浴镜头"},
+    {"url": "https://www.douyin.com/video/7672324561429718086", "status": "held", "reason": "焦作亲子游视频只核到酒店线索，未确认天空之院首层同一洗手间"},
+    {"url": "https://www.douyin.com/video/7512751752328842508", "status": "held", "reason": "重庆刀片民宿场地可核对，核看片段有镜面外墙和卧室，未锁定卫生间镜头"},
+    {"url": "https://www.rednote.com/zh/discovery/item/69ec9171000000003601fd46", "status": "held", "reason": "小红书敦煌攻略在讲书局、印局和规局，缺净界卫生间明确实拍"},
+    {"url": "https://www.rednote.com/zh/discovery/item/69c29667000000001d0182d2", "status": "held", "reason": "小红书青浦露营帖只提供普通村厕提示，场景很美但不是特色厕所素材"},
+    {"url": "https://www.rednote.com/zh/discovery/item/69f0d037000000002003bd7a", "status": "held", "reason": "小红书阳朔窗景在拍咖啡店，与糖舍浴室不是一处"},
+    {"url":"https://www.rednote.com/zh/discovery/item/69705999000000001a02bb12","status":"held","reason":"小红书景迈山住宿贴是九张图的图文，正文未说清具体酒店，卫浴只作房间配备介绍"},
+    {"url":"https://www.rednote.com/zh/discovery/item/69d524910000000023024db3","status":"held","reason":"小红书崇左伏那线路把丽世列作住宿选项，原帖无对应客房卫浴视频"},
+    {"url":"https://www.rednote.com/zh/discovery/item/6a0c306e0000000035027c15","status":"held","reason":"小红书甲根坝为六张图的露营路线，姑弄村只是路线一站，未找到厕所实拍"},
+    {"url":"https://www.douyin.com/video/7710675093999966440","status":"held","reason":"姑弄村木屋核片为车窗视角扫过草原和木屋，未见厕所或卫浴"},
+    {"url":"https://www.douyin.com/video/7517257739657448719","status":"held","reason":"崇左丽世抖音长片镜头主要为口播和旅游介绍，抽查未确认卫浴镜头"},
+    {"url":"https://www.douyin.com/video/7525824787613011260","status":"held","reason":"崇左亲子游能看到山谷与咖啡店，住宿名称及同一间卫浴镜头未锁定"},
+    {"url":"https://www.douyin.com/video/7706499205787390451","status":"held","reason":"枣庄鲁南水城原片主题为人像和夜景，附近有多个住宿项目，未锁定具体酒店"},
+    {"url":"https://www.douyin.com/video/7237893893948296448","status":"held","reason":"围坐确有长台面，镜头主要介绍普通客房配备，卫浴辨识度不足"},
+    {"url":"https://www.douyin.com/video/7672643143620381810","status":"held","reason":"旱厕小窗外有山野实拍，但原帖未写清地点，无法对应地址"},
+    {"url":"https://www.bilibili.com/video/BV1PUU3BFEfC/","status":"held","reason":"中卫腾格里原帖标题与浏览器抽查到的清洁电器画面不一致，暂不入选"},
+    {"url":"https://www.bilibili.com/video/BV1eE421w7HQ/","status":"held","reason":"另一条崇左丽世影像覆盖床铺、花园和河景，未锁定盥洗镜头"},
+    {"url":"https://www.bilibili.com/video/BV14GmvYBEes/","status":"held","reason":"九寨沟日赛谷核到酒店与村寨画面，片中下沉浴槽镜头未定位"},
+    {"url":"https://www.bilibili.com/video/BV1PH4y1o7KB/","status":"held","reason":"既下山梅里短片只拍观景窗及雪山，窗边空间不是已核卫浴"},
+    {"url":"https://www.bilibili.com/video/BV1TK411F7yp/","status":"held","reason":"既下山梅里另一条房间探访抽查到卧室与观景位，卫浴画面待核"},
+    {"url":"https://www.douyin.com/video/7622840556448216202","status":"held","reason":"车载马桶与帐篷推广"},
+    {"url":"https://www.douyin.com/video/7624903088281063851","status":"held","reason":"房车旅行开篇，未指向固定设施"},
+    {"url":"https://www.douyin.com/video/7584376216535846196","status":"held","reason":"核片：以普通室内厕所模仿旅行博主，地点未确认"},
+    {"url":"https://www.douyin.com/video/7582822166668922152","status":"held","reason":"核片：以普通室内厕所拍段子，地点未确认"},
+    {"url":"https://www.douyin.com/video/7620802821449443017","status":"held","reason":"普通酒店公厕使用技巧，未介绍特色地点"},
+    {"url":"https://www.douyin.com/video/7620233029509183178","status":"held","reason":"面包车生活经验，未指向固定设施"},
+    {"url":"https://www.douyin.com/video/7622478947926953125","status":"held","reason":"车辆自身的卫生间"},
+    {"url":"https://www.douyin.com/video/7596393233060531471","status":"held","reason":"床车和车辆体验"},
+    {"url":"https://www.douyin.com/video/7618143963945746363","status":"held","reason":"厕所帐篷商品"},
+    {"url":"https://www.douyin.com/video/7624735180753833279","status":"held","reason":"生物降解马桶展示"},
+    {"url":"https://www.douyin.com/video/7624987727687142698","status":"held","reason":"便携厕所帐篷"},
+    {"url":"https://www.douyin.com/video/7625255025099521969","status":"held","reason":"家庭旅行段子"},
+    {"url":"https://www.douyin.com/video/7622117857182158122","status":"held","reason":"厕所帐篷商品"},
+    {"url":"https://www.douyin.com/video/7625313908831852901","status":"held","reason":"卫生间挑战段子"},
+    {"url":"https://www.douyin.com/video/7620823325698198818","status":"held","reason":"旅行剪辑教程"},
+    {"url":"https://www.douyin.com/video/7616547326391258406","status":"held","reason":"便携儿童马桶"},
+    {"url":"https://www.douyin.com/video/7623641443512421695","status":"held","reason":"便携儿童马桶"},
+    {"url":"https://www.douyin.com/video/7625044411568138100","status":"held","reason":"与已收录的敦煌夜市公厕重叠"},
+    {"url":"https://www.douyin.com/video/7618167962679184680","status":"held","reason":"便携折叠马桶"},
+    {"url":"https://www.douyin.com/video/7615833064870071595","status":"held","reason":"便携露营马桶"},
+    {"url":"https://www.douyin.com/video/7623988724044777338","status":"held","reason":"便携儿童马桶"},
+    {"url":"https://www.douyin.com/video/7617277738935782697","status":"held","reason":"便携露营马桶"},
+    {"url":"https://www.douyin.com/video/7616618709049707812","status":"held","reason":"便携儿童马桶"},
+    {"url":"https://www.douyin.com/video/7615828799879417151","status":"held","reason":"便携露营马桶"},
+    {"url":"https://www.douyin.com/video/7622878273013402922","status":"held","reason":"便携折叠马桶"},
+    {"url":"https://www.douyin.com/video/7624902998619065640","status":"held","reason":"旅行剪辑教程"},
+    {"url":"https://www.douyin.com/video/7560934055135563035","status":"held","reason":"与已收录的敦煌夜市公厕重叠"},
+    {"url":"https://www.douyin.com/video/7596236289851051305","status":"held","reason":"便携儿童马桶"},
+    {"url":"https://www.douyin.com/video/7623365402638650950","status":"held","reason":"飞机公厕使用科普"},
+    {"url":"https://www.douyin.com/video/7614456529396390627","status":"held","reason":"与已收录的南京德基地点重叠，合集涉及多个楼层"},
+    {"url":"https://www.douyin.com/video/7624367304322583851","status":"held","reason":"便携儿童马桶"},
+    {"url":"https://www.douyin.com/video/7622247225489362217","status":"held","reason":"便携儿童马桶"},
+    {"url":"https://www.douyin.com/video/7558226751656496399","status":"held","reason":"瑞士如厕体验，超出本轮国内范围"},
+    {"url":"https://www.douyin.com/video/7584339020344528177","status":"held","reason":"房车电动马桶"},
+    {"url":"https://www.douyin.com/video/7623300397042079345","status":"held","reason":"便携儿童马桶"},
+    {"url":"https://www.douyin.com/video/7577062436714737509","status":"held","reason":"旅行剪辑段子，超出本轮国内范围"},
+    {"url":"https://www.douyin.com/video/7562486180869066041","status":"held","reason":"厕所帐篷和户外用品"},
+    {"url":"https://www.douyin.com/video/7583651437549620539","status":"held","reason":"飞机公厕操作科普"},
+    {"url":"https://www.douyin.com/video/7543961617627073801","status":"held","reason":"旱厕段子，缺具体地点证据"},
+    {"url":"https://www.douyin.com/video/7624868999251135786","status":"held","reason":"飞机公厕科普"},
+    {"url":"https://www.douyin.com/video/7624809309444629241","status":"held","reason":"核片：开封万岁山游记，未见特色厕所镜头"},
+    {"url":"https://www.douyin.com/video/7566936895511635682","status":"held","reason":"高铁车厢设施说明"},
+    {"url":"https://www.douyin.com/video/7526580071512804644","status":"held","reason":"床车生活和改装"},
+    {"url":"https://www.douyin.com/video/7625074350195487218","status":"held","reason":"核片：田地与人物影子，无固定设施"},
+    {"url":"https://www.douyin.com/video/7622888388799088485","status":"held","reason":"旅行剪辑教程"},
+    {"url":"https://www.douyin.com/video/7582067431750569275","status":"held","reason":"房车自身的卫生间"},
+    {"url":"https://www.douyin.com/video/7504940114062789945","status":"held","reason":"马桶垫商品"},
+    {"url":"https://www.douyin.com/video/7619325758997040435","status":"held","reason":"飞机公厕操作科普"},
+    {"url":"https://www.douyin.com/video/7617291125606354176","status":"held","reason":"便携折叠马桶"},
+    {"url":"https://www.douyin.com/video/7603390458919800106","status":"held","reason":"巴黎共享单车故事，超出本轮国内范围"},
+    {"url":"https://www.rednote.com/zh/discovery/item/692af011000000001e0301ac","status":"held","reason":"上海浦东丽思 Chairman Suite 笔记公开网页提示暂时无法浏览，未核实画面"},
+    {"url":"https://www.rednote.com/zh/discovery/item/6909f872000000000301e27c","status":"held","reason":"小红书上海浦东丽思亲子帖公开网页不可用，未核实卫浴画面"},
+    {"url":"https://www.rednote.com/zh/discovery/item/6a21631b000000003701e205","status":"held","reason":"小红书张家界国家森林公园路线为不同景区行程，公开摘要未指到黄龙洞草树厕所"},
+    {"url":"https://www.bilibili.com/video/BV1Yhy8BSE2i/","status":"held","reason":"新昌安岚青崖居片中短切到浴缸龙头与泡沫；改选同项目完整的山顶套房卫浴探访"},
+    {"url":"https://www.bilibili.com/video/BV1RNpszvEWS/","status":"held","reason":"上海外滩瑞吉抽查到盥洗区，但同城优先选卫浴展示更完整的海鸥丽晶"},
+    {"url":"https://www.rednote.com/zh/discovery/item/68ca80d2000000000b011e09","status":"held","reason":"小红书青甘大环线笔记拍的是甘肃瓜州的《大地之子》，和贵州龙里厕所是不同地点"},
+    {"url":"https://www.rednote.com/zh/discovery/item/69144e68000000000d03caf1","status":"held","reason":"小红书青岛笔记为旅行图片与路线，未确认麦岛湾公厕建筑和镜头"},
+    {"url":"https://www.rednote.com/zh/discovery/item/69b75fa9000000002302081f","status":"held","reason":"小红书深圳大鹿港一线徒步帖只提到西贡村入口厕所，与莲花山山顶公厕不同"},
+    {"url":"https://www.bilibili.com/video/BV1U14y1A7DV/","status":"held","reason":"江门开平祖宅村片段为项目静态照片及图纸讲解，保留为线索"},
+    {"url":"https://www.bilibili.com/video/BV1n54y1N71h/","status":"held","reason":"西安曲江城东公厕实拍可核，作为景区旁的城市街道改造项目保留，超出本轮场景范围"},
+    {"url":"https://v.youku.com/v_show/id_XNjM3NzI0OTAyMA==.html","status":"held","reason":"松阳大岭根村设计稿有项目视频，浏览器嵌入提示暂无权限，视频网站页面要求验证"},
+    {"url":"https://www.sohu.com/a/451627529_260616","status":"held","reason":"乐山犍为茉莉博览园的早期玻璃厕所外观可核，媒体后续报道有隐私整改，当前形态和可供国内公开播放的对应片段待核"},
+    {"url":"https://www.douyin.com/video/7681871841166554731","status":"held","reason":"滨海堤坝透明卫生间视频原文未给明确城市与入口，无法排除错配"},
+    {"url":"https://zjj.rednet.cn/content/2020/08/28/8260798.html","status":"held","reason":"张家界黄龙洞草树厕所的红网现场原文有照片，未找到对应可播放视频"},
+    {"url":"https://cgw.wuhan.gov.cn/cgdt/cgw_cgxw/202605/t20260522_2767549.shtml","status":"held","reason":"武汉紫阳公园东门水杉公厕位置和造型已核，原报道为图文，继续找影片"}
+  ]
+}

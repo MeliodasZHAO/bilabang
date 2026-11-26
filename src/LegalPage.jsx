@@ -1,7 +1,15 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {accountPolicyVersion,supportEmail} from './account-policy.js';
+import {trafficDisabled,setTrafficDisabled} from './traffic.js';
 const titles={terms:'服务协议',privacy:'隐私与数据说明',rules:'社区规则'};
 const Email=({subject,children})=><a href={`mailto:${supportEmail}?subject=${encodeURIComponent(subject)}`}>{children||supportEmail}</a>;
+function TrafficPreference() {
+ const [disabled, setDisabled] = useState(trafficDisabled);
+ return <label><input type="checkbox" checked={disabled} onChange={event => {
+  setTrafficDisabled(event.target.checked);
+  setDisabled(event.target.checked);
+ }} /> 在此浏览器关闭访问统计</label>;
+}
 export function LegalContent({type,config={}}) {
  return <div className="policy legal-content"><p className="muted">版本 {accountPolicyVersion} · 更新于 2026 年 9 月 9 日</p>
  {type==='privacy'?<>
@@ -9,12 +17,16 @@ export function LegalContent({type,config={}}) {
   <p>{config.demo?'本地体验环境仅用于测试，请勿填写真实个人信息。':config.auth==='chatgpt'?'此环境使用平台提供的登录身份，保存身份标识和显示昵称。':'本站使用用户名和密码登录。保存公开用户名、账户标识、密码的加盐哈希和会话凭证摘要，用于验证登录；不保存明文密码。当前不收集手机号或身份证件，也未接入手机号身份核验。'}</p>
   <p>注册或补确认时保存协议版本、服务器确认时间及香港存储的单独同意记录。你提交的公共地点、照片、评价和举报用于展示、评分、处理反馈和内容审核；禁言及解禁记录用于账号管理与申诉核查。</p>
   <p>浏览器连接服务器会传输 IP 地址，用于网络通信、安全防护和频率限制。限流标识使用服务器加盐摘要。用户名、审核通过的投稿及评论可以公开查看；密码、会话凭证和协议确认记录不公开。</p>
+  <h2>访问统计</h2>
+  <p>本站在腾讯云香港服务器记录到访、来源和榜单或详情的打开情况，用于改善页面。浏览器内用随机编号估算去重访客，有效期 14 天。统计日志按日轮转，记录来源域名或已知渠道标签，最多保留约两周。统计日志不包含 IP、账号、Cookie 或完整来源地址。浏览器发出的“不跟踪”或全局隐私控制信号会停止统计。</p>
+  <p>地区推荐在服务器本地用网络地址估算省市，只返回匹配的省市，不把 IP 写入推荐或统计日志。也可以在首页手动选地区。关闭访问统计时同时关闭按网络地区推荐。主动播放短片时，播放器会连接对应的视频平台。</p>
+  <TrafficPreference />
   <h2 id="storage">存储位置与服务提供者</h2>
   <p>必拉榜项目运营者通过腾讯云香港服务器处理和存储账户及你主动提交的内容，联系邮箱为 <Email subject="必拉榜隐私咨询"/>。数据通过 HTTPS 传输，用于提供登录、内容展示、审核和防滥用服务。香港存储涉及个人信息跨境处理，存在与中国大陆不同的网络环境和保护机制。</p>
   <p>我们在注册与协议确认时单独征求香港存储同意。不同意时仍可浏览公开内容。你可通过下方联系方式申请查询、更正、删除个人信息、撤回同意或注销账号；身份核对后由运营者处理。当前没有自动注销或自动删除功能。</p>
   <h2>照片、地图与本机草稿</h2>
   <p>正常上传流程会重新编码图片并移除 EXIF 元数据。请主动避开如厕者、隔间内部隐私、联系方式和个人行踪；图片中的可见私人信息不会因移除元数据自动消失。待审图片仅管理员及有权查看的登录投稿者可见，审核通过后公开。</p>
-  <p>地图由 OpenStreetMap 提供，使用地图时浏览器会向地图服务发送请求，包括连接所需的 IP 地址及所查看的地图范围。首页主视觉为 AI 生成概念图，不代表真实厕所；地点资料图注明来源和许可。</p>
+  <p>地图由 OpenStreetMap 提供，使用地图时浏览器会向地图服务发送请求，包括连接所需的 IP 地址及所查看的地图范围。地点资料图注明来源和许可。</p>
   <p>投稿文字与照片草稿保存在当前浏览器，提交成功后清除。最近投稿回执最多保留 30 条、30 天，可在查询投稿中清除。本机清除不会删除服务器记录，共用设备请及时清理。</p>
   <h2>保存与权利申请</h2>
   <p>会话有效期为 7 天，退出时当前会话即失效；限流记录通常在对应窗口到期后清理。账户信息在账户使用期间保存，内容与审核记录在提供服务及处理争议所需期间保存。协议与处置记录用于证明实际确认、核查争议及履行适用留存义务；不用于广告画像。</p>

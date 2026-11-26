@@ -1,33 +1,275 @@
-import React,{useEffect,useRef,useState} from 'react';
-import collection from './data/editorial-places.json';
-import mediaManifest from './data/editorial-media.json';
-const reviewMode=import.meta.env.MODE==='editorial-review';
-const dimensions=[['design','设计特色',35],['setting','环境景观',30],['access','到访便利',20],['evidence','资料支撑',15]];
-const rank=n=>String(n).padStart(2,'0');
-function Bars({record}){return <div className="ed-bars">{dimensions.map(([key,label,max])=><div className="ed-bar" key={key}><span>{label}</span><meter min="0" max={max} value={record.editorial.components[key]} aria-label={`${label} ${record.editorial.components[key]}/${max}`}/><b>{record.editorial.components[key]}<small>/{max}</small></b></div>)}</div>}
-function Photo({record,onError,eager=false}){return <img src={record.media.src} alt={`${record.displayCity} · ${record.name} 来源实拍`} loading={eager?'eager':'lazy'} decoding="async" onError={()=>onError(record.id)}/>}
-function Detail({record,close,onError}){
- const ref=useRef(null);useEffect(()=>{const node=ref.current;node.showModal();return()=>node.close()},[]);
- return <dialog ref={ref} className="ed-dialog" aria-labelledby="ed-detail-title" onCancel={close} onClick={e=>{if(e.target===e.currentTarget)close()}}><button autoFocus className="ed-close" aria-label="关闭地点详情" onClick={close}>×</button><div className="ed-detail-photo"><Photo record={record} onError={onError} eager/></div><div className="ed-detail-body"><div className="ed-eyebrow">{record.province} / {record.displayCity} · {record.category}</div><h2 id="ed-detail-title">{record.name}</h2><p>{record.feature}</p><div className="ed-detail-score"><strong>{record.editorial.score}<small>/100</small></strong><span>编辑综合推荐分<small>基于公开资料，不是用户评分</small></span></div><Bars record={record}/><table className="ed-facts"><caption>地点与到访信息</caption><tbody><tr><th scope="row">具体位置</th><td>{record.address}</td></tr><tr><th scope="row">进入条件</th><td>{record.access}</td></tr><tr><th scope="row">资料日期</th><td>{record.publishedAt||'原文未注明'}{record.sourceAgeDays>730?' · 超过两年，当前状态需复核':''}</td></tr><tr><th scope="row">真实评价</th><td>暂无可核验用户评分；卫生、气味和排队未作评分。</td></tr><tr><th scope="row">照片来源</th><td>{record.media.author||'摄影者未单列'} · {record.media.licenseLabel}</td></tr></tbody></table><div className="ed-source-links"><a href={record.sourceUrl} target="_blank" rel="noopener noreferrer">原始地点资料 ↗</a><a href={record.mediaSourceUrl} target="_blank" rel="noopener noreferrer">原始图文 / 视频 ↗</a></div></div></dialog>
+import React, { useEffect, useRef, useState } from 'react';
+import { ArrowDown, ArrowUpRight, GridFour, LinkSimple, ListBullets, MagnifyingGlass, X } from '@phosphor-icons/react';
+import { cityRanking, editorialDate, editorialRecords, featuredStops, stopUrl } from './editorial-catalog.js';
+import { recordTraffic } from './traffic.js';
+import films from './data/discovery-films.json';
+
+const reviewMode = import.meta.env.MODE === 'editorial-review';
+const dimensions = [
+  ['design', '设计', 35],
+  ['setting', '景观', 30],
+  ['access', '到访', 20],
+  ['evidence', '资料', 15],
+];
+const rankLabel = rank => rank ? String(rank).padStart(2, '0') : '—';
+const readFilters = () => {
+  const params = new URLSearchParams(location.search);
+  return { scope: params.get('scope') === 'all' ? 'all' : 'top', city: params.get('city') || '' };
+};
+const readStop = () => new URLSearchParams(location.search).get('stop');
+
+function Photo({ place, onError, eager }) {
+  return <img src={place.media.src} alt={place.name} loading={eager ? 'eager' : 'lazy'} decoding="async" onError={() => onError(place.id)} />;
 }
-export default function EditorialPlaces(){return <ResearchEditorial/>}
-function ResearchEditorial(){
- const [scope,setScope]=useState('top'),[layout,setLayout]=useState('cards'),[query,setQuery]=useState(''),[city,setCity]=useState(''),[sort,setSort]=useState('score'),[page,setPage]=useState(1),[selected,setSelected]=useState(null),[failed,setFailed]=useState([]);
- const records=collection.records.flatMap(r=>{const media=mediaManifest[r.id];return media&&!failed.includes(r.id)?[{...r,media}]:[]});
- const top=records.filter(r=>r.rank).sort((a,b)=>a.rank-b.rank),cities=[...new Set(records.map(r=>r.city))].sort((a,b)=>a.localeCompare(b,'zh'));
- const filtered=records.filter(r=>(scope!=='top'||r.rank)&&(!city||r.city===city)&&`${r.name} ${r.city} ${r.province} ${r.address} ${r.feature}`.includes(query.trim())).sort((a,b)=>{const value=r=>sort==='score'?r.editorial.score:r.editorial.components[sort];return value(b)-value(a)||(a.rank||999)-(b.rank||999)||a.id.localeCompare(b.id)});
- const pages=Math.max(1,Math.ceil(filtered.length/12)),current=Math.min(page,pages),visible=filtered.slice((current-1)*12,current*12),hero=top.find(r=>r.rank===2)||top[0];
- const change=(setter,value)=>{setter(value);setPage(1)},onError=id=>setFailed(prev=>prev.includes(id)?prev:[...prev,id]);
- useEffect(()=>{document.title='全国30城厕所推荐榜 · 必拉榜'},[]);
- useEffect(()=>{if(selected&&failed.includes(selected.id))setSelected(null)},[failed,selected]);
- return <main className="ed-page">{reviewMode&&<div className="ed-review-note">本地审阅版 · 真实来源照片仅供研究预览，本站展示授权待完成。此版本未公开发布。</div>}
- <section className="ed-hero" aria-labelledby="ed-title"><div className="ed-hero-copy"><div className="ed-eyebrow">● 必拉榜 · 城市目的地指南</div><h1 id="ed-title">全国 <em>30</em> 城<br/>厕所推荐榜<span>。</span></h1><p className="ed-lead">每座城，只推荐一处。<br/>从山野景观到街巷设计，看看你的城市排在哪里。</p><a className="ed-primary" href="#city-leaderboard">看完整榜单 <span>↓</span></a><div className="ed-hero-stats"><div><b>{top.length}<small>城</small></b><span>一城一厕推荐</span></div><div><b>{records.length}<small>处</small></b><span>特色地点资料</span></div><div><b>4<small>维</small></b><span>编辑评分依据</span></div></div></div>{hero?<button className="ed-hero-photo" aria-label={`查看${hero.name}照片与详情`} onClick={()=>setSelected(hero)}><Photo record={hero} onError={onError} eager/><span className="ed-hero-rank">NO.{rank(hero.rank)}<small>本期城市推荐</small></span><span className="ed-hero-caption"><span><small>{hero.province} / {hero.displayCity}</small><strong>{hero.name}</strong></span><b>{hero.editorial.score}<small>编辑推荐分</small></b></span></button>:<div className="ed-empty"><h2>有图榜单正在补齐素材</h2><p>图片暂时无法加载，请稍后重试。</p></div>}</section>
- <section className="ed-board" id="city-leaderboard" aria-labelledby="ed-board-title"><div className="ed-board-heading"><div><div className="ed-eyebrow">THE CITY TOP 30</div><h2 id="ed-board-title">30座城，30个好去处。</h2><p>综合推荐分满分100 · 每城最多一处 · 公开资料整理</p></div><div className="ed-view-switch" role="group" aria-label="榜单视图"><button aria-pressed={layout==='cards'} onClick={()=>setLayout('cards')}>▦ 看图选地点</button><button aria-pressed={layout==='table'} onClick={()=>setLayout('table')}>☷ 评分对比表</button></div></div>
- <div className="ed-score-key"><strong>综合分怎么来的？</strong>{dimensions.map(([key,label,max])=><span key={key}><i className={'ed-dot '+key}/>{label} <b>{max}%</b></span>)}<details><summary>评分说明</summary><p>设计、景观、便利为基于照片和事实的主观判断，资料分反映证据支持程度。这不是用户评价或亲身到访，不评价卫生、气味与排队。候选先按城市选一处，再取前30，相差1–2分不代表可测量的体验差距。整理于 {collection.asOf}，不是全国普查。</p></details></div>
- <div className="ed-filters"><div className="ed-scope" role="group" aria-label="推荐范围"><button aria-pressed={scope==='top'} onClick={()=>change(setScope,'top')}>全国30城榜</button><button aria-pressed={scope==='all'} onClick={()=>change(setScope,'all')}>全部有图 · {records.length}</button></div><input value={query} onChange={e=>change(setQuery,e.target.value)} aria-label="搜索地点" placeholder="搜索城市、景点、厕所名称"/><select value={city} onChange={e=>change(setCity,e.target.value)} aria-label="筛选城市"><option value="">全部城市</option>{cities.map(c=><option key={c}>{c}</option>)}</select><select value={sort} onChange={e=>change(setSort,e.target.value)} aria-label="排序维度"><option value="score">综合分优先</option>{dimensions.map(([key,label])=><option key={key} value={key}>{label}优先</option>)}</select></div>
- <div className="ed-results"><span>共 <b>{filtered.length}</b> 处 · 第 {current} / {pages} 页</span><span>实拍可看 · 城市可找 · 分项可比</span></div>
- {layout==='cards'?<div className="ed-cards">{visible.map(r=><article className="ed-card" key={r.id}><button className="ed-card-photo" onClick={()=>setSelected(r)} aria-label={`查看${r.name}照片与详情`}><Photo record={r} onError={onError}/><span className="ed-rank">{r.rank?'NO. '+rank(r.rank):'候选'}</span><span className="ed-city">{r.displayCity}</span><span className="ed-photo-open">查看照片与详情 ↗</span></button><div className="ed-card-body"><div className="ed-card-meta">{r.province} · {r.category}</div><div className="ed-card-title"><h3><button onClick={()=>setSelected(r)}>{r.name}</button></h3><div className="ed-total"><b>{r.editorial.score}</b><span>综合 / 100</span></div></div><p className="ed-feature">{r.feature}</p><p className="ed-location">⌖ {r.address}</p><Bars record={r}/><div className="ed-photo-credit">摄影：{r.media.author||"原文未单列"} · <a href={r.mediaSourceUrl} target="_blank" rel="noopener noreferrer">图片来源 ↗</a></div><div className="ed-card-footer"><span>编辑推荐 · 非用户评分</span><button onClick={()=>setSelected(r)}>到访提示 ↗</button></div></div></article>)}</div>:<div className="ed-table-scroll" tabIndex="0" role="region" aria-label="评分对比表，可横向滚动"><table className="ed-table"><caption>全国城市厕所推荐 · 分项评分对比</caption><thead><tr><th scope="col">排名</th><th scope="col">地点 / 城市</th><th scope="col" aria-sort={sort==='score'?'descending':'none'}><button onClick={()=>change(setSort,'score')}>综合分 ↓</button></th>{dimensions.map(([key,label,max])=><th scope="col" key={key} aria-sort={sort===key?'descending':'none'}><button onClick={()=>change(setSort,key)}>{label}<small>满分 {max}</small></button></th>)}<th scope="col">详情</th></tr></thead><tbody>{visible.map(r=><tr key={r.id}><td className="ed-table-rank">{r.rank?rank(r.rank):'—'}</td><td><button className="ed-table-place" onClick={()=>setSelected(r)}><Photo record={r} onError={onError}/><span><b>{r.name}</b><small>{r.province} / {r.displayCity}</small></span></button></td><td><strong className="ed-table-total">{r.editorial.score}</strong></td>{dimensions.map(([key,label,max])=><td key={key}><div className="ed-table-bar"><b>{r.editorial.components[key]}</b><meter min="0" max={max} value={r.editorial.components[key]} aria-label={`${label} ${r.editorial.components[key]}/${max}`}/></div></td>)}<td><button className="ed-text-button" onClick={()=>setSelected(r)} aria-label={`查看${r.name}详情`}>查看 ↗</button></td></tr>)}</tbody></table></div>}
- {!filtered.length&&<div className="ed-empty" role="status"><h3>{records.length?'没有符合条件的地点':'公开展示素材正在核验'}</h3><p>{records.length?'换个城市或关键词试试。':'图片暂时无法加载，请稍后重试。'}</p></div>}<div className="ed-pagination"><button disabled={current===1} onClick={()=>setPage(current-1)}>← 上一页</button><span>{current} / {pages}</span><button disabled={current===pages} onClick={()=>setPage(current+1)}>下一页 →</button></div></section>
- {failed.length>0&&<p className="ed-load-note" role="status">{failed.length}处媒体暂时不可用，已从本次展示中移除。</p>}{selected&&<Detail record={selected} close={()=>setSelected(null)} onError={onError}/>}
- </main>
+
+function ScoreBar({ place, index, label, max, dimension, showLabel = true }) {
+  const points = place.editorial.components[dimension];
+  return <div className="ed-bar" data-axis={index}>
+    {showLabel && <span>{label}</span>}
+    <meter min="0" max={max} value={points} aria-label={`${label} ${points}/${max}`} />
+    <b>{points}<small>/{max}</small></b>
+  </div>;
+}
+
+function Credit({ place }) {
+  return <a href={place.mediaSourceUrl || place.sourceUrl} target="_blank" rel="noopener noreferrer">
+    摄影 {place.media.author || '见原文'} <ArrowUpRight size={12} />
+  </a>;
+}
+
+function StopDetail({ place, close, onError }) {
+  const dialog = useRef(null);
+  const [copied, setCopied] = useState('');
+  const permalink = new URL(stopUrl(place), location.origin).href;
+  const story = featuredStops.find(item => item.id === place.id)?.story;
+  const film = films.find(item => item.placeId === place.id);
+  useEffect(() => {
+    const modal = dialog.current;
+    modal.showModal();
+    return () => modal.close();
+  }, []);
+
+  async function copyLink() {
+    try {
+      await navigator.clipboard.writeText(permalink);
+      setCopied('地点链接已复制');
+    } catch {
+      setCopied('请复制下方链接');
+    }
+  }
+
+  return <dialog ref={dialog} className="ed-dialog" aria-labelledby="ed-detail-title"
+    onCancel={event => { event.preventDefault(); close(); }}
+    onClick={event => { if (event.target === event.currentTarget) close(); }}>
+    <div className="ed-dialog-panel">
+      <button className="ed-close" autoFocus aria-label="关闭地点详情" onClick={close}><X size={22} /></button>
+      <div className="ed-detail-photo"><Photo place={place} onError={onError} eager /></div>
+      <div className="ed-detail-body">
+        <div className="ed-detail-kicker"><span>{place.province} · {place.displayCity} / {place.category}</span>{place.rank && <b>全国第 {place.rank} 名</b>}</div>
+        <h2 id="ed-detail-title">{place.name}</h2>
+        <p>{story || place.feature}</p>
+        <div className="ed-visit">
+          <div><h3>具体位置</h3><p>{place.address}</p></div>
+          <div><h3>到访提示</h3><p>{place.access}</p></div>
+        </div>
+        <div className="ed-detail-score">
+          <strong>{place.editorial.score}<small> / 100</small></strong>
+          <span>编辑推荐分<small>依据公开资料评估，非到访者评分</small></span>
+        </div>
+        <div className="ed-bars">{dimensions.map(([dimension, label, max], index) =>
+          <ScoreBar key={dimension} {...{ place, dimension, index, label, max }} />
+        )}</div>
+        <div className="ed-source-links">
+          {film && <a href={`/?film=${film.id}#discovery-feed`}>看这处的实拍短片 <ArrowUpRight size={14} /></a>}
+          <a href={place.sourceUrl} target="_blank" rel="noopener noreferrer">项目原文 <ArrowUpRight size={14} /></a>
+          <Credit place={place} />
+          <button onClick={copyLink}><LinkSimple size={16} /> 复制地点链接</button>
+        </div>
+        <p className="ed-detail-source">{place.publisher} · 资料日期 {place.publishedAt || '原文未注明'}。现场开放情况请在出发前核对。</p>
+        <p className="ed-detail-source">{place.media.licenseLabel}</p>
+        {copied && <p role="status">{copied}{copied.startsWith('请') && <input aria-label="地点分享链接" readOnly value={permalink} onFocus={event => event.target.select()} />}</p>}
+      </div>
+    </div>
+  </dialog>;
+}
+
+function RankingCard({ place, linkHandler, onError }) {
+  const href = stopUrl(place);
+  return <article className="ed-card">
+    <a className="ed-card-photo" href={href} onClick={event => linkHandler(event, place)}>
+      <Photo place={place} onError={onError} />
+      {place.rank && <span className="ed-rank">{rankLabel(place.rank)}</span>}
+      <span className="ed-city">{place.displayCity}</span>
+      <span className="ed-photo-open"><ArrowUpRight size={18} /></span>
+    </a>
+    <div className="ed-card-body">
+      <div className="ed-card-meta">{place.province} / {place.category}</div>
+      <div className="ed-card-title">
+        <h3><a href={href} onClick={event => linkHandler(event, place)}>{place.name}</a></h3>
+        <div className="ed-total"><b>{place.editorial.score}</b><span>编辑分 / 100</span></div>
+      </div>
+      <p className="ed-feature">{place.feature}</p>
+      <div className="ed-photo-credit"><Credit place={place} /></div>
+    </div>
+  </article>;
+}
+
+export default function EditorialPlaces() {
+  const [filters, setFilters] = useState(readFilters);
+  const [layout, setLayout] = useState('cards');
+  const [query, setQuery] = useState('');
+  const [sort, setSort] = useState('score');
+  const [page, setPage] = useState(1);
+  const [openId, setOpenId] = useState(readStop);
+  const [failed, setFailed] = useState([]);
+  const board = useRef(null);
+
+  useEffect(() => {
+    const handlePop = () => {
+      setOpenId(readStop());
+      setFilters(readFilters());
+    };
+    window.addEventListener('popstate', handlePop);
+    if (location.hash === '#city-leaderboard') requestAnimationFrame(() => board.current?.scrollIntoView());
+    return () => window.removeEventListener('popstate', handlePop);
+  }, []);
+
+  const records = editorialRecords.filter(place => !failed.includes(place.id));
+  const ranked = records.filter(place => place.rank);
+  const pool = filters.scope === 'all' ? records : ranked;
+  const cityCounts = new Map();
+  for (const place of pool) cityCounts.set(place.city, (cityCounts.get(place.city) || 0) + 1);
+  const cities = [...cityCounts.keys()].sort((a, b) => a.localeCompare(b, 'zh'));
+  const scoreOf = place => sort === 'score' ? place.editorial.score : place.editorial.components[sort];
+  const filtered = pool.filter(place => (!filters.city || place.city === filters.city) &&
+    `${place.name} ${place.displayCity} ${place.province} ${place.category} ${place.address}`.includes(query.trim()))
+    .sort((a, b) => scoreOf(b) - scoreOf(a) || (a.rank || Infinity) - (b.rank || Infinity) || a.id.localeCompare(b.id));
+  const pages = Math.max(1, Math.ceil(filtered.length / 12));
+  const current = Math.min(page, pages);
+  const visible = filtered.slice((current - 1) * 12, current * 12);
+  const cover = featuredStops.slice(1).find(place => !failed.includes(place.id));
+  const selected = records.find(place => place.id === openId);
+  useEffect(() => {
+    if (selected) recordTraffic('detail_view', 'editorial-detail', 'editorial-detail', selected.id);
+    else if (!openId) recordTraffic('rank_view', 'editorial');
+    else recordTraffic('entry', 'other');
+  }, [openId, selected?.id]);
+  const onError = id => setFailed(previous => previous.includes(id) ? previous : [...previous, id]);
+
+  function updateFilters(next) {
+    setFilters(next);
+    setPage(1);
+    const url = new URL(location.href);
+    if (next.scope === 'all') url.searchParams.set('scope', 'all');
+    else url.searchParams.delete('scope');
+    if (next.city) url.searchParams.set('city', next.city);
+    else url.searchParams.delete('city');
+    history.replaceState(history.state, '', url);
+  }
+  function openStop(event, place) {
+    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) return;
+    event.preventDefault();
+    const url = new URL(location.href);
+    url.searchParams.set('stop', place.id);
+    history.replaceState({ ...history.state, scrollY: window.scrollY }, '', location.href);
+    history.pushState({ ...history.state, editorialDialog: true }, '', url);
+    setOpenId(place.id);
+  }
+  function closeStop() {
+    if (history.state?.editorialDialog) {
+      history.back();
+      return;
+    }
+    const url = new URL(location.href);
+    url.searchParams.delete('stop');
+    history.replaceState(history.state, '', url);
+    setOpenId(null);
+  }
+  function changePage(next) {
+    setPage(next);
+    board.current?.scrollIntoView();
+  }
+  const changeSort = value => { setSort(value); setPage(1); };
+
+  return <main className="ed-page">
+    {reviewMode && <p className="ed-review-note">本地审阅版</p>}
+    <section className="ed-hero" aria-labelledby="ed-title">
+      <div>
+        <p className="ed-eyebrow">一城一厕 / 编辑推荐</p>
+        <h1 id="ed-title">全国 <em>{cityRanking.length}</em> 城<br />厕所推荐榜</h1>
+        <p className="ed-lead">每城选一处。看建筑实拍、查到访位置，<br />再看看你的城市排在哪里。</p>
+        <a className="edition-primary" href="#city-leaderboard">看城市榜单 <ArrowDown size={18} /></a>
+        <div className="ed-hero-stats"><span><b>{ranked.length}</b> 城上榜</span><span><b>{records.length}</b> 处有图地点</span></div>
+      </div>
+      {cover && <figure className="ed-cover">
+        <a href={stopUrl(cover)} onClick={event => openStop(event, cover)} className="ed-hero-photo">
+          <Photo place={cover} onError={onError} eager />
+          <span className="ed-hero-caption"><span><small>{cover.province} · {cover.displayCity} / 全国第 {cover.rank} 名</small><strong>{cover.name}</strong></span><ArrowUpRight size={26} /></span>
+        </a>
+        <figcaption><Credit place={cover} /></figcaption>
+      </figure>}
+    </section>
+
+    <section className="ed-board" ref={board} id="city-leaderboard" aria-labelledby="ed-board-title">
+      <div className="ed-board-heading">
+        <div><h2 id="ed-board-title">{filters.scope === 'all' ? '全部有图地点' : '城市榜单'}</h2><p>编辑推荐分 / 100 · 资料整理于 {editorialDate}</p></div>
+        <div className="ed-view-switch" role="group" aria-label="榜单视图">
+          <button aria-pressed={layout === 'cards'} onClick={() => setLayout('cards')}><GridFour size={17} /> 实拍卡片</button>
+          <button aria-pressed={layout === 'table'} onClick={() => setLayout('table')}><ListBullets size={17} /> 评分对比</button>
+        </div>
+      </div>
+
+      <div className="ed-filters">
+        <div className="ed-scope" role="group" aria-label="推荐范围">
+          <button aria-pressed={filters.scope === 'top'} onClick={() => updateFilters({ scope: 'top', city: '' })}>{cityRanking.length} 城榜</button>
+          <button aria-pressed={filters.scope === 'all'} onClick={() => updateFilters({ scope: 'all', city: '' })}>全部 {records.length} 处</button>
+        </div>
+        <label className="ed-search"><MagnifyingGlass size={16} /><input value={query} onChange={event => { setQuery(event.target.value); setPage(1); }} aria-label="搜索地点" placeholder="搜索城市、地点或场景" /></label>
+        <select value={filters.city} onChange={event => updateFilters({ ...filters, city: event.target.value })} aria-label="筛选城市">
+          <option value="">全部城市</option>
+          {filters.city && !cities.includes(filters.city) && <option value={filters.city}>{filters.city}</option>}
+          {cities.map(city => <option key={city} value={city}>{city} · {cityCounts.get(city)} 处</option>)}
+        </select>
+        <select value={sort} onChange={event => changeSort(event.target.value)} aria-label="排序维度">
+          <option value="score">综合分优先</option>
+          {dimensions.map(([key, label]) => <option key={key} value={key}>{label}分优先</option>)}
+        </select>
+      </div>
+      <div className="ed-results">
+        <span aria-live="polite">找到 <b>{filtered.length}</b> 处 · {new Set(filtered.map(place => place.city)).size} 城{pages > 1 && ` · 第 ${current} / ${pages} 页`}</span>
+        <details className="ed-method">
+          <summary>分数怎么算？</summary>
+          <p>根据公开资料，按设计 35、景观 30、到访 20、资料 15 分评估。每城最多一处。卫生、气味与排队留给实际到访者评价。</p>
+        </details>
+      </div>
+      {!visible.length ? <div className="ed-empty" role="status"><h3>没有符合条件的地点</h3>
+        <button onClick={() => { setQuery(''); updateFilters({ ...filters, city: '' }); }}>清除筛选</button>
+      </div> : layout === 'cards' ? <div className="ed-cards">
+        {visible.map(place => <RankingCard key={place.id} place={place} linkHandler={openStop} onError={onError} />)}
+      </div> : <div className="ed-table-scroll" tabIndex={0} role="region" aria-label="带实拍的评分对比表">
+        <table className="ed-table">
+          <caption>城市排名与分项评分</caption>
+          <thead><tr>
+            <th scope="col">排名</th><th scope="col">实拍 / 地点</th>
+            <th scope="col" aria-sort={sort === 'score' ? 'descending' : 'none'}><button onClick={() => changeSort('score')}>综合分 <small>/ 100</small></button></th>
+            {dimensions.map(([key, label, max]) => <th scope="col" key={key} aria-sort={sort === key ? 'descending' : 'none'}><button onClick={() => changeSort(key)}>{label}<small>/ {max}</small></button></th>)}
+          </tr></thead>
+          <tbody>{visible.map(place => <tr key={place.id}>
+            <td className="ed-table-rank">{rankLabel(place.rank)}</td>
+            <td><a className="ed-table-place" href={stopUrl(place)} onClick={event => openStop(event, place)}><Photo place={place} onError={onError} /><span><b>{place.name}</b><small>{place.displayCity} · {place.category}</small></span></a></td>
+            <td><strong className="ed-table-total">{place.editorial.score}</strong></td>
+            {dimensions.map(([dimension, label, max], index) => <td key={dimension}><ScoreBar {...{ place, dimension, index, label, max }} showLabel={false} /></td>)}
+          </tr>)}</tbody>
+        </table>
+      </div>}
+      {pages > 1 && <div className="ed-pagination">
+        <button disabled={current === 1} onClick={() => changePage(current - 1)}>← 上一页</button>
+        <span>{current} / {pages}</span>
+        <button disabled={current === pages} onClick={() => changePage(current + 1)}>下一页 →</button>
+      </div>}
+      {failed.length > 0 && <p className="ed-load-note" role="status">{failed.length} 处照片暂未加载，已从本次展示中隐藏。</p>}
+    </section>
+    {selected && <StopDetail key={selected.id} place={selected} close={closeStop} onError={onError} />}
+    {openId && !selected && <p className="ed-load-note" role="status">这处地点或照片暂不可用。 <button onClick={closeStop}>返回榜单</button></p>}
+  </main>;
 }

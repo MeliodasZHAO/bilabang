@@ -1,0 +1,21 @@
+[Unit]
+Description=Bilabang discovery recommendations
+After=network.target
+
+[Service]
+Type=simple
+User=caddy
+Group=caddy
+WorkingDirectory=/opt/bilabang-discovery/current
+ExecStart=/usr/local/bin/node /opt/bilabang-discovery/current/discovery-service.mjs /opt/bilabang-discovery/current /var/log/caddy 5198
+Restart=on-failure
+RestartSec=3s
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+InaccessiblePaths=-/etc/caddy -/var/lib/caddy -/var/lib/bilabang -/opt/bilabang
+MemoryMax=220M
+
+[Install]
+WantedBy=multi-user.target

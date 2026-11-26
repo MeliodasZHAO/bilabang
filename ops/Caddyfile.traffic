@@ -1,0 +1,46 @@
+# Import inside the bilabang.com site block. The frontend and report share this event schema.
+log {
+	output file /var/log/caddy/bilabang-traffic.jsonl {
+		mode 0600
+		roll_size 5MiB
+		roll_at 16:00
+		roll_keep 16
+		roll_keep_for 336h
+	}
+	format filter {
+		wrap json
+		request delete
+		resp_headers delete
+		user_id delete
+	}
+}
+@outsideTraffic not path /_traffic/*
+log_skip @outsideTraffic
+
+handle /_discover {
+	header Cache-Control "private, no-store"
+	reverse_proxy 127.0.0.1:5198 {
+		header_up X-Bilabang-Client-IP {http.request.client_ip}
+	}
+}
+
+handle /_traffic/* {
+	@traffic {
+		method POST
+		header Origin https://bilabang.com
+		path_regexp traffic ^/_traffic/v1/(entry|home_view|rank_click|rank_view|detail_view)/(home|editorial|editorial-detail|community-detail|community-rank|share|other|nav|home-announcement|home-primary|home-cities|home-library)/([a-z0-9.-]{1,80})/([a-f0-9]{32})/([a-f0-9]{32})/(live|qa)(/(?P<stop>(national|city-extra):[a-f0-9]{20}))?$
+	}
+	route {
+		log_append @traffic event {re.traffic.1}
+		log_append @traffic surface {re.traffic.2}
+		log_append @traffic source {re.traffic.3}
+		log_append @traffic visitor {re.traffic.4}
+		log_append @traffic visit {re.traffic.5}
+		log_append @traffic mode {re.traffic.6}
+		log_append @traffic stop {re.traffic.stop}
+		header Cache-Control no-store
+		respond @traffic 204
+		log_skip
+		respond 404
+	}
+}
