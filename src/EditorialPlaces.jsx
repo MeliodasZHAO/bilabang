@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ArrowDown, ArrowUpRight, GridFour, LinkSimple, ListBullets, MagnifyingGlass, X } from '@phosphor-icons/react';
 import { cityRanking, editorialDate, editorialRecords, featuredStops, stopUrl } from './editorial-catalog.js';
+import { recordTraffic } from './traffic.js';
 
 const reviewMode = import.meta.env.MODE === 'editorial-review';
 const dimensions = [
@@ -145,6 +146,11 @@ export default function EditorialPlaces() {
   const visible = filtered.slice((current - 1) * 12, current * 12);
   const cover = featuredStops.slice(1).find(place => !failed.includes(place.id));
   const selected = records.find(place => place.id === openId);
+  useEffect(() => {
+    if (selected) recordTraffic('detail_view', 'editorial-detail');
+    else if (!openId) recordTraffic('rank_view', 'editorial');
+    else recordTraffic('entry', 'other');
+  }, [openId, selected?.id]);
   const onError = id => setFailed(previous => previous.includes(id) ? previous : [...previous, id]);
 
   function updateFilters(next) {

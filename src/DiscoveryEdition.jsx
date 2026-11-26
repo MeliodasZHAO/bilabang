@@ -25,7 +25,7 @@ export default function DiscoveryEdition({ onEditionLink }) {
 
   return <section className="edition-home" aria-label="必拉榜编辑精选">
     <div className="edition-strip">
-      <a href="/editorial" onClick={event => go(event, '/editorial')}>
+      <a href="/editorial" data-traffic="home-announcement" onClick={event => go(event, '/editorial')}>
         <span className="edition-indicator" /> 本期推荐 <b>一城一厕 · 全国 {cityRanking.length} 城</b><ArrowUpRight size={15} />
       </a>
       <a className="edition-community-jump" href="#explore">旅人分享 <ArrowDown size={14} /></a>
@@ -35,7 +35,7 @@ export default function DiscoveryEdition({ onEditionLink }) {
         <p className="edition-masthead">THE SCENIC STOP <span>旅行与公共空间</span></p>
         <h1>这也能是<br />厕所<span>？</span></h1>
         <p className="edition-deck">湖边的白塔、海边的海螺、树林里的一扇窗。来看看哪些厕所，值得你在路上多停一站。</p>
-        <a className="edition-primary" href="/editorial#city-leaderboard" onClick={event => go(event, '/editorial#city-leaderboard')}>
+        <a className="edition-primary" href="/editorial#city-leaderboard" data-traffic="home-primary" onClick={event => go(event, '/editorial#city-leaderboard')}>
           查看全国 {cityRanking.length} 城榜 <ArrowUpRight size={20} weight="bold" />
         </a>
         <div className="edition-index">
@@ -61,7 +61,7 @@ export default function DiscoveryEdition({ onEditionLink }) {
     <section className="edition-picks" aria-labelledby="edition-picks-title">
       <div className="edition-section-heading">
         <div><p>编辑选题</p><h2 id="edition-picks-title">为这几处，多绕一段路。</h2></div>
-        <a href="/editorial?scope=all#city-leaderboard" onClick={event => go(event, '/editorial?scope=all#city-leaderboard')}>全部有图地点 <ArrowUpRight size={17} /></a>
+        <a href="/editorial?scope=all#city-leaderboard" data-traffic="home-library" onClick={event => go(event, '/editorial?scope=all#city-leaderboard')}>全部有图地点 <ArrowUpRight size={17} /></a>
       </div>
       <div className="edition-stories">
         {picks.map(place => <article className="edition-story" key={place.id}>
@@ -86,11 +86,11 @@ export default function DiscoveryEdition({ onEditionLink }) {
           <MagnifyingGlass size={20} />
           <input aria-label="查城市排名" placeholder="输入城市或省份" value={city} onChange={event => setCity(event.target.value)} />
         </label>
-        <a href="/editorial#city-leaderboard" onClick={event => go(event, '/editorial#city-leaderboard')}>完整榜单与评分对比 <ArrowRight size={17} /></a>
+        <a href="/editorial#city-leaderboard" data-traffic="home-cities" onClick={event => go(event, '/editorial#city-leaderboard')}>完整榜单与评分对比 <ArrowRight size={17} /></a>
       </div>
       <div className="edition-city-results">
         <div className="edition-city-columns"><span>排名 / 城市</span><span>上榜地点</span><span>编辑分</span></div>
-        {cityMatches.length ? cityMatches.map(place => <a key={place.id} href={cityUrl(place.city)} onClick={event => go(event, cityUrl(place.city))}>
+        {cityMatches.length ? cityMatches.map(place => <a key={place.id} href={cityUrl(place.city)} data-traffic="home-cities" onClick={event => go(event, cityUrl(place.city))}>
           <span><b>{String(place.rank).padStart(2, '0')}</b> {place.displayCity}</span>
           <strong>{place.name}</strong>
           <span>{place.editorial.score}<ArrowUpRight size={16} /></span>

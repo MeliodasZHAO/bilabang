@@ -34,6 +34,7 @@ import './playful.css';
 import './pages.css';
 import './editorial.css';
 import DiscoveryEdition from './DiscoveryEdition.jsx';
+import { recordTraffic } from './traffic.js';
 import PlaceGallery from './PlaceGallery.jsx';
 import ContactPage from './ContactPage.jsx';
 const EditorialPlaces=React.lazy(()=>import('./EditorialPlaces.jsx'));
@@ -93,6 +94,15 @@ function App() {
     restore();window.addEventListener('popstate',pop);return()=>window.removeEventListener('popstate',pop);
   },[places,loading,error,failedPhotos]);
   useEffect(()=>{document.title=detail?.place?detail.place.name+' · 必拉榜':view==='editorial'?'全国30城厕所推荐榜 · 必拉榜':view==='contact'?'合作与交流 · 必拉榜':view==='submit'?'分享一处风景 · 必拉榜':['terms','privacy','rules'].includes(view)?({terms:'服务协议',privacy:'隐私说明',rules:'社区规则'}[view]+' · 必拉榜'):'必拉榜 · 这也能是厕所？';},[detail,view]);
+  useEffect(() => {
+    if (detail?.place) recordTraffic('detail_view', 'community-detail');
+    else if (detail?.unavailable) recordTraffic('entry', 'other');
+    else if (!detail && view === 'discover') recordTraffic('home_view', 'home');
+    else if (!detail && view === 'ranking') recordTraffic('rank_view', 'community-rank');
+    else if (!detail && view !== 'editorial' && view !== 'admin' && view !== 'privacy') {
+      recordTraffic('entry', view === 'submit' ? 'share' : 'other');
+    }
+  }, [view, detail?.place?.id, detail?.loading, detail?.unavailable]);
   const notify = (t) => setToast(t);
   const refresh = () =>
     api("/places")
@@ -122,6 +132,9 @@ function App() {
     }
   }, [toast]);
   function navigate(v) {
+    if (v !== view && (v === 'editorial' || v === 'ranking')) {
+      recordTraffic('rank_click', v === 'ranking' ? 'community-rank' : 'nav', view === 'discover' && !detail ? 'home' : 'other');
+    }
     const params=new URLSearchParams(location.search);if(!pagePaths[v]&&v!=="discover")params.set("view",v);else params.delete("view");params.delete("place");history.pushState(null,"",(pagePaths[v]||'/')+(params.size?"?"+params:""));
     setView(v);
     setDetail(null);setModal(null);
@@ -131,6 +144,7 @@ function App() {
   function openEdition(event, href) {
     if (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
     event.preventDefault();
+    if (event.currentTarget.dataset.traffic) recordTraffic('rank_click', event.currentTarget.dataset.traffic, 'home');
     history.replaceState({...history.state, scrollY: window.scrollY}, '', location.href);
     history.pushState({scrollY: 0}, '', href);
     setView('editorial');
