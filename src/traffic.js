@@ -81,17 +81,19 @@ function sendEvent(event, surface, session, test) {
 export function recordTraffic(event, surface, entry = surface) {
   if (location.origin !== productionOrigin || trafficDisabled() || navigator.doNotTrack === '1' || navigator.globalPrivacyControl || !crypto.randomUUID) return;
   const now = Date.now();
-  const test = navigator.webdriver === true;
   visitor = readRecord('localStorage', visitorKey) || visitor;
   if (!validId.test(visitor?.id || '') || !(visitor.expires > now)) {
     visitor = { id: randomId(), expires: now + visitorAge };
     writeStorage('localStorage', visitorKey, JSON.stringify(visitor));
   }
   visit ??= readRecord('sessionStorage', visitKey);
+  const test = navigator.webdriver === true || visit?.test === true ||
+    new URLSearchParams(location.search).get('traffic_test') === '1';
   const start = !validId.test(visit?.id || '') || visit.visitor !== visitor.id ||
-    !(visit.lastSeen > now - visitIdle) || !/^[a-z0-9.-]{1,80}$/.test(visit.source);
+    !(visit.lastSeen > now - visitIdle) || !/^[a-z0-9.-]{1,80}$/.test(visit.source) ||
+    test !== Boolean(visit.test);
   if (start) {
-    visit = { id: randomId(), visitor: visitor.id, source: trafficSource(location.search, document.referrer) };
+    visit = { id: randomId(), visitor: visitor.id, source: trafficSource(location.search, document.referrer), test };
     sendEvent('entry', entry, visit, test);
   }
   visit.lastSeen = now;

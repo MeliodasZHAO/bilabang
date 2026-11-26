@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { readdir, stat } from 'node:fs/promises';
+import { readFile, readdir, stat } from 'node:fs/promises';
 import { createReadStream } from 'node:fs';
 import { join } from 'node:path';
 import { createInterface } from 'node:readline';
@@ -14,6 +14,11 @@ const zone = 'Asia/Shanghai';
 const dateKey = new Intl.DateTimeFormat('sv-SE', { timeZone: zone, dateStyle: 'short' });
 const dateTime = new Intl.DateTimeFormat('sv-SE', { timeZone: zone, dateStyle: 'short', timeStyle: 'short' });
 const id = /^[a-f0-9]{32}$/;
+const ignored = await readFile(join(logDir, 'bilabang-traffic-qa-visits.txt'), 'utf8').catch(error => {
+  if (error.code === 'ENOENT') return '';
+  throw error;
+});
+const ignoredVisits = new Set(ignored.split(/\s+/).filter(value => id.test(value)));
 const sourcePattern = /^[a-z0-9.-]{1,80}$/;
 const eventNames = new Set(['entry', 'home_view', 'rank_click', 'rank_view', 'detail_view']);
 const sourceNames = {
@@ -48,7 +53,7 @@ for (const name of await readdir(logDir)) {
       try { event = JSON.parse(line); } catch { malformed++; continue; }
       if (!event || !Number.isFinite(event.ts) || event.ts < since || event.ts > now || event.status !== 204 ||
         !id.test(event.visitor) || !id.test(event.visit) || !sourcePattern.test(event.source) || !eventNames.has(event.event)) continue;
-      if (event.mode === 'qa') { qa++; continue; }
+      if (event.mode === 'qa' || ignoredVisits.has(event.visit)) { qa++; continue; }
       if (event.mode !== 'live') continue;
       visitors.add(event.visitor);
       const day = dateKey.format(event.ts * 1000);

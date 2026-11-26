@@ -12,7 +12,7 @@
 
 访客是浏览器估算，不等于真实人数。来源优先读取常见渠道的 `utm_source`，其次使用浏览器给出的域名。没有来源的访问统一计为「直接访问或来源未提供」。复制到群里时可使用 `https://bilabang.com/?utm_source=wechat`。小红书用 `xiaohongshu`、抖音用 `douyin`。转发前不标记且应用隐藏来源时，无法还原渠道。
 
-访问统计尊重 DNT、GPC 和隐私说明页中的关闭选项。自动化浏览器事件标记为 `qa`，在复盘中排除。
+访问统计尊重 DNT、GPC 和隐私说明页中的关闭选项。验收从 `https://bilabang.com/?traffic_test=1` 进入，在该标签页后续的事件均标记为 `qa`，在复盘中排除。已进入正式日志的验收会话可在受保护的 `/var/log/caddy/bilabang-traffic-qa-visits.txt` 中按行登记会话号，报表会排除对应事件。
 
 ## 查看报表
 
