@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { findPublicPosts, initialInterest, publicPost, reviewedFilm, validateCandidate } from '../ops/discovery-media-rules.mjs';
+import { embeddedVideo, findPublicPosts, initialInterest, publicPost, reviewedFilm, validateCandidate } from '../ops/discovery-media-rules.mjs';
 
 test('public cards and sharing URLs deduplicate without keeping tracking tokens', () => {
   const id = '7635072537177415273';
@@ -29,7 +29,9 @@ test('approval requires a verified location and reviewed footage', async () => {
     assert.ok(validateCandidate({ ...row, review: { ...row.review, privacy: 'unknown' } }).length);
     const film = reviewedFilm(row, { width: 1080, height: 1920 });
     assert.equal(film.cue, row.review.seconds);
-    if (publicPost(row.url).sourceVideo) assert.equal(film.embed, undefined);
+    if (publicPost(row.url).sourceVideo) {
+      assert.equal(film.embed, embeddedVideo(publicPost(row.url), row.review.bilibiliEmbed) ?? undefined);
+    }
   }
   assert.ok(candidates.filter(row => row.status !== 'approved').every(row => validateCandidate(row).length));
 });

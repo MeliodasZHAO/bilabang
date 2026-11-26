@@ -14,8 +14,7 @@ const deadline = () => AbortSignal.timeout(10000);
 async function probePlayer(row) {
   const post = publicPost(row.url);
   if (post.platform === '哔哩哔哩') {
-    await probeBilibiliVideo(post, row.review.seconds, deadline());
-    return null;
+    return probeBilibiliVideo(post, row.review.seconds, deadline());
   }
   if (post.sourceVideo) {
     if (!/<video\b/i.test(await readPublicPage(post.url))) throw new Error('原文未发现播放器');

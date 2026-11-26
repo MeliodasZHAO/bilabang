@@ -47,8 +47,12 @@ export function initialInterest(title) {
   if (/马桶帐篷|儿童便携|折叠马桶|管道疏通|宝宝外出|便携式户外|马桶清洁剂/.test(title)) return '排除：用品或广告';
   return /景区|民宿|酒店|洗手间|公厕|卫生间|景观厕所|最美厕所/.test(title) ? '优先核片' : '待人工看标题';
 }
-export function embeddedVideo(post) {
-  return post.platform === '抖音' ? `https://open.douyin.com/player/video?vid=${post.id}&autoplay=0` : null;
+export function embeddedVideo(post, useBilibiliPlayer = false) {
+  if (post.platform === '抖音') return `https://open.douyin.com/player/video?vid=${post.id}&autoplay=0`;
+  if (useBilibiliPlayer && post.platform === '哔哩哔哩') {
+    return `https://player.bilibili.com/player.html?bvid=${post.id}&page=1&autoplay=0&danmaku=0`;
+  }
+  return null;
 }
 
 export async function probeBilibiliVideo(post, cue, signal) {
@@ -56,10 +60,12 @@ export async function probeBilibiliVideo(post, cue, signal) {
   url.searchParams.set('bvid', post.id);
   const response = await fetch(url, { signal });
   const { code, data } = await response.json();
+  const part = data?.pages?.[0];
   if (!response.ok || code !== 0 || data?.bvid !== post.id ||
-      !data.owner?.mid || !(data.duration > cue)) {
+      !data.owner?.mid || !(part?.duration > cue)) {
     throw new Error('原帖身份或核片时间未通过');
   }
+  return part.dimension;
 }
 
 export function validateCandidate(row) {
@@ -78,6 +84,7 @@ export function validateCandidate(row) {
       !/^\d{4}-\d{2}-\d{2}$/.test(review.checked || '')) errors.push('缺少发布日期或核对日期');
   if (!Number.isFinite(review.seconds) || review.seconds < 0 || !review.shot || !review.distinction) errors.push('缺少可回看实拍时间、画面和入选理由');
   if (review.privacy !== 'clear') errors.push('未通过画面隐私检查');
+  if (review.bilibiliEmbed === true && post?.platform !== '哔哩哔哩') errors.push('播放器和原帖平台不一致');
   try {
     const evidence = new URL(film.evidence);
     if (evidence.protocol !== 'https:' || evidence.username || evidence.password ||
@@ -90,11 +97,12 @@ export function validateCandidate(row) {
 
 export function reviewedFilm(row, player) {
   const post = publicPost(row.url);
+  const embed = embeddedVideo(post, row.review.bilibiliEmbed);
   return {
     ...row.film,
     platform: post.platform,
     original: post.url,
-    ...(post.sourceVideo ? {} : { embed: embeddedVideo(post), portrait: player.height > player.width }),
+    ...(embed ? { embed, portrait: (player?.height ?? 0) > (player?.width ?? 0) } : {}),
     cue: row.review.seconds,
   };
 }
