@@ -1,23 +1,99 @@
 {
   "feeds": [
+    {"label":"小红书 · 张家界 武陵源 黄龙洞 草树茅斯","url":"https://www.rednote.com/zh/search_result?keyword=%E5%BC%A0%E5%AE%B6%E7%95%8C%20%E6%AD%A6%E9%99%B5%E6%BA%90%20%E9%BB%84%E9%BE%99%E6%B4%9E%20%E8%8D%89%E6%A0%91%E8%8C%85%E6%96%AF"},
     {"label":"小红书 · 烟台 昆嵛山 石门里 山之厕所","url":"https://www.rednote.com/zh/search_result?keyword=%E7%83%9F%E5%8F%B0%20%E6%98%86%E5%B5%9B%E5%B1%B1%20%E7%9F%B3%E9%97%A8%E9%87%8C%20%E5%B1%B1%E4%B9%8B%E5%8E%95%E6%89%80"},
     {"label":"小红书 · 丽水 松阳 大岭根村 村口公厕","url":"https://www.rednote.com/zh/search_result?keyword=%E4%B8%BD%E6%B0%B4%20%E6%9D%BE%E9%98%B3%20%E5%A4%A7%E5%B2%AD%E6%A0%B9%E6%9D%91%20%E6%9D%91%E5%8F%A3%E5%85%AC%E5%8E%95"},
-    {"label":"小红书 · 张家界 黄龙洞 草树茅斯","url":"https://www.rednote.com/zh/search_result?keyword=%E5%BC%A0%E5%AE%B6%E7%95%8C%20%E9%BB%84%E9%BE%99%E6%B4%9E%20%E8%8D%89%E6%A0%91%E8%8C%85%E6%96%AF"},
-    {"label":"小红书 · 梅河口 知北村 书吧公厕","url":"https://www.rednote.com/zh/search_result?keyword=%E6%A2%85%E6%B2%B3%E5%8F%A3%20%E7%9F%A5%E5%8C%97%E6%9D%91%20%E4%B9%A6%E5%90%A7%E5%85%AC%E5%8E%95"}
+    {"label":"小红书 · 宜宾 屏山 玫鳞花溪 棕厕","url":"https://www.rednote.com/zh/search_result?keyword=%E5%AE%9C%E5%AE%BE%20%E5%B1%8F%E5%B1%B1%20%E7%8E%AB%E9%B3%9E%E8%8A%B1%E6%BA%AA%20%E6%A3%95%E5%8E%95"},
+    {"label":"小红书 · 宜宾 翠屏 安石村 卷厕","url":"https://www.rednote.com/zh/search_result?keyword=%E5%AE%9C%E5%AE%BE%20%E7%BF%A0%E5%B1%8F%20%E5%AE%89%E7%9F%B3%E6%9D%91%20%E5%8D%B7%E5%8E%95"}
   ],
   "searches": [
+    "张家界 武陵源 黄龙洞 草树茅斯",
     "烟台 昆嵛山 石门里 山之厕所",
     "丽水 松阳 大岭根村 村口公厕",
-    "张家界 黄龙洞 草树茅斯",
-    "梅河口 知北村 书吧公厕",
-    "大同 东南邑 正府巷 卫生间",
-    "宜宾 高县 玫鳞花溪 棕厕",
+    "宜宾 屏山 玫鳞花溪 棕厕",
+    "宜宾 翠屏 安石村 卷厕",
+    "青岛 崂山 麦岛湾公厕",
+    "武汉 武昌 紫阳公园 东门 水杉公厕",
     "秦皇岛 石城子村 红顶公厕",
-    "宁波 宁海安岚 私汤卫浴",
-    "中卫 大漠梭梭 客房浴室",
-    "黄山 关麓帐篷客 客房浴室"
+    "曲靖 师宗 凤凰谷 女儿湖半岛厕所",
+    "广州 番禺 岭南印象园 龙舟池公厕",
+    "广元 朝天 水磨沟景区 古建公厕",
+    "乐山 犍为 世界茉莉博览园 镜面公厕"
   ],
   "candidates": [
+    {
+      "url": "https://www.bilibili.com/video/BV14mUxY2EBQ/",
+      "status": "approved",
+      "film": {
+        "id": "lianhuashan-forest-restroom",
+        "category": "景区",
+        "title": "莲花山顶，从公厕望进一整片山林",
+        "city": "深圳·福田",
+        "venue": "莲花山公园山顶 · 小平像广场旁 · 北山栖鸢公厕",
+        "description": "航拍顺着树冠落到山顶公厕。进到里面，镜头沿着分隔开的厕位走，抬眼就能看见山坡的树林。",
+        "publisher": "番外的片",
+        "date": "2024-11-19",
+        "access": "公园公厕 · 小平像广场旁",
+        "evidence": "https://www.sznews.com/news/content/2021-02/24/content_23995946.htm"
+      },
+      "review": {
+        "checked": "2026-11-27",
+        "seconds": 173,
+        "shot": "约 2:19 航拍山顶建筑并明确标注莲花山公园顶的公厕，2:53 看见朝向山坡树林的洁具、隔板和穿孔屏风，3:10 从另一侧再次拍到林景与厕位。",
+        "distinction": "从屋顶到厕位的镜头能核对同一座设施，开敞一侧把山林引入视线。",
+        "locationMatch": "深圳市建筑工务署供稿指出公厕位于山顶广场后方，南近小平铜像广场。对比项目原图，屋顶、起坡一侧的长窗带、截面和穿孔屏风与该段实拍对应。",
+        "privacy": "clear",
+        "bilibiliEmbed": true
+      }
+    },
+    {
+      "url": "https://www.digitaling.com/projects/369586.html",
+      "status": "approved",
+      "film": {
+        "id": "nalati-pebble-restroom",
+        "category": "山野",
+        "title": "那拉提草原上，这块巨石是一座公厕",
+        "city": "伊犁·新源",
+        "venue": "那拉提空中草原 · 天牧台与游牧人家之间的自驾停车区",
+        "description": "片中从草坡拍到鹅卵石形的外墙，再走进有天窗、碎瓷片墙面和独立厕位的室内。视频由项目方拍摄。",
+        "publisher": "天与空 · 京东与九牧项目影像",
+        "date": "2026-06-17",
+        "access": "景区公厕 · 进入景区按当日安排",
+        "evidence": "https://m.dzplus.dzng.com/share/general/0/NEWS3450827WXLZPMQSROLTW"
+      },
+      "review": {
+        "checked": "2026-11-27",
+        "seconds": 69,
+        "shot": "0:34 是草原低机位的外观，0:45 对着顶光与洗手区，0:57 有碎瓷墙特写；1:09 外景看见石形主体和玻璃入口，1:20 拍到空置厕位。",
+        "distinction": "草坡、石形轮廓、玻璃入口和实际洁具均出现在项目方影片；画面中有品牌宣传，只据建筑实拍和采访记事实。",
+        "locationMatch": "项目方在数英的原片与大众新闻现场采访的照片一致；记者与景区管委会人员核对，报道写明自驾停车区在天牧台和游牧人家之间。",
+        "privacy": "clear"
+      }
+    },
+    {
+      "url": "https://www.ctdsb.net/c1476_202210/1525654.html",
+      "status": "approved",
+      "film": {
+        "id": "zhibei-village-reading-restroom",
+        "category": "景区",
+        "title": "知北村的公厕，进门先遇见一排书",
+        "city": "梅河口",
+        "venue": "吉林梅河口 · 知北村艺术田园生活度假区 · 书吧公厕",
+        "description": "镜头从红砖入口进到室内，沿着弧形书架走，再转向一排带灯的盥洗镜。总设计师在报道中介绍了书架和休息区的由来。",
+        "publisher": "极目新闻 · 彭柳刘剪辑",
+        "date": "2022-10-02",
+        "access": "景区设施 · 2022 年原始实拍",
+        "evidence": "https://www.ctdsb.net/c1476_202210/1525654.html"
+      },
+      "review": {
+        "checked": "2026-11-27",
+        "seconds": 5,
+        "shot": "约 0:01 是红砖入口，0:05 镜头经过室内的发光弧形书架，0:08 看到数面拱形补光镜。记者原文有同一空间的截图。",
+        "distinction": "书架、休憩空间与盥洗设施属于同一个公厕，入口与室内有连续镜头。",
+        "locationMatch": "记者直接采访知北村总规划总设计师于桐，正文确认这座公厕位于梅河口知北村度假区。报道时间和附片一致，当前具体开放时段未核。",
+        "privacy": "clear"
+      }
+    },
     {
       "url": "https://www.bilibili.com/video/BV1kr5Cz5EG9/",
       "status": "approved",
@@ -389,6 +465,16 @@
     {"url":"https://www.rednote.com/zh/discovery/item/6909f872000000000301e27c","status":"held","reason":"小红书上海浦东丽思亲子帖公开网页不可用，未核实卫浴画面"},
     {"url":"https://www.rednote.com/zh/discovery/item/6a21631b000000003701e205","status":"held","reason":"小红书张家界国家森林公园路线为不同景区行程，公开摘要未指到黄龙洞草树厕所"},
     {"url":"https://www.bilibili.com/video/BV1Yhy8BSE2i/","status":"held","reason":"新昌安岚青崖居片中短切到浴缸龙头与泡沫；改选同项目完整的山顶套房卫浴探访"},
-    {"url":"https://www.bilibili.com/video/BV1RNpszvEWS/","status":"held","reason":"上海外滩瑞吉抽查到盥洗区，但同城优先选卫浴展示更完整的海鸥丽晶"}
+    {"url":"https://www.bilibili.com/video/BV1RNpszvEWS/","status":"held","reason":"上海外滩瑞吉抽查到盥洗区，但同城优先选卫浴展示更完整的海鸥丽晶"},
+    {"url":"https://www.rednote.com/zh/discovery/item/68ca80d2000000000b011e09","status":"held","reason":"小红书青甘大环线笔记拍的是甘肃瓜州的《大地之子》，和贵州龙里厕所是不同地点"},
+    {"url":"https://www.rednote.com/zh/discovery/item/69144e68000000000d03caf1","status":"held","reason":"小红书青岛笔记为旅行图片与路线，未确认麦岛湾公厕建筑和镜头"},
+    {"url":"https://www.rednote.com/zh/discovery/item/69b75fa9000000002302081f","status":"held","reason":"小红书深圳大鹿港一线徒步帖只提到西贡村入口厕所，与莲花山山顶公厕不同"},
+    {"url":"https://www.bilibili.com/video/BV1U14y1A7DV/","status":"held","reason":"江门开平祖宅村片段为项目静态照片及图纸讲解，保留为线索"},
+    {"url":"https://www.bilibili.com/video/BV1n54y1N71h/","status":"held","reason":"西安曲江城东公厕实拍可核，作为景区旁的城市街道改造项目保留，超出本轮场景范围"},
+    {"url":"https://v.youku.com/v_show/id_XNjM3NzI0OTAyMA==.html","status":"held","reason":"松阳大岭根村设计稿有项目视频，浏览器嵌入提示暂无权限，视频网站页面要求验证"},
+    {"url":"https://www.sohu.com/a/451627529_260616","status":"held","reason":"乐山犍为茉莉博览园的早期玻璃厕所外观可核，媒体后续报道有隐私整改，当前形态和可供国内公开播放的对应片段待核"},
+    {"url":"https://www.douyin.com/video/7681871841166554731","status":"held","reason":"滨海堤坝透明卫生间视频原文未给明确城市与入口，无法排除错配"},
+    {"url":"https://zjj.rednet.cn/content/2020/08/28/8260798.html","status":"held","reason":"张家界黄龙洞草树厕所的红网现场原文有照片，未找到对应可播放视频"},
+    {"url":"https://cgw.wuhan.gov.cn/cgdt/cgw_cgxw/202605/t20260522_2767549.shtml","status":"held","reason":"武汉紫阳公园东门水杉公厕位置和造型已核，原报道为图文，继续找影片"}
   ]
 }

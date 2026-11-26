@@ -17,6 +17,10 @@ test('public cards and sharing URLs deduplicate without keeping tracking tokens'
   const bilibili = publicPost('https://www.bilibili.com/video/BV1aa411279j?t=85');
   assert.equal(bilibili.url, 'https://www.bilibili.com/video/BV1aa411279j/');
   assert.equal(bilibili.sourceVideo, true);
+  const project = publicPost('https://www.digitaling.com/projects/369586.html?source=search');
+  assert.equal(project.url, 'https://www.digitaling.com/projects/369586.html');
+  assert.equal(project.sourceVideo, true);
+  assert.equal(publicPost('https://www.digitaling.com/articles/1533594.html'), null);
 });
 
 test('approval requires a verified location and reviewed footage', async () => {

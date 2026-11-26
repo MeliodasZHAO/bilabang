@@ -20,6 +20,7 @@ export function publicPost(input) {
   const newsrooms = {
     'cbgc.scol.com.cn': ['川观新闻', /^\/news\/\d+$/],
     'www.ctdsb.net': ['极目新闻', /^\/c\d+_\d{6}\/\d+\.html$/],
+    'www.digitaling.com': ['数英', /^\/projects\/\d+\.html$/],
   };
   const newsroom = Object.hasOwn(newsrooms, url.hostname) && newsrooms[url.hostname];
   if (newsroom && newsroom[1].test(url.pathname)) {
