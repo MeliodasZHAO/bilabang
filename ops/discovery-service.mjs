@@ -1,4 +1,4 @@
-import { createReadStream } from 'node:fs';
+import { createReadStream, realpathSync } from 'node:fs';
 import { readdir, readFile, stat } from 'node:fs/promises';
 import { createServer } from 'node:http';
 import { isIP } from 'node:net';
@@ -95,6 +95,6 @@ export async function startDiscovery(bundle, logDir, port) {
   return server;
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href && process.argv[2]) {
+if (process.argv[1] && process.argv[2] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) {
   await startDiscovery(process.argv[2], process.argv[3] || '/var/log/caddy', Number(process.argv[4] || '5198'));
 }
