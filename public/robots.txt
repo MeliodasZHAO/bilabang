@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+Disallow: /?view=admin
+Sitemap: https://bilabang.com/sitemap.xml

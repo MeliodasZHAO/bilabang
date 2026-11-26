@@ -33,7 +33,7 @@ import './controls.css';
 import './playful.css';
 import './pages.css';
 import './editorial.css';
-import './home-announcement.css';
+import DiscoveryEdition from './DiscoveryEdition.jsx';
 import PlaceGallery from './PlaceGallery.jsx';
 import ContactPage from './ContactPage.jsx';
 const EditorialPlaces=React.lazy(()=>import('./EditorialPlaces.jsx'));
@@ -74,7 +74,7 @@ function App() {
     [menu, setMenu] = useState(false);
   const updateRegion=(value)=>{const params=new URLSearchParams(location.search);if(value)params.set('region',value);else params.delete('region');history.pushState(null,'',location.pathname+(params.size?'?'+params:''));setCountry(value);};
   useEffect(()=>{const listener=()=>{const p=new URLSearchParams(location.search);setCountry(p.get('region')||'');setQuery(p.get('q')||'');setSort(Object.hasOwn(labels,p.get('sort'))?p.get('sort'):'overall');setView(readView());};window.addEventListener('popstate',listener);return()=>window.removeEventListener('popstate',listener);},[]);
-  useEffect(()=>{const params=new URLSearchParams(location.search);if(query)params.set('q',query);else params.delete('q');if(sort!=='overall')params.set('sort',sort);else params.delete('sort');history.replaceState(history.state,'',location.pathname+(params.size?'?'+params:''));},[query,sort]);
+  useEffect(()=>{const params=new URLSearchParams(location.search);if(query)params.set('q',query);else params.delete('q');if(sort!=='overall')params.set('sort',sort);else params.delete('sort');history.replaceState(history.state,'',location.pathname+(params.size?'?'+params:'')+location.hash);},[query,sort]);
   function openPlace(place){
     history.replaceState({...history.state,scrollY:window.scrollY},'',location.href);
     const params=new URLSearchParams(location.search);params.set('place',place.id);
@@ -92,7 +92,7 @@ function App() {
     const pop=()=>{restore();setModal(null);requestAnimationFrame(()=>window.scrollTo(0,history.state?.scrollY||0));};
     restore();window.addEventListener('popstate',pop);return()=>window.removeEventListener('popstate',pop);
   },[places,loading,error,failedPhotos]);
-  useEffect(()=>{document.title=detail?.place?detail.place.name+' · 必拉榜':view==='editorial'?'全国30城厕所推荐榜 · 必拉榜':view==='contact'?'合作与交流 · 必拉榜':view==='submit'?'分享一处风景 · 必拉榜':['terms','privacy','rules'].includes(view)?({terms:'服务协议',privacy:'隐私说明',rules:'社区规则'}[view]+' · 必拉榜'):'必拉榜 · 换个地方，看世界';},[detail,view]);
+  useEffect(()=>{document.title=detail?.place?detail.place.name+' · 必拉榜':view==='editorial'?'全国30城厕所推荐榜 · 必拉榜':view==='contact'?'合作与交流 · 必拉榜':view==='submit'?'分享一处风景 · 必拉榜':['terms','privacy','rules'].includes(view)?({terms:'服务协议',privacy:'隐私说明',rules:'社区规则'}[view]+' · 必拉榜'):'必拉榜 · 这也能是厕所？';},[detail,view]);
   const notify = (t) => setToast(t);
   const refresh = () =>
     api("/places")
@@ -128,11 +128,22 @@ function App() {
     setMenu(false);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
+  function openEdition(event, href) {
+    if (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    history.replaceState({...history.state, scrollY: window.scrollY}, '', location.href);
+    history.pushState({scrollY: 0}, '', href);
+    setView('editorial');
+    setDetail(null);
+    setMenu(false);
+    window.scrollTo({top: 0, behavior: 'instant'});
+  }
   const isDemo = false;
   const items = places.filter(p=>hasPublicPhoto(p)&&!failedPhotos.includes(p.id));
   const filtered = items
     .filter(
       (p) =>
+        (view !== "ranking" || (p.scores?.[sort]?.count ?? 0) >= 5) &&
         withinRegion(p,country) &&
         `${p.name}${regionLabel(p.regionId)}${p.country}${p.city}${p.scene || ""}`
           .toLowerCase()
@@ -144,10 +155,10 @@ function App() {
   const image = publicPhoto;
   return (
     <>
-      <header>
+      <header className="site-header">
         <a
           className="brand"
-          href="#"
+          href="/"
           onClick={(e) => {
             e.preventDefault();
             navigate("discover");
@@ -233,62 +244,16 @@ function App() {
         </div>
       )}
       {config.publicPreview && <div className="demo-bar">公开预览 <span>· 可浏览地点与体验地图；投稿、评论暂未开放，持续更新中</span></div>}
-      {!detail && view === 'discover' && <aside className="home-announcement" aria-label="本期推荐公告">
-        <a href="/editorial" onClick={e=>{if(e.button===0&&!e.ctrlKey&&!e.metaKey&&!e.shiftKey&&!e.altKey){e.preventDefault();navigate('editorial');}}}>
-          <div className="announcement-photo"><img src="/editorial-media/2541cb200daccbbf.webp" alt="南京四方艺术湖区“树上的云”卫生间，面向松林的真实空间"/><span>南京 · 树上的云</span></div>
-          <div className="announcement-copy"><span className="announcement-tag">本期推荐 <span>全国 30 城 · 一城一厕</span></span><h2>最好看的厕所，值得专程去一趟。</h2><p>森林里的玻璃屋、海边的海螺驿站……看看你的城市上榜了吗？</p></div>
-          <span className="announcement-action">看有图推荐榜 <ArrowUpRight size={23}/></span>
-        </a>
-      </aside>}
-      {!detail && view === "discover" && (
-        <section className="hero">
-          <div className="hero-photo" />
-          <div className="hero-shade" />
-          <div className="hero-copy">
-            <div className="eyebrow light">
-              <span /> 人生大事，也要选个好风景
-            </div>
-            <h1>
-              世界那么大，
-              <br />
-              蹲哪儿<span className="orange">？</span>
-            </h1>
-            <p>
-              有人追日落，有人追厕所。
-              <br />
-              我们负责把这两件事，认真地凑到一起。
-            </p>
-            <button
-              className="hero-cta"
-              onClick={() =>
-                document
-                  .getElementById("explore")
-                  .scrollIntoView({ behavior: "smooth" })
-              }
-            >
-              带我找个好坑位 <ArrowUpRight size={22} />
-            </button>
-          </div>
-          <div className="toilet-stamp" aria-hidden="true"><strong>WC</strong><span>值得专程<br/>上个厕所</span></div><div className="hero-caption">
-            <span className="caption-line" />
-            <div>
-              <span>设计想象 / 山湖之间</span>
-              <small>AI 生成概念图 · 非真实地点</small>
-            </div>
-            <span className="photo-index">CONCEPT / 001</span>
-          </div>
-          <div className="vertical-label">蹲得讲究 · 评得认真</div>
-        </section>
-      )}
+      {!detail && view === 'discover' && <DiscoveryEdition onEditionLink={openEdition}/>}
       {!detail && (view === "discover" || view === "ranking") && (
         <main id="explore">
-          <a className="editorial-home-entry" href="/editorial" onClick={e=>{e.preventDefault();navigate('editorial')}}><strong>一城一厕 · 编辑推荐 TOP30 ↗</strong><span>84处特色厕所资料，沿着城市与风景找下一站。</span></a>
           <div className="section-heading">
             <div>
+              <p className="edition-community-label">社区实拍与地点资料</p>
               <h2>
                 {view === "ranking"
                   ? "厕所也能争 C 位。"
-                  : "下一站，在哪儿蹲？"}
+                  : "旅人分享"}
               </h2>
             </div>
             <button className="random-stop" disabled={!filtered.length} onClick={()=>openPlace(filtered[Math.floor(Math.random()*filtered.length)])}>随缘蹲一站 ↗</button><span className="small-note">
@@ -373,7 +338,7 @@ function App() {
           ) : filtered.length === 0 ? (
             <div className="empty">
               <Compass size={40} />
-              <h3>这一站，还没有被发现</h3>
+              <h3>{view === "ranking" ? "暂无符合条件的上榜地点" : "没有找到符合条件的地点"}</h3>
               <p>换个关键词，或分享你知道的风景。</p>{country&&<button onClick={()=>updateRegion(regionMap.get(country)?.parentId||'')}>扩大到上一级地区</button>}
               <button
                 onClick={() => {
